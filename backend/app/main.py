@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from app.db.base import User
 
 app = FastAPI(title="SCSC API")
 
@@ -12,9 +13,14 @@ app = FastAPI(title="SCSC API")
 #     allow_headers=["*"],
 # )
 
+
 @app.get("/")
 def root():
     return "hello world"
+
+# @app.get("/user")
+# def get_user()
+#     return 
 
 
 if __name__ == "__main__":
