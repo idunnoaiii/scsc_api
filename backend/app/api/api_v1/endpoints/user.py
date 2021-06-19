@@ -1,11 +1,13 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Body, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
+from sqlalchemy.engine.base import Connection
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from app.schemas import user as schemas
-from app.crud.crud_user import user as crud
-
-
+from app.models import user as UserModel
+from app.crud.crud_user import user as UserCRUD
+from app.db.session import engine
 from app.api import deps
 
 router = APIRouter()
@@ -17,24 +19,26 @@ def read_users(
     skip: int = 0,
     limit: int = 100
 ):
-    users = crud.get_multi(db, skip=skip, limit=limit)
+    # users = crud.get_multi(db, skip=skip, limit=limit)
+    # users = db.execute(UserModel.users.select()).fetchall()
+    with engine.connect() as con:
+        users = con.execute(UserModel.users.select()).fetchall()
+
     return users
 
 
-class UserIn(BaseModel):
-    username: str
-    password: str
-    email: EmailStr
-    full_name: Optional[str] = None
-
-
-# Don't do this in production!
-@router.post("/", response_model=List[UserIn])
-async def create_user(user: UserIn):
-    a = {
-        "username": "thien",
-        "password": "ahihi",
-        "email": "thien@gmail.com",
-        "full_name": "quang thien"
-    }
-    return [a]
+# @router.post("/", response_model=schemas.UserCreate)
+@router.post("/")
+async def create_user(
+    db: Session = Depends(deps.get_db),
+    user: schemas.UserCreate = Body(...)
+):
+    # user_in_db = UserModel.User(**user.dict())
+    user_in = user.dict()
+    user_in["hashed_password"] = user_in["password"]
+    del user_in["password"]
+    with engine.connect() as con, con.begin() as tran:
+        con.execute(UserModel.users.insert().values(**user_in))
+        tran.commit()
+        return True
+    return False

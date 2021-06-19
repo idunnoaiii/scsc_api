@@ -1,12 +1,15 @@
+from sqlalchemy import sql
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
+from sqlalchemy.ext.declarative.api import as_declarative, declared_attr
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
-Base: DeclarativeMeta = declarative_base()
+# Base: DeclarativeMeta = declarative_base()
 
-# @as_declarative()
-# class Base:
-#     id: Any
-#     __name__: str
-#     # Generate __tablename__ automatically
-#     @declared_attr
-#     def __tablename__(cls) -> str:
-#         return cls.__name__.lower()
+@as_declarative()
+class Base:
+    id = Column(Integer, primary_key=True, index=True)
+    is_active = Column(Boolean, default=True)
+    created_date = Column(DateTime, default=sql.func.now())
+    updated_date = Column(DateTime, default=sql.func.now())
+    
