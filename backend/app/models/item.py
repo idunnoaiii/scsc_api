@@ -2,7 +2,8 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from app.db.base_class import Base
+# from app.db.base_class import Base
+from app.db.dba import Base
 
 
 class Item(Base):
@@ -12,3 +13,6 @@ class Item(Base):
     description = Column(String, index=True)
     owner_id = Column(Integer, ForeignKey("user.id"))
     owner = relationship("User", back_populates="items")
+
+
+items = Item.__table__
