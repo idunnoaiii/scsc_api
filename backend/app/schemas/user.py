@@ -1,16 +1,18 @@
-from typing import Optional
-from pydantic import BaseModel, EmailStr
+from typing import Optional, List
+from pydantic import BaseModel
+from sqlalchemy.sql.sqltypes import Boolean, String
+from .item import Item
 
 
 class UserBase(BaseModel):
-    full_name: Optional[EmailStr] = None
-    email: Optional[str] = None
+    full_name: Optional[str] = None
+    email: str = None
     is_active: Optional[bool] = True
-    is_superuser: bool = False
+    is_superuser: Optional[bool] = False
 
 
 class UserCreate(UserBase):
-    email: EmailStr
+    email: str
     password: str
 
 
@@ -19,15 +21,14 @@ class UserUpdate(UserBase):
 
 
 class UserInDBBase(UserBase):
-    id: Optional[int] = None
+    id: int
 
     class Config:
-        orm_mode: True
+        orm_mode = True
 
 
 class User(UserInDBBase):
     pass
-
 
 class UserInDB(UserInDBBase):
     hashed_password: str

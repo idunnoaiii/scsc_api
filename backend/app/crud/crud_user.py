@@ -9,11 +9,13 @@ from app.schemas.user import UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
+    
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
         return db.query(User).filter(User.email == email).first()
 
 
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
+
         db_obj = User(
             email=obj_in.email,
             hashed_password='hased_password', #get_password_hash(obj_in.password),
@@ -56,5 +58,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def is_superuser(self, user: User) -> bool:
         return user.is_superuser
 
+    def getAll(selft, db: Session):
+        db.query(User).filter
 
 user = CRUDUser(User)
