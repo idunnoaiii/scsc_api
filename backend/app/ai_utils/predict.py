@@ -1,3 +1,4 @@
+from typing import List
 import cv2
 import numpy as np
 import base64
@@ -29,71 +30,73 @@ def get_output_layers(net):
 #     cv2.putText(img, label, (x + 30, y + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
 
-def predict(base64_img):
+def predict(base64_img) -> List[int]:
+    try:
+        classes_fname: str = "classes.txt"
+        weight_fname: str = "yolov3.backup"
+        config_fname: str = "yolov3.cfg"
+        img = base64.b64decode(base64_img); 
+        npimg = np.fromstring(img, dtype=np.uint8); 
+        image = cv2.imdecode(npimg, 1)
 
-    classes_fname: str = "classes.txt"
-    weight_fname: str = "yolov3.backup"
-    config_fname: str = "yolov3.cfg"
-    img = base64.b64decode(base64_img); 
-    npimg = np.fromstring(img, dtype=np.uint8); 
-    image = cv2.imdecode(npimg, 1)
+        Width = image.shape[1]
+        Height = image.shape[0]
+        scale = 0.00392
 
-    Width = image.shape[1]
-    Height = image.shape[0]
-    scale = 0.00392
+        classes = None
 
-    classes = None
+        with open(classes_fname, 'r') as f:
+            classes = [line.strip() for line in f.readlines()]
 
-    with open(classes_fname, 'r') as f:
-        classes = [line.strip() for line in f.readlines()]
+        COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
 
-    COLORS = np.random.uniform(0, 255, size=(len(classes), 3))
+        net = cv2.dnn.readNet(weight_fname, config_fname)
 
-    net = cv2.dnn.readNet(weight_fname, config_fname)
+        net = cv2.dnn.readNetFromDarknet(config_fname, weight_fname)
 
-    net = cv2.dnn.readNetFromDarknet(config_fname, weight_fname)
+        blob = cv2.dnn.blobFromImage(image, scale, (416, 416), (0, 0, 0), True, crop=False)
 
-    blob = cv2.dnn.blobFromImage(image, scale, (416, 416), (0, 0, 0), True, crop=False)
+        net.setInput(blob)
 
-    net.setInput(blob)
+        outs = net.forward(get_output_layers(net))
 
-    outs = net.forward(get_output_layers(net))
-
-    class_ids = []
-    confidences = []
-    boxes = []
-    conf_threshold = 0.35
-    nms_threshold = 0.4
+        class_ids = []
+        confidences = []
+        boxes = []
+        conf_threshold = 0.35
+        nms_threshold = 0.4
 
 
-    for out in outs:
-        for detection in out:
-            scores = detection[5:]
-            class_id = np.argmax(scores)
-            confidence = scores[class_id]
-            if confidence > 0.35:
-                center_x = int(detection[0] * Width)
-                center_y = int(detection[1] * Height)
-                w = int(detection[2] * Width)
-                h = int(detection[3] * Height)
-                x = center_x - w / 2
-                y = center_y - h / 2
-                class_ids.append(class_id)
-                confidences.append(float(confidence))
-                boxes.append([x, y, w, h])
+        for out in outs:
+            for detection in out:
+                scores = detection[5:]
+                class_id = np.argmax(scores)
+                confidence = scores[class_id]
+                if confidence > 0.35:
+                    center_x = int(detection[0] * Width)
+                    center_y = int(detection[1] * Height)
+                    w = int(detection[2] * Width)
+                    h = int(detection[3] * Height)
+                    x = center_x - w / 2
+                    y = center_y - h / 2
+                    class_ids.append(class_id)
+                    confidences.append(float(confidence))
+                    boxes.append([x, y, w, h])
 
-    indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
+        indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
 
-    ret_classes = []
+        ret_classes = []
 
-    for i in indices:
-        i = i[0]
-        box = boxes[i]
-        x = box[0]
-        y = box[1]
-        w = box[2]
-        h = box[3]
-        ret_classes.append(class_ids[i])
-        # draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h))
-        
-    return [int(x+1) for x in ret_classes]
+        for i in indices:
+            i = i[0]
+            box = boxes[i]
+            x = box[0]
+            y = box[1]
+            w = box[2]
+            h = box[3]
+            ret_classes.append(class_ids[i])
+            # draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h))
+            
+        return [int(x+1) for x in ret_classes]
+    except:
+        return []

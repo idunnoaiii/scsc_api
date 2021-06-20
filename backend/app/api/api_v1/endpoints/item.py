@@ -28,17 +28,17 @@ def read_item(
 
 
 
-@router.post("/scan/")
-async def scan_item(req: Request):
+@router.post("/scan/", )
+async def scan_item(
+    db: Session = Depends(deps.get_db),
+    req: Request = None
+):
     img_base64 = await req.body()
-    # print(type(img_base64))
-    # imgdata = base64.b64decode(img_base64)
-    # with open("new_image.png", "wb") as new_file:
-    #     new_file.write(base64.decodebytes(img_base64))
-
-
     class_ids = predict(img_base64)
+    if class_ids != []:
+        items = ItemCRUD.get_multi_by_list_id(db, listId=class_ids)
+        return items
 
-    return class_ids
+    return []
 
 
