@@ -4,6 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+
 from app.db.base_class import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -66,3 +67,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.delete(obj)
         db.commit()
         return obj
+
+
+    def get_multi_by_list_id(
+        self, db: Session, *, listId: List[int]
+    ) -> List[ModelType]:
+        return db.query(self.model).filter(self.model.id.in_(listId)).all()
