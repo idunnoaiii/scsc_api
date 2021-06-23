@@ -4,7 +4,13 @@
       <v-row>
         <v-col class="d-flex flex-row justify-start col-lg-6">
           <div class="d-inline-block elevation-2">
-            <v-btn elevation="0" small class="rounded-0" color="white ">
+            <v-btn
+              elevation="0"
+              small
+              class="rounded-0"
+              color="white"
+              @click="showDialog('HelloWorld')"
+            >
               <v-icon left dark> mdi-store </v-icon>Sản phẩm
             </v-btn>
             <v-btn elevation="0" small class="rounded-0" color="primary">
@@ -12,7 +18,13 @@
             </v-btn>
           </div>
           <div class="d-inline-block elevation-2 ml-10">
-            <v-btn elevation="0" small class="rounded-0" color="white ">
+            <v-btn
+              elevation="0"
+              small
+              class="rounded-0"
+              color="white"
+              @click="showDialog('Login')"
+            >
               <v-icon left dark> mdi-basket </v-icon> Phân Loại
             </v-btn>
             <v-btn elevation="0" small class="rounded-0" color="primary">
@@ -59,7 +71,8 @@
             </v-btn>
           </div>
           <v-btn small color="white" class="rounded-0 elevation-2 ml-10">
-            <v-icon left dark> mdi-card-account-details-outline </v-icon> Giao dịch
+            <v-icon left dark> mdi-card-account-details-outline </v-icon> Giao
+            dịch
           </v-btn>
           <v-btn small color="green" dark class="rounded-0 elevation-2 ml-10">
             <v-icon centered dark> mdi-cog-outline </v-icon>
@@ -78,20 +91,31 @@
         <router-view></router-view>
       </v-container>
     </v-main>
+    <Diaglog>
+      <template v-slot:dialogBody>
+        <component :is="$store.state.dialogViewName"></component>
+      </template>
+    </Diaglog>
   </v-app>
 </template>
 
 <script>
-import vuetifyToast from "vuetify-toast";
+import Diaglog from "../../components/Diaglog.vue";
+import HelloWorld from "../../components/HelloWorld.vue";
+import Login from "./Login.vue";
 
 export default {
   name: "Home",
 
-  components: {},
+  components: {
+    Diaglog,
+    HelloWorld,
+    Login,
+  },
 
   methods: {
-    show: function () {
-      vuetifyToast.success("Hello");
+    showDialog: function (name) {
+      this.$store.commit("showDialog", name);
     },
   },
 };

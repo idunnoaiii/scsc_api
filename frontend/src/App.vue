@@ -1,7 +1,5 @@
 <template>
     <router-view>
-      <router-link to="/login" />
-      <router-link to="/" />
     </router-view>
 </template>
 
@@ -11,14 +9,11 @@ export default {
 
   components: {},
 
-  data: () => ({
-    //
-  }),
 };
 </script> 
 
 <style scoped>
 body {
-    background-color: #251f1f;
+  background-color: #251f1f;
 }
 </style>
