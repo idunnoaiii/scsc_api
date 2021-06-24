@@ -39,7 +39,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" @click="login">Đăng nhập</v-btn>
+                <v-btn color="primary" tile @click="login">Đăng nhập</v-btn>
               </v-card-actions>
             </v-card>
           </v-flex>
@@ -70,7 +70,7 @@ export default {
 
 
 <style scoped>
-  /* #login {
-    background-color: rgb(236, 236, 236);
-  } */
+  #login {
+    background: linear-gradient(40deg,#77008cde,#041158ec);
+  }
 </style>
