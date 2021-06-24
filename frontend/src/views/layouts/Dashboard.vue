@@ -59,10 +59,10 @@
               <v-icon centered dark class="mx-0"> mdi-logout-variant </v-icon>
             </v-btn>
           </div>
-          <v-btn small class="rounded-0" color="white elevation-2 ml-10">
+          <v-btn small class="rounded-0" color="white elevation-2 ml-10" >
             <v-icon left dark> mdi-account </v-icon> Admin
           </v-btn>
-          <div class="d-inline-block elevation-2 ml-10">
+          <div class="d-inline-block elevation-2 ml-10" @click="showDialog('User')">
             <v-btn elevation="0" small tile color="white">
               <v-icon left dark> mdi-account </v-icon> Tài khoản
             </v-btn>
@@ -106,6 +106,7 @@
 import Dialog from "../../components/Dialog.vue";
 import ScanDialog from "../../components/ScanDialog.vue";
 import Login from "./Login.vue";
+import User from "../pages/User.vue";
 import * as muType from '../../store/mutation-type'
 
 export default {
@@ -113,7 +114,8 @@ export default {
   components: {
     Dialog,
     ScanDialog,
-    Login
+    Login,
+    User
   },
 
   methods: {
