@@ -34,8 +34,12 @@ async def scan_item(
     req: Request = None
 ):
     img_base64 = await req.body()
-    class_ids = predict(img_base64)
-    if class_ids != []:
+    class_ids = predict(img_base64[22:])
+
+    if class_ids != [] and class_ids[0] == -1:
+        return [-1]
+
+    elif class_ids != []:
         items = ItemCRUD.get_multi_by_list_id(db, listId=class_ids)
         return items
 
