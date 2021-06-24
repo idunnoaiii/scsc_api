@@ -99,4 +99,4 @@ def predict(base64_img) -> List[int]:
             
         return [int(x+1) for x in ret_classes]
     except:
-        return []
+        return [-1]
