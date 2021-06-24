@@ -13,5 +13,7 @@ export default {
 </script> 
 
 <style>
-
+body {
+   background: linear-gradient(40deg,#77008cde,#041158ec);
+}
 </style>
