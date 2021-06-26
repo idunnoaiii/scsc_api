@@ -17,7 +17,7 @@ from app.ai_utils.predict import predict, base64_to_image
 
 router = APIRouter()
 
-@router.get("/", response_model=List[ItemSchema.Item])
+@router.get("/all", response_model=List[ItemSchema.Item])
 def read_item(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -26,6 +26,13 @@ def read_item(
     items = ItemCRUD.get_multi(db, skip=skip, limit=limit)
     return items
 
+
+@router.post("/", response_model=ItemSchema.Item)
+def create_item(
+    db: Session = Depends(deps.get_db),
+    item: ItemSchema.ItemCreate = Body(...)
+):
+    return ItemCRUD.create(db, obj_in=item)
 
 
 @router.post("/scan/", )

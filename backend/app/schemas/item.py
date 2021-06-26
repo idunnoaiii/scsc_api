@@ -8,19 +8,22 @@ from sqlalchemy import DateTime, Float, sql
 class ItemBase(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[float] = 0
+    price: Optional[float]
     expired_date: Optional[datetime]
     image_url: Optional[str]
+    quantity: Optional[int] 
+    category_id: Optional[int] = None
+    stock: Optional[bool] = True
 
 # Properties to receive on item creation
 class ItemCreate(ItemBase):
-    create_date: datetime = datetime.now()
+    created_date: datetime
     pass
 
 
 # Properties to receive on item update
 class ItemUpdate(ItemBase):
-    updated_date: datetime = datetime.now()
+    updated_date: datetime 
     pass
 
 

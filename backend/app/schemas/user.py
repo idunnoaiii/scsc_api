@@ -1,18 +1,16 @@
 from typing import Optional, List
 from pydantic import BaseModel
 from sqlalchemy.sql.sqltypes import Boolean, String
-from .item import Item
 
 
 class UserBase(BaseModel):
     full_name: Optional[str] = None
-    email: str = None
-    is_active: Optional[bool] = True
-    is_superuser: Optional[bool] = False
+    username: str = None
+    is_admin: Optional[bool] = True
 
 
 class UserCreate(UserBase):
-    email: str
+    username: str
     password: str
 
 

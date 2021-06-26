@@ -1,0 +1,51 @@
+
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, sql
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql.sqltypes import Boolean, DateTime
+from app.db.base_class import Base
+
+
+class Order(Base):
+    __tablename__ = "orders"
+    costumber_id = Column(Integer, ForeignKey("customers.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    status = Column(Boolean, default=0)
+    tax = Column(Integer)
+    subtotal = Column(Integer)
+    paid = Column(Integer)
+    change = Column(Integer)
+    order_items = relationship("OrderItem")
+
+
+orders = Order.__table__
+
+
+class OrderItem(Base):
+    __tablename__ = 'orderitems'
+    order_id = Column(Integer, ForeignKey("orders.id"))
+    item_id = Column(Integer, ForeignKey("items.id"))
+    price = Column(Integer)
+    quantity = Column(Integer)
+    item_name = Column(String(length=100))
+    
+    
+
+order_items = OrderItem.__table__
+
+# class Association(Base):
+#     __tablename__ = 'association'
+#     left_id = Column(Integer, ForeignKey('left.id'), primary_key=True)
+#     right_id = Column(Integer, ForeignKey('right.id'), primary_key=True)
+#     extra_data = Column(String(50))
+#     child = relationship("Child", back_populates="parents")
+#     parent = relationship("Parent", back_populates="children")
+
+# class Parent(Base):
+#     __tablename__ = 'left'
+#     id = Column(Integer, primary_key=True)
+#     children = relationship("Association", back_populates="parent")
+
+# class Child(Base):
+#     __tablename__ = 'right'
+#     id = Column(Integer, primary_key=True)
+#     parents = relationship("Association", back_populates="child")
