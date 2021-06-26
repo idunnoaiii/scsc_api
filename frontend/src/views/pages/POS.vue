@@ -6,7 +6,7 @@
           <v-row>
             <v-col cols="9">
               <v-select
-                :items="items"
+                :items="customers"
                 label="Walk in customer"
                 dense
                 outlined
@@ -21,10 +21,21 @@
           <v-row>
             <v-data-table
               :headers="headers"
-              :items="items"
-              :items-per-page="5"
+              :items="orderItems"
+              :items-per-page="10"
               class="elevation-1 ma-5"
-            ></v-data-table>
+            >
+              <template v-slot:item.actions="{ item }">
+                <v-icon small class="mr-2" @click="increaseQuantity(item)">
+                  mdi-arrow-up-drop-circle-outline
+                </v-icon>
+                <v-icon small class="mr-2" @click="decreaseQuantity(item)">
+                  mdi-arrow-down-drop-circle-outline
+                </v-icon>
+
+                <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+              </template>
+            </v-data-table>
           </v-row>
         </v-card>
         <v-footer padless class="font-weight-medium fontsize-13">
@@ -33,17 +44,19 @@
               <v-col cols="6">
                 <v-row>
                   <v-col cols="6"> Total Items(s) </v-col>
-                  <v-col cols="6"> : 0 </v-col>
+                  <v-col cols="6"> : {{ this.totalItem }}</v-col>
                 </v-row>
               </v-col>
               <v-col cols="6">
                 <v-row>
                   <v-col cols="6"> Price </v-col>
-                  <v-col cols="6"> : $2.00 </v-col>
+                  <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
                 </v-row>
                 <v-row>
-                  <v-col cols="6"> Gross Price (inc 0% Tax) </v-col>
-                  <v-col cols="6"> : $2.00 </v-col>
+                  <v-col cols="6">
+                    Gross Price (inc {{ this.tax }}% Tax)
+                  </v-col>
+                  <v-col cols="6"> : {{ this.grossPrice }} VND</v-col>
                 </v-row>
               </v-col>
             </v-row>
@@ -102,41 +115,69 @@
           </v-row>
           <v-divider class="pa-2"></v-divider>
           <v-row class="m-5 pa-5">
-            <v-card class="mr-2" @click="alert('123')">
+            <v-card
+              v-for="item in items"
+              :key="item.id"
+              class="ma-2"
+              @click="addItemToOrder(item)"
+            >
               <v-img
                 class="ma-3 rounded-circle"
-                height="150"
-                width="150"
+                height="100"
+                width="100"
                 src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
               ></v-img>
 
               <v-card-text
-                class="font-weight-medium text-center text-subtitle-1 pa-0 mt-2"
+                class="
+                  font-weight-medium
+                  text-center text-subtitle-1
+                  pa-0
+                  mt-2
+                  item-name-text
+                "
               >
-                Text
+                {{ item.name }}
               </v-card-text>
               <v-divider class="mx-4"></v-divider>
 
               <v-card-text
-                class="font-weight-medium text-center text-subtitle-1 pa-0 mt-2"
+                class="
+                  font-weight-medium
+                  text-center text-subtitle-1
+                  pa-0
+                  green--text
+                "
               >
-                Cafe Badilico
-              </v-card-text>
-
-              <v-card-text
-                class="font-weight-medium text-center text-subtitle-1 pa-0"
-              >
-                $ 123.00
+                {{ item.price }} VND
               </v-card-text>
             </v-card>
           </v-row>
         </v-card>
       </v-col>
+      <v-dialog v-model="dialogDelete" max-width="500px">
+        <v-card>
+          <v-card-title class="text-h5"
+            >Are you sure you want to delete this item?</v-card-title
+          >
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="closeDelete"
+              >Cancel</v-btn
+            >
+            <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+              >OK</v-btn
+            >
+            <v-spacer></v-spacer>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-layout>
   </v-container>
 </template>
 
 <script>
+import axios from "../../axios";
 export default {
   data() {
     return {
@@ -150,22 +191,94 @@ export default {
         { text: "Item", value: "name" },
         { text: "Quantity", value: "quantity" },
         { text: "Price", value: "price" },
+        { text: "", value: "actions", sortable: false },
       ],
-      items: [
-        {
-          rownumber: 1,
-          name: "Frozen Yogurt",
-          quantity: 159,
-          price: 6.0,
-        },
-        {
-          rownumber: 2,
-          name: "Frozen Yogurt",
-          quantity: 130,
-          price: 6.0,
-        },
-      ],
+      orderItems: [],
+      items: [],
+      customers: [],
+      totalItem: 0,
+      totalPrice: 0,
+      grossPrice: 0,
+      tax: 10,
+      dialogDelete: false,
+      defaultItem: {},
+      editedIndex: 0,
     };
+  },
+  mounted() {
+    this.getListItem();
+  },
+  methods: {
+    initialize() {},
+    getListItem() {
+      axios.get("/api/v1/items/all?skip=0&limit=100").then((data) => {
+        this.items = data.data;
+        console.log(data.data);
+      });
+    },
+    addItemToOrder(item) {
+      let isNewItem = true;
+      this.orderItems.forEach((orderItem) => {
+        if (orderItem.id == item.id) {
+          orderItem.quantity++;
+          isNewItem = false;
+          return;
+        }
+      });
+
+      if (isNewItem) {
+        let orderItem = {
+          id: item.id,
+          rownumber: this.orderItems.length + 1,
+          name: item.name,
+          quantity: 1,
+          price: item.price,
+        };
+
+        this.orderItems.push(orderItem);
+      }
+      this.caculateTotalPrice();
+    },
+    caculateTotalPrice() {
+      let totalItem = 0;
+      let totalPrice = 0;
+      for (let index = 0; index < this.orderItems.length; index++) {
+        let item = this.orderItems[index];
+        item.rownumber = index +1;
+        totalItem += item.quantity;
+        totalPrice += item.quantity * item.price;
+      }
+
+      this.totalItem = totalItem;
+      this.totalPrice = totalPrice;
+      this.grossPrice = totalPrice;
+    },
+    deleteItem(item) {
+      this.editedIndex = this.orderItems.indexOf(item);
+      this.dialogDelete = true;
+    },
+    deleteItemConfirm() {
+      this.orderItems.splice(this.editedIndex, 1);
+      this.closeDelete();
+      this.caculateTotalPrice();
+    },
+    closeDelete() {
+      this.dialogDelete = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+    increaseQuantity(item) {
+      item.quantity++;
+      this.caculateTotalPrice();
+    },
+    decreaseQuantity(item) {
+      if (item.quantity > 1) {
+        item.quantity--;
+        this.caculateTotalPrice();
+      } else this.deleteItem(item);
+    },
   },
 };
 </script>
@@ -175,7 +288,11 @@ export default {
 .h-min-85vh {
   min-height: 65vh !important;
 }
-.fontsize-13{
-    font-size: 13px !important;
+.fontsize-13 {
+  font-size: 13px !important;
+}
+.item-name-text {
+  word-wrap: break-word;
+  max-width: 120px;
 }
 </style>
