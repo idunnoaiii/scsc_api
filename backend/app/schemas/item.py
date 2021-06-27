@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
 from sqlalchemy import DateTime, Float, sql
+from sqlalchemy.sql.schema import Column
 
 
 # Shared properties
@@ -44,3 +45,4 @@ class Item(ItemInDBBase):
 # Properties properties stored in DB
 class ItemInDB(ItemInDBBase):
     pass
+

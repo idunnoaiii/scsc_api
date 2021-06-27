@@ -13,7 +13,7 @@ from app.schemas import item as ItemSchema
 from typing import Any, List
 import base64
 import json
-from app.ai_utils.predict import predict, base64_to_image
+from app.ai_utils.predict import predict
 
 router = APIRouter()
 

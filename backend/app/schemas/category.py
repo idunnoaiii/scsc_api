@@ -9,14 +9,15 @@ class CategoryBase(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
 
+
 class CategoryCreate(CategoryBase):
     created_date: datetime
     pass
 
+
 class CategoryUpdate(CategoryBase):
     updated_date: datetime
     pass
-
 
 
 class CategoryInDBBase(CategoryBase):
