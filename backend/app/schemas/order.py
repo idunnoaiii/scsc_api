@@ -46,7 +46,7 @@ class OrderBase(BaseModel):
     subtotal: Optional[int]
     paid: Optional[int]
     change: Optional[int]
-    order_items: Optional[List[OrderItemBase]]
+    order_items: Optional[List[OrderItemBase]] # fix the pkey error
 
 
 # Properties to receive on item creation
@@ -72,7 +72,7 @@ class OrderInDBBase(OrderBase):
 
 # Properties to return to client
 class Order(OrderInDBBase):
-    order_items: Optional[List[OrderItem]]
+    order_items: Optional[List[OrderItem]] # fix the pkey error
     pass
 
 

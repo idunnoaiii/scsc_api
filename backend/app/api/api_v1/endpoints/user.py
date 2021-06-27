@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.schemas import user as schemas
 from app.models import user as UserModel
-from app.crud.crud_user import user as UserCRUD
+from app.repositories import user_repo
 from app.db.session import engine
 from app.api import deps
 

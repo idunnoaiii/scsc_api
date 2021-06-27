@@ -3,12 +3,12 @@ from typing import List
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
-from app.crud.base import CRUDBase
+from app.repositories.base import RepoBase
 from app.models.item import Item
 from app.schemas.item import ItemCreate, ItemUpdate
 
 
-class CRUDItem(CRUDBase[Item, ItemCreate, ItemUpdate]):
+class ItemRepo(RepoBase[Item, ItemCreate, ItemUpdate]):
     def create_with_owner(
         self, db: Session, *, obj_in: ItemCreate, owner_id: int
     ) -> Item:
@@ -32,4 +32,4 @@ class CRUDItem(CRUDBase[Item, ItemCreate, ItemUpdate]):
         )
 
 
-item = CRUDItem(Item)
+item = ItemRepo(Item)

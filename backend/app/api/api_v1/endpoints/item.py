@@ -1,41 +1,36 @@
 from fastapi import APIRouter, Depends, Body, Request
 from fastapi.datastructures import UploadFile
 from fastapi.encoders import jsonable_encoder
-from fastapi.param_functions import File
-from pydantic.main import BaseModel
-from pydantic.utils import import_string
-from sqlalchemy.engine import base
 from sqlalchemy.orm import Session
 from app.api import deps
-from app.crud.crud_item import item as ItemCRUD
-from app.models import item as ItemModel
-from app.schemas import item as ItemSchema
-from typing import Any, List
+from app.repositories import item_repo
+from app.schemas import Item, ItemCreate
+from typing import List
 import base64
 import json
 from app.ai_utils.predict import predict
 
 router = APIRouter()
 
-@router.get("/all", response_model=List[ItemSchema.Item])
+@router.get("/all", response_model=List[Item])
 def read_item(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100
 ):
-    items = ItemCRUD.get_multi(db, skip=skip, limit=limit)
+    items = item_repo.get_multi(db, skip=skip, limit=limit)
     return items
 
 
-@router.post("/", response_model=ItemSchema.Item)
+@router.post("/", response_model=Item)
 def create_item(
     db: Session = Depends(deps.get_db),
-    item: ItemSchema.ItemCreate = Body(...)
+    item: ItemCreate = Body(...)
 ):
-    return ItemCRUD.create(db, obj_in=item)
+    return item_repo.create(db, obj_in=item)
 
 
-@router.post("/scan/", )
+@router.post("/scan/")
 async def scan_item(
     db: Session = Depends(deps.get_db),
     req: Request = None
@@ -47,7 +42,7 @@ async def scan_item(
         return [-1]
 
     elif class_ids != []:
-        items = ItemCRUD.get_multi_by_list_id(db, listId=class_ids)
+        items = item_repo.get_multi_by_list_id(db, listId=class_ids)
         return items
 
     return []

@@ -11,12 +11,10 @@ class CategoryBase(BaseModel):
 
 
 class CategoryCreate(CategoryBase):
-    created_date: datetime
     pass
 
 
 class CategoryUpdate(CategoryBase):
-    updated_date: datetime
     pass
 
 
@@ -29,7 +27,9 @@ class CategoryInDBBase(CategoryBase):
 
 
 class Category(CategoryBase):
-    pass
+
+    class Config: 
+        orm_mode = True
 
 
 class CategoryInDB(CategoryInDBBase):
