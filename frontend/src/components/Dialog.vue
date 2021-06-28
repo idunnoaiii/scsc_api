@@ -7,7 +7,7 @@
       transition="dialog-bottom-transition"
     >
       <v-card>
-        <v-toolbar dark color="primary">
+        <v-toolbar dark color="deep-purple">
           <v-btn icon dark @click="$store.commit('SHOW_GLOBAL_DIALOG')">
             <v-icon>mdi-close</v-icon>
           </v-btn>
