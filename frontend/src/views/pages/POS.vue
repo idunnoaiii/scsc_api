@@ -94,7 +94,13 @@
                 </v-icon>
                 <span class="hidden-sm-and-down ml-3">Hold</span>
               </v-btn>
-              <v-btn elevation="0" small class="rounded-5" color="#81c868">
+              <v-btn
+                elevation="0"
+                small
+                class="rounded-5"
+                color="#81c868"
+                @click="enablePayDialog()"
+              >
                 <v-icon left dark class="mx-0" color="white"
                   >> mdi-cash
                 </v-icon>
@@ -155,30 +161,31 @@
           </v-row>
         </v-card>
       </v-col>
-      <v-dialog v-model="dialogDelete" max-width="500px">
-        <v-card>
-          <v-card-title class="text-h5"
-            >Are you sure you want to delete this item?</v-card-title
-          >
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="closeDelete"
-              >Cancel</v-btn
-            >
-            <v-btn color="blue darken-1" text @click="deleteItemConfirm"
-              >OK</v-btn
-            >
-            <v-spacer></v-spacer>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      <DialogDeleteItem
+        v-on:close-delete="closeDelete()"
+        v-on:delete-item-confirm="deleteItemConfirm()"
+        v-bind:showDialog="this.showDialogDelete"
+      >
+      </DialogDeleteItem>
+      <PayDialog
+        v-on:close-delete="closePayDialog()"
+        v-bind:enableDialog="this.showPayDialog"
+      >
+      </PayDialog>
     </v-layout>
   </v-container>
 </template>
 
 <script>
 import axios from "../../axios";
+import DialogDeleteItem from "../../components/DialogDeleteItem";
+import PayDialog from "../../components/POS/PayDialog";
+
 export default {
+  components: {
+    DialogDeleteItem,
+    PayDialog,
+  },
   data() {
     return {
       headers: [
@@ -194,19 +201,213 @@ export default {
         { text: "", value: "actions", sortable: false },
       ],
       orderItems: [],
-      items: [],
+      items: [
+        {
+          name: "Bánh chuối tròn",
+          description: null,
+          price: 20000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 1,
+          is_active: true,
+        },
+        {
+          name: "Bông lan trứng muối",
+          description: null,
+          price: 24000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 2,
+          is_active: true,
+        },
+        {
+          name: "Bánh Thỏi vàng",
+          description: null,
+          price: 14000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 3,
+          is_active: true,
+        },
+        {
+          name: "Bánh Mufin sữa",
+          description: null,
+          price: 25000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 4,
+          is_active: true,
+        },
+        {
+          name: "Bánh mì kem sữa",
+          description: null,
+          price: 25000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 5,
+          is_active: true,
+        },
+        {
+          name: "Bánh Tart phô mai",
+          description: null,
+          price: 20000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 6,
+          is_active: true,
+        },
+        {
+          name: "Bánh phô mai bơ tỏi",
+          description: null,
+          price: 20000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 7,
+          is_active: true,
+        },
+        {
+          name: "Bánh cade hột gà",
+          description: null,
+          price: 10000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 8,
+          is_active: true,
+        },
+        {
+          name: "Bánh Su kem",
+          description: null,
+          price: 15000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 9,
+          is_active: true,
+        },
+        {
+          name: "Bánh xúc xích phô mai",
+          description: null,
+          price: 10000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 10,
+          is_active: true,
+        },
+        {
+          name: "Bánh mi hạt sen",
+          description: null,
+          price: 30000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 11,
+          is_active: true,
+        },
+        {
+          name: "Bánh lột da hạt sen",
+          description: null,
+          price: 20000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 12,
+          is_active: true,
+        },
+        {
+          name: "Bánh mì táo đỏ",
+          description: null,
+          price: 25000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 13,
+          is_active: true,
+        },
+        {
+          name: "Bánh mini ngọt",
+          description: null,
+          price: 12000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 14,
+          is_active: true,
+        },
+        {
+          name: "Bánh bơ tỏi Pháp",
+          description: null,
+          price: 25000,
+          expired_date: null,
+          image_url: null,
+          quantity: null,
+          category_id: null,
+          stock: null,
+          id: 15,
+          is_active: true,
+        },
+        {
+          name: "string",
+          description: "string",
+          price: 0,
+          expired_date: "2021-06-26T12:12:48.117000",
+          image_url: "string",
+          quantity: 0,
+          category_id: null,
+          stock: true,
+          id: 18,
+          is_active: true,
+        },
+      ],
       customers: [],
       totalItem: 0,
       totalPrice: 0,
       grossPrice: 0,
       tax: 10,
-      dialogDelete: false,
       defaultItem: {},
       editedIndex: 0,
+      showDialogDelete: false,
+      showPayDialog: false,
     };
   },
   mounted() {
-    this.getListItem();
+    // this.getListItem();
   },
   methods: {
     initialize() {},
@@ -244,7 +445,7 @@ export default {
       let totalPrice = 0;
       for (let index = 0; index < this.orderItems.length; index++) {
         let item = this.orderItems[index];
-        item.rownumber = index +1;
+        item.rownumber = index + 1;
         totalItem += item.quantity;
         totalPrice += item.quantity * item.price;
       }
@@ -255,7 +456,7 @@ export default {
     },
     deleteItem(item) {
       this.editedIndex = this.orderItems.indexOf(item);
-      this.dialogDelete = true;
+      this.showDialogDelete = true;
     },
     deleteItemConfirm() {
       this.orderItems.splice(this.editedIndex, 1);
@@ -263,7 +464,7 @@ export default {
       this.caculateTotalPrice();
     },
     closeDelete() {
-      this.dialogDelete = false;
+      this.showDialogDelete = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
@@ -278,6 +479,12 @@ export default {
         item.quantity--;
         this.caculateTotalPrice();
       } else this.deleteItem(item);
+    },
+    enablePayDialog() {
+      this.showPayDialog = true;
+    },
+    closePayDialog() {
+      this.showPayDialog = false;
     },
   },
 };
