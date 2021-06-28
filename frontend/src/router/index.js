@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Dashboard from '../views/layouts/Dashboard.vue'
-import Login from '../views/layouts/Login.vue'
+import Login from '../views/pages/Login.vue'
+import POS from '../views/pages/POS.vue'
+
 
 
 Vue.use(VueRouter)
@@ -14,8 +15,12 @@ const routes = [
   },
   {
     path: '/',
-    name: 'Dashboard',
-    component: Dashboard
+    name: 'POS',
+    component: POS,
+    // children:[{
+    //   path:'pos',
+    //   component:POS
+    // }]
   },
   {
     path: '/about',

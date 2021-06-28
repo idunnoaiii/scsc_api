@@ -1,19 +1,146 @@
 <template>
-    <router-view>
-    </router-view>
+  <v-app>
+    <div>
+      <v-app-bar color="deep-purple">
+        <v-toolbar-title class="white--text"> Bakery Store </v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-toolbar-items>
+          <v-btn
+            small
+            color="deep-purple darken-1"
+            class="white--text"
+            @click="showDialog('POS')"
+          >
+            <v-icon left dark> mdi-card-account-details-outline </v-icon> Point
+            of Sale
+          </v-btn>
+          <v-btn
+            small
+            color="deep-purple darken-1"
+            class="white--text"
+            @click="showDialog('HelloWorld')"
+          >
+            <v-icon left dark> mdi-store </v-icon>Product
+          </v-btn>
+
+          <v-btn
+            small
+            color="deep-purple darken-1"
+            class="white--text"
+            @click="showDialog('Login')"
+          >
+            <v-icon left dark> mdi-basket </v-icon> Category
+          </v-btn>
+
+          <!-- <div class="d-inline-block elevation-2 ">
+                <v-btn elevation="0" small class="rounded-0" color="white ">
+                  <v-icon left dark> mdi-store </v-icon>Sản phẩm
+                </v-btn>
+                <v-btn elevation="0" small class="rounded-0" color="primary">
+                  <v-icon left dark class="mx-0"> mdi-plus </v-icon>
+                </v-btn>
+              </div>
+              <div class="d-inline-block elevation-2">
+                <v-btn elevation="0" small class="rounded-0" color="white ">
+                  <v-icon left dark> mdi-store </v-icon>Sản phẩm
+                </v-btn>
+                <v-btn elevation="0" small class="rounded-0" color="primary">
+                  <v-icon left dark class="mx-0"> mdi-plus </v-icon>
+                </v-btn>
+              </div> -->
+          <!-- <v-btn elevation="0" medium dark color="red">
+              <v-icon centered dark class="mx-0"> mdi-power </v-icon>
+            </v-btn> -->
+
+          <v-btn
+            small
+            color="deep-purple darken-1"
+            class="white--text"
+            @click="showDialog('Transcation')"
+          >
+            <v-icon left dark> mdi-card-account-details-outline </v-icon>
+            Transaction
+          </v-btn>
+
+          <v-btn
+            small
+            color="deep-purple darken-1"
+            class="white--text"
+            @click="showDialog('User')"
+          >
+            <v-icon left dark> mdi-account </v-icon> User
+          </v-btn>
+          <v-btn small color="deep-purple darken-1" class="white--text">
+            <v-icon left dark> mdi-account </v-icon> Admin
+          </v-btn>
+
+          <v-btn small color="green" dark @click="showScanDialog">
+            <v-icon centered dark> mdi-cog-outline </v-icon>
+          </v-btn>
+
+          <v-btn small dark color="red">
+            <v-icon centered dark> mdi-logout-variant </v-icon>
+          </v-btn>
+        </v-toolbar-items>
+      </v-app-bar>
+    </div>
+    <!-- Sizes your content based upon application components -->
+    <v-main>
+      <!-- Provides the application the proper gutter -->
+      <!-- If using vue-router -->
+      <v-container fluid>
+        <router-view> </router-view>
+      </v-container>
+    </v-main>
+
+    <Dialog>
+      <template v-slot:dialogBody>
+        <keep-alive>
+          <component :is="$store.state.dialogViewName"></component>
+        </keep-alive>
+      </template>
+    </Dialog>
+
+    <ScanDialog></ScanDialog>
+  </v-app>
 </template>
 
+
 <script>
+import Dialog from "./components/Dialog.vue";
+import ScanDialog from "./components/ScanDialog.vue";
+import User from "./views/pages/User.vue";
+import POS from "./views/pages/POS.vue";
+import * as muType from "./store/mutation-type";
+
 export default {
   name: "App",
+  components: {
+    Dialog,
+    ScanDialog,
+    User,
+    POS,
+  },
 
-  components: {},
-
+  methods: {
+    showDialog: function (name) {
+      this.$store.commit(muType.SHOW_GLOBAL_DIALOG, name);
+    },
+    showScanDialog: function () {
+      this.$store.commit(muType.TOGGLE_SCAN_DIALOG);
+    },
+    initialize() {},
+  },
+  created() {
+    this.initialize();
+  },
 };
-</script> 
+</script>
+
+
 
 <style>
 body {
-   background: linear-gradient(40deg,#77008cde,#041158ec);
+  background: linear-gradient(40deg, #77008cde, #041158ec);
 }
 </style>

@@ -59,10 +59,13 @@
               <v-icon centered dark class="mx-0"> mdi-logout-variant </v-icon>
             </v-btn>
           </div>
-          <v-btn small class="rounded-0" color="white elevation-2 ml-10" >
+          <v-btn small class="rounded-0" color="white elevation-2 ml-10">
             <v-icon left dark> mdi-account </v-icon> Admin
           </v-btn>
-          <div class="d-inline-block elevation-2 ml-10" @click="showDialog('User')">
+          <div
+            class="d-inline-block elevation-2 ml-10"
+            @click="showDialog('User')"
+          >
             <v-btn elevation="0" small tile color="white">
               <v-icon left dark> mdi-account </v-icon> Tài khoản
             </v-btn>
@@ -70,11 +73,34 @@
               <v-icon left dark class="mx-0"> mdi-plus </v-icon>
             </v-btn>
           </div>
-          <v-btn small color="white" tile class=" elevation-2 ml-10">
+          <v-btn
+            small
+            color="white"
+            tile
+            class="elevation-2 ml-10"
+            @click="showDialog('Transcation')"
+          >
             <v-icon left dark> mdi-card-account-details-outline </v-icon> Giao
             dịch
           </v-btn>
-          <v-btn small color="green" tile dark class="elevation-2 ml-10" @click="showScanDialog">
+          <v-btn
+            small
+            color="white"
+            tile
+            class="elevation-2 ml-10"
+            @click="showDialog('POS')"
+          >
+            <v-icon left dark> mdi-card-account-details-outline </v-icon> Point
+            of Sale
+          </v-btn>
+          <v-btn
+            small
+            color="green"
+            tile
+            dark
+            class="elevation-2 ml-10"
+            @click="showScanDialog"
+          >
             <v-icon centered dark> mdi-cog-outline </v-icon>
           </v-btn>
         </v-col>
@@ -107,7 +133,8 @@ import Dialog from "../../components/Dialog.vue";
 import ScanDialog from "../../components/ScanDialog.vue";
 import Login from "./Login.vue";
 import User from "../pages/User.vue";
-import * as muType from '../../store/mutation-type'
+import POS from "../pages/POS.vue";
+import * as muType from "../../store/mutation-type";
 
 export default {
   name: "Home",
@@ -115,16 +142,22 @@ export default {
     Dialog,
     ScanDialog,
     Login,
-    User
+    User,
+    POS,
   },
 
   methods: {
     showDialog: function (name) {
       this.$store.commit(muType.SHOW_GLOBAL_DIALOG, name);
     },
-    showScanDialog: function(){
-      this.$store.commit(muType.TOGGLE_SCAN_DIALOG)
-    }
+    showScanDialog: function () {
+      this.$store.commit(muType.TOGGLE_SCAN_DIALOG);
+    },
+    initialize() {
+    },
+  },
+  created() {
+    this.initialize();
   },
 };
 </script>
@@ -132,6 +165,6 @@ export default {
 
 <style scoped>
 #dashboard {
-  background:transparent;
+  background: transparent;
 }
 </style>
