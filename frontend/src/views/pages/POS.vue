@@ -1,9 +1,9 @@
 <template>
-  <v-container class="grey lighten-5" fluid fill-height>
+  <v-container class="grey lighten-5" fluid>
     <v-layout>
       <v-col lg="4">
         <v-card class="pa-2 h-min-85vh" outlined tile>
-          <v-row>
+          <v-row no-gutters>
             <v-col cols="9">
               <v-select
                 :items="customers"
