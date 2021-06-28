@@ -15,6 +15,7 @@ class Category(Base):
     __tablename__ = "categories"
     name = Column(String, index=True, nullable=False)
     description = Column(String, nullable=True)
-
+    created_date = Column(DateTime, default=sql.func.now())
+    updated_date = Column(DateTime, default=sql.func.now())
 
 categories = Category.__table__

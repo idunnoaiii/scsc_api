@@ -23,6 +23,8 @@ class Item(Base):
     expired_date = Column(DateTime, nullable=True, default=sql.func.now())
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
     stock = Column(Boolean, default=False)
+    created_date = Column(DateTime, default=sql.func.now())
+    updated_date = Column(DateTime, default=sql.func.now())
 
 
 items = Item.__table__

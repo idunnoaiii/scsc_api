@@ -40,6 +40,7 @@ class OrderItemInDB(OrderItemInDBBase):
 # Shared properties
 class OrderBase(BaseModel):
     customer_id: Optional[int] = None
+    code: Optional[int]
     user_id: Optional[int]
     status: Optional[bool]
     tax: Optional[int]

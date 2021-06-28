@@ -10,6 +10,7 @@ from app.models.user import User
 
 class Order(Base):
     __tablename__ = "orders"
+    code = Column(Integer)
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     status = Column(Boolean, default=0)
@@ -18,6 +19,8 @@ class Order(Base):
     paid = Column(Integer)
     change = Column(Integer)
     order_items = relationship("OrderItem", back_populates="order")
+    created_date = Column(DateTime, default=sql.func.now())
+    updated_date = Column(DateTime, default=sql.func.now())
 
 
 orders = Order.__table__
@@ -31,7 +34,6 @@ class OrderItem(Base):
     quantity = Column(Integer)
     item_name = Column(String(length=100))
     order = relationship("Order", back_populates="order_items")
-    
     
 order_items = OrderItem.__table__
 

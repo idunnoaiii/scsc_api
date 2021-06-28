@@ -8,7 +8,7 @@ from app.schemas import Item, ItemCreate
 from typing import List
 import base64
 import json
-from app.ai_utils.predict import predict
+from app.ai_utils import predict
 
 router = APIRouter()
 

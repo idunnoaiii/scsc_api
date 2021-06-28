@@ -6,10 +6,8 @@ from sqlalchemy.sql.sqltypes import Boolean, DateTime, Integer
 
 # Base: DeclarativeMeta = declarative_base()
 
+
 @as_declarative()
 class Base:
     id = Column(Integer, primary_key=True, index=True)
     is_active = Column(Boolean, default=True)
-    created_date = Column(DateTime, default=sql.func.now())
-    updated_date = Column(DateTime, default=sql.func.now())
-    
