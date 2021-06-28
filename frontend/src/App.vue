@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app id="app-body">
     <div>
       <v-app-bar color="deep-purple">
         <v-toolbar-title class="white--text"> Bakery Store </v-toolbar-title>
@@ -88,12 +88,11 @@
     <v-main>
       <!-- Provides the application the proper gutter -->
       <!-- If using vue-router -->
-      <v-container fluid>
+      <v-container fluid fill-height>
         <router-view> </router-view>
       </v-container>
     </v-main>
-
-    <Dialog>
+    <Dialog v-if="$store.state.dialogViewName">
       <template v-slot:dialogBody>
         <keep-alive>
           <component :is="$store.state.dialogViewName"></component>
@@ -101,7 +100,7 @@
       </template>
     </Dialog>
 
-    <ScanDialog></ScanDialog>
+    <ScanDialog v-if="$store.state.dialogViewName"></ScanDialog>
   </v-app>
 </template>
 
@@ -133,6 +132,7 @@ export default {
   },
   created() {
     this.initialize();
+    this.$swal("ahihi");
   },
 };
 </script>
@@ -142,5 +142,10 @@ export default {
 <style>
 body {
   background: linear-gradient(40deg, #77008cde, #041158ec);
+  font-family: "Roboto", sans-serif;
+}
+
+#app-body {
+  max-height: 100vh;
 }
 </style>

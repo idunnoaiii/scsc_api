@@ -1,190 +1,202 @@
 <template>
-  <v-container class="grey lighten-5" fluid>
-    <v-layout>
-      <v-col lg="4">
-        <v-card class="pa-2 h-min-85vh" outlined tile>
-          <v-row no-gutters>
-            <v-col cols="9">
-              <v-select
-                :items="customers"
-                label="Walk in customer"
-                dense
-                outlined
-              ></v-select>
-            </v-col>
-            <v-col cols="3">
-              <v-btn elevation="0" big class="rounded-5" color="green">
-                <v-icon left dark class="mx-0"> mdi-plus </v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-data-table
-              :headers="headers"
-              :items="orderItems"
-              :items-per-page="10"
-              class="elevation-1 ma-5"
-            >
-              <template v-slot:item.actions="{ item }">
-                <v-icon small class="mr-2" @click="increaseQuantity(item)">
-                  mdi-arrow-up-drop-circle-outline
-                </v-icon>
-                <v-icon small class="mr-2" @click="decreaseQuantity(item)">
-                  mdi-arrow-down-drop-circle-outline
-                </v-icon>
-
-                <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
-              </template>
-            </v-data-table>
-          </v-row>
-        </v-card>
-        <v-footer padless class="font-weight-medium fontsize-13">
-          <v-col class="text-center" cols="12">
+  <v-layout>
+    <v-col lg="4">
+      <v-card outlined height="100%">
+        <v-container fill-height class="d-flex align-baseline">
+          <div>
             <v-row>
-              <v-col cols="6">
-                <v-row>
-                  <v-col cols="6"> Total Items(s) </v-col>
-                  <v-col cols="6"> : {{ this.totalItem }}</v-col>
-                </v-row>
+              <v-col cols="9" class="ml-4">
+                <v-autocomplete
+                  :items="customers"
+                  @blur="blurCustomer"
+                  v-model="customerValue"
+                  auto-select-first
+                  clearable
+                  deletable-chips
+                  small-chips
+                  solo
+                ></v-autocomplete>
               </v-col>
-              <v-col cols="6">
-                <v-row>
-                  <v-col cols="6"> Price </v-col>
-                  <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
-                </v-row>
-                <v-row>
+              <v-col cols="2">
+                <v-btn fab elevation-2 medium class="rounded-5" color="primary">
+                  <v-icon left dark class="mx-0"> mdi-plus </v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+            <v-row class="my-0">
+              <v-data-table
+                :headers="headers"
+                :items="orderItems"
+                :items-per-page="10"
+                class="elevation-4 mx-6"
+                
+              >
+                <template v-slot:item.actions="{ item }">
+                  <v-icon small class="mr-2" @click="increaseQuantity(item)">
+                    mdi-arrow-up-drop-circle-outline
+                  </v-icon>
+                  <v-icon small class="mr-2" @click="decreaseQuantity(item)">
+                    mdi-arrow-down-drop-circle-outline
+                  </v-icon>
+                  <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+                </template>
+              </v-data-table>
+            </v-row>
+          </div>
+
+          
+          <v-row class="align-self-end my-0">
+            <v-card  width="100%" class="ma-6">
+              <v-container fluid>
+                <v-row class="mt-2">
                   <v-col cols="6">
-                    Gross Price (inc {{ this.tax }}% Tax)
+                    <v-row>
+                      <v-col cols="6" class=""> Total Items(s) </v-col>
+                      <v-col cols="6"> : {{ this.totalItem }}</v-col>
+                    </v-row>
                   </v-col>
-                  <v-col cols="6"> : {{ this.grossPrice }} VND</v-col>
+                  <v-col cols="6">
+                    <v-row>
+                      <v-col cols="6"> Price </v-col>
+                      <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col cols="6">
+                        Gross Price (inc {{ this.tax }}% Tax)
+                      </v-col>
+                      <v-col cols="6"> : {{ this.grossPrice }} VND</v-col>
+                    </v-row>
+                  </v-col>
                 </v-row>
-              </v-col>
-            </v-row>
-            <v-row class="mb-5 mr-5">
-              <v-spacer></v-spacer>
-              <v-btn
-                elevation="0"
-                small
-                class="rounded-5 mr-lg-5"
-                color="#34d3eb"
-              >
-                <v-icon left bright class="mx-0" color="white">
-                  mdi-printer
-                </v-icon>
-              </v-btn>
-              <v-btn
-                elevation="0"
-                small
-                class="rounded-5 mr-lg-5"
-                color="#f05050"
-              >
-                <v-icon left dark class="mx-0" color="white"
-                  >> mdi-cancel
-                </v-icon>
-                <span class="hidden-sm-and-down ml-3">Cancel</span>
-              </v-btn>
-              <v-btn
-                elevation="0"
-                small
-                class="rounded-5 mr-lg-5"
-                color="#5fbeaa"
-              >
-                <v-icon left dark class="mx-0" color="white"
-                  >> mdi-hand
-                </v-icon>
-                <span class="hidden-sm-and-down ml-3">Hold</span>
-              </v-btn>
-              <v-btn
-                elevation="0"
-                small
-                class="rounded-5"
-                color="#81c868"
-                @click="enablePayDialog()"
-              >
-                <v-icon left dark class="mx-0" color="white"
-                  >> mdi-cash
-                </v-icon>
-                <span class="hidden-sm-and-down ml-3">Pay</span>
-              </v-btn>
-            </v-row>
-          </v-col>
-        </v-footer>
-      </v-col>
-      <v-col lg="8">
-        <v-card class="pa-2" outlined tile>
-          <v-row class="m-5 pa-5 align-center">
-            <v-text-field label="Search product by name or sku"></v-text-field>
-
-            <v-btn elevation="0" big class="rounded-5 ml-2" color="#81c868">
-              <span class="hidden-sm-and-down">All</span>
-            </v-btn>
-          </v-row>
-          <v-divider class="pa-2"></v-divider>
-          <v-row class="m-5 pa-5">
-            <v-card
-              v-for="item in items"
-              :key="item.id"
-              class="ma-2"
-              @click="addItemToOrder(item)"
-            >
-              <v-img
-                class="ma-3 rounded-circle"
-                height="100"
-                width="100"
-                src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-              ></v-img>
-
-              <v-card-text
-                class="
-                  font-weight-medium
-                  text-center text-subtitle-1
-                  pa-0
-                  mt-2
-                  item-name-text
-                "
-              >
-                {{ item.name }}
-              </v-card-text>
-              <v-divider class="mx-4"></v-divider>
-
-              <v-card-text
-                class="
-                  font-weight-medium
-                  text-center text-subtitle-1
-                  pa-0
-                  green--text
-                "
-              >
-                {{ item.price }} VND
-              </v-card-text>
+                <v-row class="mb-5 mr-5">
+                  <v-spacer></v-spacer>
+                  <!-- <v-btn
+                    elevation="0"
+                    small
+                    class="rounded-5 mr-lg-5"
+                    color="#34d3eb"
+                  >
+                    <v-icon left bright class="mx-0" color="white">
+                      mdi-printer
+                    </v-icon>
+                  </v-btn> -->
+                  <v-btn
+                    elevation="0"
+                    small
+                    class="rounded-5 mr-lg-5 white--text"
+                    color="red"
+                  >
+                    <v-icon left dark class="mx-0" color="white"
+                      >> mdi-cancel
+                    </v-icon>
+                    <span class="hidden-sm-and-down ml-3">Cancel</span>
+                  </v-btn>
+                  <v-btn
+                    elevation="0"
+                    small
+                    class="rounded-5 mr-lg-5 white--text"
+                    color="#5fbeaa"
+                  >
+                    <v-icon left dark class="mx-0 white--text" color="white"
+                      >> mdi-hand
+                    </v-icon>
+                    <span class="hidden-sm-and-down ml-3">Hold</span>
+                  </v-btn>
+                  <v-btn
+                    elevation="0"
+                    small
+                    class="rounded-5 white--text"
+                    color="#81c868"
+                    @click="enablePayDialog()"
+                  >
+                    <v-icon left dark class="mx-0" color="white"
+                      >> mdi-cash
+                    </v-icon>
+                    <span class="hidden-sm-and-down ml-3">Pay</span>
+                  </v-btn>
+                </v-row>
+              </v-container>
             </v-card>
           </v-row>
-        </v-card>
-      </v-col>
-      <DialogDeleteItem
-        v-on:close-delete="closeDelete()"
-        v-on:delete-item-confirm="deleteItemConfirm()"
-        v-bind:showDialog="this.showDialogDelete"
-      >
-      </DialogDeleteItem>
-      <PayDialog
-        v-on:close-delete="closePayDialog()"
-        v-bind:enableDialog="this.showPayDialog"
-      >
-      </PayDialog>
-    </v-layout>
-  </v-container>
+        </v-container>
+      </v-card>
+    </v-col>
+    <v-col lg="8">
+      <v-card class="pa-2" outlined tile>
+        <v-row class="m-5 pa-5 align-center">
+          <v-text-field label="Search product by name or sku"></v-text-field>
+
+          <v-btn elevation="0" big class="rounded-5 ml-2" color="#81c868">
+            <span class="hidden-sm-and-down">All</span>
+          </v-btn>
+        </v-row>
+        <v-divider class="pa-2"></v-divider>
+        <v-row class="m-5 pa-5">
+          <v-card
+            v-for="item in items"
+            :key="item.id"
+            class="ma-2 d-flex flex-column"
+            @click="addItemToOrder(item)"
+          >
+            <!-- <v-img
+              class="ma-1 item-img"
+              height="120"
+              width="120"
+              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+            ></v-img> -->
+            <img src="https://cdn.vuetifyjs.com/images/cards/cooking.png" class="item-img" alt="">
+
+            <v-card-title
+              class="
+                text-center text-body-2
+                pa-1
+                mt-1
+                item-name-text
+                darkgrey--text
+              "
+            >
+              {{ item.name }}
+            </v-card-title>
+            <v-divider class="mx-2"></v-divider>
+
+            <v-card-text
+              class="
+                font-weight-medium
+                text-center text-subtitle-1
+                pa-0
+                green--text
+                align-item-end
+              "
+            >
+              {{ item.price }} VND
+            </v-card-text>
+          </v-card>
+        </v-row>
+      </v-card>
+    </v-col>
+    <DialogDeleteItem
+      v-on:close-delete="closeDelete()"
+      v-on:delete-item-confirm="deleteItemConfirm()"
+      v-bind:showDialog="this.showDialogDelete"
+    >
+    </DialogDeleteItem>
+   <PayDialog
+      v-on:close-delete="closePayDialog()"
+      v-bind:enableDialog="this.showPayDialog"
+    >
+    </PayDialog> 
+  </v-layout>
 </template>
 
 <script>
 import axios from "../../axios";
 import DialogDeleteItem from "../../components/DialogDeleteItem";
-import PayDialog from "../../components/POS/PayDialog";
+import PayDialog from '../../components/POS/PayDialog.vue'
 
 export default {
   components: {
     DialogDeleteItem,
-    PayDialog,
+    PayDialog
   },
   data() {
     return {
@@ -395,7 +407,21 @@ export default {
           is_active: true,
         },
       ],
-      customers: [],
+      customers: [
+        {
+          text: "Walk in customer",
+          value: 0,
+        },
+        {
+          text: "Thien",
+          value: 1,
+        },
+        {
+          text: "Nhan",
+          value: 2,
+        },
+      ],
+      customerValue: 0,
       totalItem: 0,
       totalPrice: 0,
       grossPrice: 0,
@@ -486,6 +512,10 @@ export default {
     closePayDialog() {
       this.showPayDialog = false;
     },
+    blurCustomer() {
+      if (this.customerValue) return;
+      this.customerValue = this.customers[0];
+    },
   },
 };
 </script>
@@ -501,5 +531,10 @@ export default {
 .item-name-text {
   word-wrap: break-word;
   max-width: 120px;
+}
+
+.item-img{
+  height: 120px!important;
+  width: 120px!important;
 }
 </style>
