@@ -26,8 +26,11 @@ class OrderItemInDBBase(OrderItemBase):
         orm_mode = True
 
 
-class OrderItem(OrderItemInDBBase):
-    pass
+class OrderItem(OrderItemBase):
+
+    class Config:
+        orm_mode = True
+
 
 
 class OrderItemInDB(OrderItemInDBBase):
@@ -72,9 +75,11 @@ class OrderInDBBase(OrderBase):
 
 
 # Properties to return to client
-class Order(OrderInDBBase):
+class Order(OrderBase):
     order_items: Optional[List[OrderItem]] # fix the pkey error
-    pass
+    
+    class Config:
+        orm_mode = True
 
 
 # Properties properties stored in DB

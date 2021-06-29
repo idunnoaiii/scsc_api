@@ -2,7 +2,9 @@
   <v-dialog v-model="showDialog" max-width="500px">
     <v-card>
       <v-card-title class="text-h5"
-        >Are you sure you want to delete this item?</v-card-title
+        >
+        <slot name="title"></slot>
+        </v-card-title
       >
       <v-card-actions>
         <v-spacer></v-spacer>

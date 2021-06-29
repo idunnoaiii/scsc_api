@@ -132,14 +132,12 @@ export default {
   },
   created() {
     this.initialize();
-    this.$swal("ahihi");
   },
 };
 </script>
 
 
-
-<style>
+<style lang="scss" scoped>
 body {
   background: linear-gradient(40deg, #77008cde, #041158ec);
   font-family: "Roboto", sans-serif;
