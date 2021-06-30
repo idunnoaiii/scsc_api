@@ -3,6 +3,7 @@ from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.sqltypes import Boolean
 
 
 from app.db.base_class import Base
@@ -67,6 +68,11 @@ class RepoBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.delete(obj)
         db.commit()
         return obj
+
+    def in_active(self, db: Session, *, id: int) -> None:
+        obj = db.query(self.model).get(id)
+        obj.is_active = False
+        db.commit()
 
 
     def get_multi_by_list_id(

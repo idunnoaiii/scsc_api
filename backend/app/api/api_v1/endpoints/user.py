@@ -1,5 +1,7 @@
 from typing import Any, List, Optional
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi.param_functions import Path
+from fastapi.params import Param
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.engine.base import Connection
 from sqlalchemy.orm import Session
@@ -8,14 +10,14 @@ from app.schemas import user as schemas
 from app.models import user as UserModel
 from app.repositories import user_repo
 from app.db.session import engine
-from app.api import deps
+from app.api.deps import get_db
 
 router = APIRouter()
 
 
 @router.get("/", response_model=List[schemas.User])
 def read_users(
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100
 ):
@@ -30,7 +32,7 @@ def read_users(
 # @router.post("/", response_model=schemas.UserCreate)
 @router.post("/")
 async def create_user(
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     user: schemas.UserCreate = Body(...)
 ):
     # user_in_db = UserModel.User(**user.dict())
@@ -42,3 +44,13 @@ async def create_user(
         tran.commit()
         return True
     return False
+
+
+ 
+@router.delete("/{id}", status_code=status.HTTP_200_OK)
+def delete_user(
+    db: Session = Depends(get_db),
+    id: int = Path(...)
+):
+    user_repo.in_active(db, id=id)
+    return True

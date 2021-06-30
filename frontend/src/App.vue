@@ -5,18 +5,17 @@
         <v-toolbar-title class="white--text"> Bakery Store </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn
-            small
-            color="deep-purple darken-1"
-            class="white--text"
-            @click="showDialog('POS')"
-          >
+          <v-btn small color="deep-purple  " class="white--text" to="/test">
+            <v-icon left dark> mdi-card-account-details-outline </v-icon>
+            test
+          </v-btn>
+          <v-btn small color="deep-purple  " class="white--text" to="/">
             <v-icon left dark> mdi-card-account-details-outline </v-icon> Point
             of Sale
           </v-btn>
           <v-btn
             small
-            color="deep-purple darken-1"
+            color="deep-purple  "
             class="white--text"
             @click="showDialog('HelloWorld')"
           >
@@ -25,7 +24,7 @@
 
           <v-btn
             small
-            color="deep-purple darken-1"
+            color="deep-purple  "
             class="white--text"
             @click="showDialog('Login')"
           >
@@ -54,7 +53,7 @@
 
           <v-btn
             small
-            color="deep-purple darken-1"
+            color="deep-purple  "
             class="white--text"
             @click="showDialog('Transcation')"
           >
@@ -62,15 +61,10 @@
             Transaction
           </v-btn>
 
-          <v-btn
-            small
-            color="deep-purple darken-1"
-            class="white--text"
-            @click="showDialog('User')"
-          >
+          <v-btn small color="deep-purple  " class="white--text" to="/users">
             <v-icon left dark> mdi-account </v-icon> User
           </v-btn>
-          <v-btn small color="deep-purple darken-1" class="white--text">
+          <v-btn small color="deep-purple  " class="white--text">
             <v-icon left dark> mdi-account </v-icon> Admin
           </v-btn>
 
@@ -128,7 +122,8 @@ export default {
     showScanDialog: function () {
       this.$store.commit(muType.TOGGLE_SCAN_DIALOG);
     },
-    initialize() {},
+    initialize() {
+    },
   },
   created() {
     this.initialize();

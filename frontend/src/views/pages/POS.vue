@@ -13,7 +13,6 @@
                   auto-select-first
                   clearable
                   deletable-chips
-                  small-chips
                   hide-details
                   solo
                 ></v-autocomplete>
@@ -24,11 +23,10 @@
                 </v-btn>
               </v-col>
             </v-row>
-            <v-row class="my-0">
+            <v-row class="mt-4">
               <v-data-table
                 :headers="headers"
                 :items="orderItems"
-                :items-per-page="10"
                 class="elevation-4 mx-6"
               >
                 <template v-slot:item.actions="{ item }">
@@ -45,9 +43,9 @@
           </div>
 
           <v-row class="align-self-end my-0">
-            <v-card width="100%" class="ma-6">
+            <v-card width="100%" class="mx-6 elevation-6">
               <v-container fluid>
-                <v-row class="mt-2">
+                <v-row class="mb-4">
                   <v-col cols="6">
                     <v-row>
                       <v-col cols="6" class=""> Total Items(s) </v-col>
@@ -67,7 +65,7 @@
                     </v-row>
                   </v-col>
                 </v-row>
-                <v-row class="mb-5 mr-5">
+                <v-row class="mb-2 mx-auto">
                   <v-spacer></v-spacer>
                   <!-- <v-btn
                     elevation="0"
@@ -80,7 +78,7 @@
                     </v-icon>
                   </v-btn> -->
                   <v-btn
-                    elevation="0"
+                    elevation="4"
                     small
                     class="rounded-5 mr-lg-5 white--text"
                     color="red"
@@ -92,7 +90,7 @@
                     <span class="hidden-sm-and-down ml-3">Cancel</span>
                   </v-btn>
                   <v-btn
-                    elevation="0"
+                    elevation="4"
                     small
                     class="rounded-5 mr-lg-5 white--text"
                     color="#5fbeaa"
@@ -103,7 +101,7 @@
                     <span class="hidden-sm-and-down ml-3">Hold</span>
                   </v-btn>
                   <v-btn
-                    elevation="0"
+                    elevation="4"
                     small
                     class="rounded-5 white--text"
                     color="#81c868"
@@ -122,83 +120,85 @@
       </v-card>
     </v-col>
     <v-col lg="8">
-      <v-card class="pa-2" outlined tile>
-        <v-row class="m-5 pa-5 align-center">
-          <v-col cols="4">
-            <v-text-field
-              solo
-              label="Search product by name or sku"
-              clearable
-              width="200px"
-              hide-details
-            ></v-text-field>
-          </v-col>
-          <v-col cols="1">
-            <v-btn
-              elevation="4"
-              big
-              class="rounded-5 ml-2 white--text"
-              color="primary"
+      <v-card class="" height="100%" outlined tile>
+        <v-container class="d-flex align-content-lg-start" fluid fill-height>
+          <v-row class="m-5 pa-5 align-center">
+            <v-col cols="4">
+              <v-text-field
+                solo
+                label="Search product by name or sku"
+                clearable
+                width="200px"
+                hide-details
+              ></v-text-field>
+            </v-col>
+            <v-col cols="1">
+              <v-btn
+                elevation="4"
+                big
+                class="rounded-5 ml-2 white--text"
+                color="primary"
+              >
+                <v-icon>mdi-text-box-search-outline</v-icon>
+              </v-btn>
+            </v-col>
+            <v-col cols="7">
+              <v-sheet tile class="py-4 px-1">
+                <v-chip-group multiple active-class="primary--text">
+                  <v-chip v-for="cate in categories" :key="cate">
+                    {{ cate }}
+                  </v-chip>
+                </v-chip-group>
+              </v-sheet>
+            </v-col>
+          </v-row>
+          <v-divider class="pa-2"></v-divider>
+          <v-row class="m-5 pa-5">
+            <v-card
+              v-for="item in items"
+              :key="item.id"
+              class="ma-2 d-flex flex-column"
+              @click="addItemToOrder(item)"
             >
-              <v-icon>mdi-text-box-search-outline</v-icon>
-            </v-btn>
-          </v-col>
-          <v-col cols="7">
-            <v-sheet tile class="py-4 px-1">
-              <v-chip-group multiple active-class="primary--text">
-                <v-chip v-for="cate in categories" :key="cate">
-                  {{ cate }}
-                </v-chip>
-              </v-chip-group>
-            </v-sheet>
-          </v-col>
-        </v-row>
-        <v-divider class="pa-2"></v-divider>
-        <v-row class="m-5 pa-5">
-          <v-card
-            v-for="item in items"
-            :key="item.id"
-            class="ma-2 d-flex flex-column"
-            @click="addItemToOrder(item)"
-          >
-            <!-- <v-img
+              <!-- <v-img
               class="ma-1 item-img"
               height="120"
               width="120"
               src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
             ></v-img> -->
-            <img
-              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-              class="item-img"
-              alt=""
-            />
+              <img
+                src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+                class="item-img"
+                alt=""
+              />
 
-            <v-card-title
-              class="
-                text-center text-body-2
-                pa-1
-                mt-1
-                item-name-text
-                darkgrey--text
-              "
-            >
-              {{ item.name }}
-            </v-card-title>
-            <v-divider class="mx-2"></v-divider>
+              <v-card-title
+                class="
+                  text-center text-body-2
+                  pa-1
+                  mt-1
+                  item-name-text
+                  darkgrey--text
+                "
+              >
+                {{ item.name }}
+              </v-card-title>
+              <v-divider class="mx-2"></v-divider>
 
-            <v-card-text
-              class="
-                font-weight-medium
-                text-center text-subtitle-1
-                pa-0
-                green--text
-                align-item-end
-              "
-            >
-              {{ item.price }} VND
-            </v-card-text>
-          </v-card>
-        </v-row>
+              <v-card-text
+                class="
+                  font-weight-medium
+                  text-center text-subtitle-1
+                  pa-0
+                  green--text
+                  align-item-end
+                "
+              >
+                {{ item.price }} VND
+              </v-card-text>
+            </v-card>
+          </v-row>
+        </v-container>
       </v-card>
     </v-col>
     <ConfirmDialog
@@ -453,6 +453,7 @@ export default {
     };
   },
   mounted() {
+    this.$swal("hello");
     axios.get("/api/v1/items/all?skip=0&limit=100").then((response) => {
       this.items = response.data;
     });
@@ -513,7 +514,7 @@ export default {
       this.grossPrice = totalPrice;
     },
     deleteItem(item) {
-			console.log(item)
+      console.log(item);
       this.$swal
         .fire({
           title: "Are you sure?",
@@ -561,6 +562,7 @@ export default {
       this.showPayDialog = false;
     },
     confirmPayment(payload) {
+
       let orderDetail = {
         code: new Date().getTime(),
         user_id: 1,
@@ -579,17 +581,22 @@ export default {
         ],
       };
 
-			orderDetail.order_items = this.orderItems.map(item => ({
-				item_id: item.id,
-				price: item.price,
-				quantity: item.quantity,
-				item_name: item.name
-			}))
+      orderDetail.order_items = this.orderItems.map((item) => ({
+        item_id: item.id,
+        price: item.price,
+        quantity: item.quantity,
+        item_name: item.name,
+      }));
 
-			axios.post("/api/v1/orders/", orderDetail).then(response => {
-				console.log(response)
-			})
-
+      axios
+        .post("/api/v1/orders/", orderDetail)
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+        
     },
     blurCustomer() {
       console.log(this.customerValue);
@@ -597,7 +604,7 @@ export default {
       this.customerValue = this.customers[0];
     },
     clearOrderItem() {
-      this.orderItems = []
+      this.orderItems = [];
     },
   },
 };

@@ -1,241 +1,299 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="users"
-    sort-by="calories"
-    class="elevation-1"
-  >
-    <template v-slot:top>
-      <v-toolbar
-        flat
-      >
-        <v-toolbar-title>Quản lý Tài khoản</v-toolbar-title>
-        <v-divider
-          class="mx-4"
-          inset
-          vertical
-        ></v-divider>
-        <v-spacer></v-spacer>
-        <v-dialog
-          v-model="dialog"
-          max-width="500px"
+  <v-layout>
+    <v-row justify="center">
+      <v-col cols="8">
+        <v-data-table
+          :headers="headers"
+          :items="users"
+          sort-by="calories"
+          class="elevation-1"
+          width="90%"
+          :search="search"
         >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              color="primary"
-              dark
-              class="mb-2"
-              v-bind="attrs"
-              v-on="on"
-            >
-              Tạo mới
-            </v-btn>
+          <template v-slot:top>
+            <v-toolbar flat>
+              <v-toolbar-title>Users</v-toolbar-title>
+              <v-divider class="mx-4" inset vertical></v-divider>
+              <v-text-field
+                v-model="search"
+                label="Search"
+                hide-details
+                class="mx-4"
+              ></v-text-field>
+              <v-spacer></v-spacer>
+              <v-dialog v-model="dialog" max-width="500px">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    color="primary"
+                    dark
+                    class="mb-2"
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    New
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-card-title>
+                    <span class="text-h5">{{ formTitle }}</span>
+                  </v-card-title>
+
+                  <v-card-text>
+                    <v-form ref="form" lazy-validation v-model="valid">
+                      <v-container>
+                        <v-row>
+                          <v-col cols="12" sm="6" md="12">
+                            <v-text-field
+                              v-model="editedItem.full_name"
+                              label="Name"
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="12">
+                            <v-text-field
+                              v-model="editedItem.username"
+                              label="Username*"
+                              :rules="[required('Username'), noSpace()]"
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="12" md="12" v-if="editedIndex === -1">
+                            <v-text-field
+                              v-model="password"
+                              label="Password*"
+                              type="Password"
+                              :rules="[required('Password')]"
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="12" md="12">
+                            <v-select
+                              :items="roles"
+                              v-model="editedItem.is_admin"
+                              label="Role"
+                              :rules="[(v) => v != null && v != undifined || 'Roles is required.']"
+                            ></v-select>
+                          </v-col>
+
+                          <!-- <v-col cols="12" sm="6" md="12">
+                          <v-text-field
+                            v-model="editedItem.role"
+                            label="Role"
+                          ></v-text-field>
+                        </v-col> -->
+                        </v-row>
+                      </v-container>
+                    </v-form>
+                    <small>*indicates required field</small>
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" class="white--text" @click="close">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      color="green darken-1"
+                      class="white--text"
+                      @click="save"
+                      :disabled="!valid"
+                    >
+                      Save
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+              <v-dialog v-model="dialogDelete" max-width="500px">
+                <v-card>
+                  <v-card-title class="text-h5"
+                    >Are you sure you want to delete this item?</v-card-title
+                  >
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" class="white--text" @click="closeDelete"
+                      >Cancel</v-btn
+                    >
+                    <v-btn color="red darken-1" class="white--text" @click="deleteItemConfirm"
+                      >OK</v-btn
+                    >
+                    <v-spacer></v-spacer>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-toolbar>
           </template>
-          <v-card>
-            <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
-            </v-card-title>
-
-            <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="4"
-                  >
-                    <v-text-field
-                      v-model="editedItem.full_name"
-                      label="Tên tài khoản"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="4"
-                  >
-                    <v-text-field
-                      v-model="editedItem.username"
-                      label="Tên đăng nhập"
-                    ></v-text-field>
-                  </v-col>
-                  
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="4"
-                  >
-                    <v-text-field
-                      v-model="editedItem.role"
-                      label="Quyền"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="blue darken-1"
-                text
-                @click="close"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                color="blue darken-1"
-                text
-                @click="save"
-              >
-                Save
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-        <v-dialog v-model="dialogDelete" max-width="500px">
-          <v-card>
-            <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
-              <v-spacer></v-spacer>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-toolbar>
-    </template>
-    <template v-slot:item.actions="{ item }">
-      <v-icon
-        small
-        class="mr-2"
-        @click="editItem(item)"
-      >
-        mdi-pencil
-      </v-icon>
-      <v-icon
-        small
-        @click="deleteItem(item)"
-      >
-        mdi-delete
-      </v-icon>
-    </template>
-    <template v-slot:no-data>
-      <v-btn
-        color="primary"
-        @click="initialize"
-      >
-        Reset
-      </v-btn>
-    </template>
-  </v-data-table>
+          <template v-slot:item.actions="{ item }">
+            <v-icon small class="mr-2" @click="editItem(item)">
+              mdi-pencil
+            </v-icon>
+            <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+          </template>
+          <template v-slot:no-data>
+            <v-btn color="primary" @click="load"> Reset </v-btn>
+          </template>
+        </v-data-table>
+      </v-col>
+    </v-row>
+  </v-layout>
 </template>
 <script>
-  export default {
-    data: () => ({
-      dialog: false,
-      dialogDelete: false,
-      headers: [
-        {
-          text: 'Full Name',
-          align: 'start',
-          value: 'full_name',
-        },
-        { text: 'Tên tài khoản', value: 'username' },
-        { text: 'Tên đăng nhập', value: 'role' ,sortable: false},
-        { text: '', value: 'actions', sortable: false },
-      ],
-      users: [],
-      editedIndex: -1,
-      editedItem: {
-        full_name: '',
-        username: '',
-        role: ''
+import axios from "../../axios";
+export default {
+  data: () => ({
+    valid: true,
+    dialog: false,
+    password: "",
+    search: "",
+    dialogDelete: false,
+    headers: [
+      {
+        text: "Full Name",
+        align: "start",
+        value: "full_name",
       },
-      defaultItem: {
-        full_name: '',
-        username: '',
-        role: ''
-      },
-    }),
-
-    computed: {
-      formTitle () {
-        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
-      },
+      { text: "Username", value: "username" },
+      { text: "Role", value: "role", sortable: false },
+      { text: "", value: "actions", sortable: false },
+    ],
+    users: [],
+    editedIndex: -1,
+    editedItem: {
+      full_name: "",
+      username: "",
+      role: "",
     },
-
-    watch: {
-      dialog (val) {
-        val || this.close()
-      },
-      dialogDelete (val) {
-        val || this.closeDelete()
-      },
+    defaultItem: {
+      full_name: "",
+      username: "",
+      role: "",
     },
-
-    created () {
-      this.initialize()
+    roles: [
+      {
+        text: "admin",
+        value: true,
+      },
+      {
+        text: "user",
+        value: false,
+      },
+    ],
+    roleSelected: false,
+    required(inputName) {
+      return (v) => (v && v.length > 0) || `${inputName} is required.`;
     },
+    noSpace() {
+      return (v) => (v || "").indexOf(" ") < 0 || "No spaces are allowed";
+    },
+  }),
 
-    methods: {
-      initialize () {
-        this.users = [
-          {
-            full_name: 'TestingAdmin',
-            username:'Admin',
-            role: 'Admin',
-          },
-          {
-            full_name: 'TestingUser',
-            username:'User',
-            role: 'User',
-          }
-        ]
-      },
+  computed: {
+    formTitle() {
+      return this.editedIndex === -1 ? "New User" : "Edit User";
+    },
+  },
 
-      editItem (item) {
-        this.editedIndex = this.users.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
-      },
+  watch: {
+    dialog(val) {
+      val || this.close();
+    },
+    dialogDelete(val) {
+      val || this.closeDelete();
+    },
+  },
 
-      deleteItem (item) {
-        this.editedIndex = this.users.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialogDelete = true
-      },
+  // created() {
+  //   this.initialize();
+  // },
 
-      deleteItemConfirm () {
-        this.users.splice(this.editedIndex, 1)
-        this.closeDelete()
-      },
-
-      close () {
-        this.dialog = false
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
+  mounted() {
+    this.load();
+  },
+  methods: {
+    load() {
+      axios
+        .get("api/v1/users/?skip=0&limit=100")
+        .then((response) => {
+          this.users = response.data;
         })
-      },
-
-      closeDelete () {
-        this.dialogDelete = false
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
-      },
-
-      save () {
-        if (this.editedIndex > -1) {
-          Object.assign(this.users[this.editedIndex], this.editedItem)
-        } else {
-          this.users.push(this.editedItem)
-        }
-        this.close()
-      },
+        .catch((err) => {
+          console.log(err);
+        });
     },
-  }
+
+    editItem(item) {
+      this.editedIndex = this.users.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.dialog = true;
+      this.password = "";
+    },
+
+    deleteItem(item) {
+      this.editedIndex = this.users.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.dialogDelete = true;
+    },
+
+    deleteItemConfirm() {
+      // this.users.splice(this.editedIndex, 1);
+
+      axios.delete("/api/v1/users", )
+
+      this.closeDelete();
+    },
+
+    close() {
+      this.dialog = false;
+      this.$refs.form.reset();
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+
+    closeDelete() {
+      this.dialogDelete = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+
+    save() {
+      if (!this.$refs.form.validate()) {
+        return;
+      }
+      if (this.editedIndex > -1) {
+        //update
+        Object.assign(this.users[this.editedIndex], this.editedItem);
+      } else {
+        //add
+        axios
+          .post("/api/v1/users/", {
+            full_name: this.editedItem.full_name,
+            username: this.editedItem.username,
+            password: this.password,
+            is_admin: this.editedItem.is_admin,
+          })
+          .then(() => {
+            this.load();
+            this.$swal.fire({
+              icon: "success",
+              title: "Add new user successfully",
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+      this.close();
+    },
+
+    filterUser(value, search, items) {
+      console.log(items);
+      return (
+        value != null &&
+        search != null &&
+        typeof value === "string" &&
+        value.toString().indexOf(search) !== -1
+      );
+    },
+  },
+};
 </script>
