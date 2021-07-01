@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Login from '../views/pages/Login.vue'
 import POS from '../views/pages/POS.vue'
 import User from '../views/pages/User'
+import Inventory from '../views/pages/Inventory'
 import Testlayout from '../views/pages/Testlayout'
 
 
@@ -27,6 +28,10 @@ const routes = [
     path: '/users',
     name: 'User',
     component: User
+  },  {
+    path: '/inventory',
+    name: 'Inventory',
+    component: Inventory
   },
   {
     path: '/test',

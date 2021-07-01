@@ -23,10 +23,11 @@ def read_users(
 ):
     # users = crud.get_multi(db, skip=skip, limit=limit)
     # users = db.execute(UserModel.users.select()).fetchall()
-    with engine.connect() as con:
-        users = con.execute(UserModel.users.select()).fetchall()
+    # with engine.connect() as con:
+    #     users = con.execute(UserModel.users.select()).fetchall()
 
-    return users
+    # return users
+    return user_repo.get_multi(db, skip=skip, limit=limit)
 
 
 # @router.post("/", response_model=schemas.UserCreate)
@@ -52,5 +53,7 @@ def delete_user(
     db: Session = Depends(get_db),
     id: int = Path(...)
 ):
+    if id < 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     user_repo.in_active(db, id=id)
     return True

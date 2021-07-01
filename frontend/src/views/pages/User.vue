@@ -12,7 +12,7 @@
         >
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title>Users</v-toolbar-title>
+              <v-toolbar-title class="text-h4"> Users</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-text-field
                 v-model="search"
@@ -68,7 +68,11 @@
                               :items="roles"
                               v-model="editedItem.is_admin"
                               label="Role"
-                              :rules="[(v) => v != null && v != undifined || 'Roles is required.']"
+                              :rules="[
+                                (v) =>
+                                  (v != null && v != undifined) ||
+                                  'Roles is required.',
+                              ]"
                             ></v-select>
                           </v-col>
 
@@ -86,7 +90,11 @@
 
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" class="white--text" @click="close">
+                    <v-btn
+                      color="blue darken-1"
+                      class="white--text"
+                      @click="close"
+                    >
                       Cancel
                     </v-btn>
                     <v-btn
@@ -107,10 +115,16 @@
                   >
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" class="white--text" @click="closeDelete"
+                    <v-btn
+                      color="blue darken-1"
+                      class="white--text"
+                      @click="closeDelete"
                       >Cancel</v-btn
                     >
-                    <v-btn color="red darken-1" class="white--text" @click="deleteItemConfirm"
+                    <v-btn
+                      color="red darken-1"
+                      class="white--text"
+                      @click="deleteItemConfirm"
                       >OK</v-btn
                     >
                     <v-spacer></v-spacer>
@@ -119,7 +133,7 @@
               </v-dialog>
             </v-toolbar>
           </template>
-          <template v-slot:item.actions="{ item }">
+          <template v-slot:[`item.actions`]="{ item }">
             <v-icon small class="mr-2" @click="editItem(item)">
               mdi-pencil
             </v-icon>
@@ -150,7 +164,7 @@ export default {
       },
       { text: "Username", value: "username" },
       { text: "Role", value: "role", sortable: false },
-      { text: "", value: "actions", sortable: false },
+      { text: "Action", value: "actions", sortable: false },
     ],
     users: [],
     editedIndex: -1,
@@ -232,8 +246,20 @@ export default {
 
     deleteItemConfirm() {
       // this.users.splice(this.editedIndex, 1);
-
-      axios.delete("/api/v1/users", )
+      axios
+        .delete(`/api/v1/users/${this.editedItem.id}`)
+        .then((response) => {
+          if (response.status == 200) {
+            this.$swal.fire({
+              icon: "success",
+              title: "Delete user successfully",
+            });
+            this.load()
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
 
       this.closeDelete();
     },

@@ -9,16 +9,14 @@ from sqlalchemy.sql.schema import Column
 class ItemBase(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[float]
-    expired_date: Optional[datetime]
-    image_url: Optional[str]
-    quantity: Optional[int] 
+    price: Optional[float] = None
+    image_url: Optional[str] = None
+    quantity: Optional[int] = None
     category_id: Optional[int] = None
-    stock: Optional[bool] = True
+    stock: Optional[bool] = False
 
 # Properties to receive on item creation
 class ItemCreate(ItemBase):
-    created_date: datetime
     pass
 
 
