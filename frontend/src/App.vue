@@ -17,9 +17,9 @@
             small
             color="deep-purple  "
             class="white--text"
-            @click="showDialog('HelloWorld')"
+            to="/inventory"
           >
-            <v-icon left dark> mdi-store </v-icon>Product
+            <v-icon left dark> mdi-store </v-icon>Inventory
           </v-btn>
 
           <v-btn
