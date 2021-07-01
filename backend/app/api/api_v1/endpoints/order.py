@@ -25,7 +25,7 @@ def read_item(
 @router.post("/", response_model=Order)
 def create(
     db: Session = Depends(get_db),
-    create_obj: OrderCreate = Body(...)
+    create_obj: Order = Body(...)
 ):
     return order_repo.create_v2(db, obj_in=create_obj)
 

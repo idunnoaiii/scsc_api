@@ -1,31 +1,30 @@
 <template>
-  <v-app>
+  <v-app id="app-body">
     <div>
       <v-app-bar color="deep-purple">
         <v-toolbar-title class="white--text"> Bakery Store </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn
-            small
-            color="deep-purple darken-1"
-            class="white--text"
-            @click="showDialog('POS')"
-          >
+          <v-btn small color="deep-purple  " class="white--text" to="/test">
+            <v-icon left dark> mdi-card-account-details-outline </v-icon>
+            test
+          </v-btn>
+          <v-btn small color="deep-purple  " class="white--text" to="/">
             <v-icon left dark> mdi-card-account-details-outline </v-icon> Point
             of Sale
           </v-btn>
           <v-btn
             small
-            color="deep-purple darken-1"
+            color="deep-purple  "
             class="white--text"
-            @click="showDialog('HelloWorld')"
+            to="/inventory"
           >
-            <v-icon left dark> mdi-store </v-icon>Product
+            <v-icon left dark> mdi-store </v-icon>Inventory
           </v-btn>
 
           <v-btn
             small
-            color="deep-purple darken-1"
+            color="deep-purple  "
             class="white--text"
             @click="showDialog('Login')"
           >
@@ -54,7 +53,7 @@
 
           <v-btn
             small
-            color="deep-purple darken-1"
+            color="deep-purple  "
             class="white--text"
             @click="showDialog('Transcation')"
           >
@@ -62,15 +61,10 @@
             Transaction
           </v-btn>
 
-          <v-btn
-            small
-            color="deep-purple darken-1"
-            class="white--text"
-            @click="showDialog('User')"
-          >
+          <v-btn small color="deep-purple  " class="white--text" to="/users">
             <v-icon left dark> mdi-account </v-icon> User
           </v-btn>
-          <v-btn small color="deep-purple darken-1" class="white--text">
+          <v-btn small color="deep-purple  " class="white--text">
             <v-icon left dark> mdi-account </v-icon> Admin
           </v-btn>
 
@@ -88,12 +82,11 @@
     <v-main>
       <!-- Provides the application the proper gutter -->
       <!-- If using vue-router -->
-      <v-container fluid>
+      <v-container fluid fill-height>
         <router-view> </router-view>
       </v-container>
     </v-main>
-
-    <Dialog>
+    <Dialog v-if="$store.state.dialogViewName">
       <template v-slot:dialogBody>
         <keep-alive>
           <component :is="$store.state.dialogViewName"></component>
@@ -101,7 +94,7 @@
       </template>
     </Dialog>
 
-    <ScanDialog></ScanDialog>
+    <ScanDialog v-if="$store.state.dialogViewName"></ScanDialog>
   </v-app>
 </template>
 
@@ -129,7 +122,8 @@ export default {
     showScanDialog: function () {
       this.$store.commit(muType.TOGGLE_SCAN_DIALOG);
     },
-    initialize() {},
+    initialize() {
+    },
   },
   created() {
     this.initialize();
@@ -138,9 +132,13 @@ export default {
 </script>
 
 
-
-<style>
+<style lang="scss" scoped>
 body {
   background: linear-gradient(40deg, #77008cde, #041158ec);
+  font-family: "Roboto", sans-serif;
+}
+
+#app-body {
+  max-height: 100vh;
 }
 </style>

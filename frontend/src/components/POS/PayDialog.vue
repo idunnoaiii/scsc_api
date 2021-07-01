@@ -1,100 +1,135 @@
 <template>
-  <v-dialog v-model="enableDialog" max-width="500px">
-    <v-card>
-      <v-card-title class="text-center text-h5">
-        <v-spacer></v-spacer>
-        Payment
-        <v-spacer></v-spacer>
-      </v-card-title>
+  <v-row justify="center">
+    <v-dialog v-model="show" persistent max-width="600px">
+
       <v-card>
-        <v-row class="ma-3">
-          <v-col>
-            <v-row class="pl-5">
-              <v-col class="pa-1" cols="3" align-self="center">
-                <span> Price $ </span>
+        <v-card-title>
+          <span class="text-h5">Payment</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12" sm="6" md="6">
+                <v-text-field
+                  label="Customer"
+                  value="Thien"
+                  readonly
+                ></v-text-field>
               </v-col>
-              <v-col class="pa-1" cols="9">
-                <input
-                  class="input pa-2"
-                  v-model="priceAmount"
-                  type="text"
-                  disabled
-                />
+              <v-col cols="12" sm="6" md="6">
+                <v-text-field
+                  label="In-charge"
+                  value="Clerk"
+                  readonly
+                ></v-text-field>
               </v-col>
             </v-row>
-
-            <v-row class="pl-5">
-              <v-col class="pa-1" cols="3" align-self="center">
-                Payment $
+            <v-row>
+              <v-col cols="3">
+                <div class="subtitle-1 text--grey">Total Price</div>
               </v-col>
-              <v-col class="pa-1" cols="9">
-                <input class="input pa-2" v-model="paymentAmount" type="text" />
+              <v-col cols="9">
+                <v-text-field
+                  placeholder="Placeholder"
+                  :value="totalPrice"
+                  readonly
+                  solo
+                ></v-text-field
+              ></v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="3">
+                <div class="subtitle-1 text--grey">Payment</div>
+              </v-col>
+              <v-col cols="9">
+                <v-text-field
+                  v-model="paymentAmount"
+                  solo
+                  type="number"
+                  step="1000"
+                  clearable
+                ></v-text-field>
+                <v-btn
+                  :key="n"
+                  class="ml-0"
+                  v-for="n in [1, 2, 5, 10, 20, 50, 100, 200, 500]"
+                  @click="addToMonney(n)"
+                  color="green"
+                  outlined
+                  x-small
+                  >{{ n }}k</v-btn
+                >
               </v-col>
             </v-row>
 
             <v-row>
-              <v-spacer></v-spacer>
-              <v-col class="text-align-center min-width-300">
-                <v-row
-                  class="mx-auto"
-                  v-for="item in calculatorRows"
-                  :key="item[0]"
-                >
-                  <v-col
-                    class="pa-2 mx-auto"
-                    v-for="number in item"
-                    :key="number"
-                    max-width="100px"
-                  >
-                    <v-btn class="mx-auto" color="green">
-                      {{ number }}
-                    </v-btn>
-                  </v-col>
-                </v-row>
+              <v-col cols="3">
+                <div class="subtitle-1 text--grey">Change</div>
               </v-col>
-              <v-col cols="2">
-                <v-btn color="red"> AC </v-btn>
-              </v-col>
-              <v-spacer></v-spacer>
+              <v-col cols="9">
+                <v-text-field
+                  placeholder="Placeholder"
+                  :value="change"
+                  readonly
+                  solo
+                ></v-text-field
+              ></v-col>
             </v-row>
-          </v-col>
-        </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="red darken-1"
+            small
+            class="white--text"
+            @click="$emit('close-payment-dialog')"
+          >
+            Close
+          </v-btn>
+          <v-btn
+            color="green darken-1"
+            small
+            class="white--text"
+            @click="$emit('confirm-payment', { amount: paymentAmount, change: change })"
+            :disabled="!canPurchase"
+          >
+            Confirm Payment
+          </v-btn>
+        </v-card-actions>
       </v-card>
-
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" @click="$emit('close-delete')">
-          <span class="text-white"> Change $ </span>
-        </v-btn>
-        <v-btn color="#5fbeaa" @click="$emit('delete-item-confirm')">
-          <span class="text-white"> Confirm Payment </span>
-        </v-btn>
-        <v-btn color="red darken-1" @click="$emit('close-delete')">
-          <span class="text-white"> Cancel </span>
-        </v-btn>
-        <v-spacer></v-spacer>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+    </v-dialog>
+  </v-row>
 </template>
 
 <script>
 export default {
   name: "PayDialog",
+  props: {
+    show: Boolean,
+  },
   data: function () {
     return {
-      calculatorRows: [
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 8, 9],
-        [-1, 0, -2],
-      ],
       paymentAmount: 0,
-      priceAmount: 123.0,
-      enableDialog:true,
+      totalPrice: 123.0,
+      enableDialog: false,
     };
   },
-  methods: {},
+  methods: {
+    addToMonney(number) {
+      this.paymentAmount += number * 1000;
+    },
+  },
+  computed: {
+    canPurchase: function () {
+      return this.paymentAmount >= this.totalPrice;
+    },
+    change: function () {
+      if (this.paymentAmount < this.totalPrice) return 0;
+      return this.paymentAmount - this.totalPrice;
+    },
+  },
+
 };
 </script>
 

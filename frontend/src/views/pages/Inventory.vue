@@ -4,15 +4,18 @@
       <v-col cols="8">
         <v-data-table
           :headers="headers"
-          :items="users"
-          sort-by="calories"
+          :items="items"
+          sort-by="name"
           class="elevation-1"
           width="90%"
           :search="search"
         >
+          <template v-slot:[`item.stock`]="{ item }">
+            <span>{{ item.stock == true ? "Yes" : "No" }}</span>
+          </template>
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title class="text-h4"> Users</v-toolbar-title>
+              <v-toolbar-title class="text-h4">Items</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-text-field
                 v-model="search"
@@ -44,44 +47,50 @@
                         <v-row>
                           <v-col cols="12" sm="6" md="12">
                             <v-text-field
-                              v-model="editedItem.full_name"
-                              label="Name"
+                              v-model="editedItem.name"
+                              label="Name*"
+                              :rules="[required('Name')]"
                             ></v-text-field>
                           </v-col>
                           <v-col cols="12" sm="6" md="12">
                             <v-text-field
-                              v-model="editedItem.username"
-                              label="Username*"
-                              :rules="[required('Username'), noSpace()]"
+                              v-model="editedItem.description"
+                              label="Description"
                             ></v-text-field>
                           </v-col>
-                          <v-col cols="12" md="12" v-if="editedIndex === -1">
+                          <v-col cols="12" sm="6" md="12">
                             <v-text-field
-                              v-model="password"
-                              label="Password*"
-                              type="Password"
-                              :rules="[required('Password')]"
+                              v-model="editedItem.price"
+                              label="Price*"
+                              type="Number"
+                              :rules="[required('Price'), minNumberValue(1000)]"
                             ></v-text-field>
                           </v-col>
-                          <v-col cols="12" md="12">
-                            <v-select
-                              :items="roles"
-                              v-model="editedItem.is_admin"
-                              label="Role"
-                              :rules="[
-                                (v) =>
-                                  (v != null && v != undifined) ||
-                                  'Roles is required.',
-                              ]"
-                            ></v-select>
+                          <v-col cols="12" v-if="editedIndex === -1">
+                            <v-file-input
+                              accept="image/*"
+                              label="Image"
+                              @change="onFileSelected"
+                            ></v-file-input>
                           </v-col>
 
-                          <!-- <v-col cols="12" sm="6" md="12">
-                          <v-text-field
-                            v-model="editedItem.role"
-                            label="Role"
-                          ></v-text-field>
-                        </v-col> -->
+                          <v-col cols="12" sm="6" md="12">
+                            <v-switch
+                              v-model="editedItem.stock"
+                              :label="`Stock tracking: ${
+                                !!editedItem.stock ? 'Yes' : 'No'
+                              }`"
+                            ></v-switch>
+                          </v-col>
+
+                          <v-col cols="12" v-if="editedItem.stock">
+                            <v-text-field
+                              v-model="editedItem.quantity"
+                              label="Quantity*"
+                              type="Number"
+                              :rules="[required('Quantity'), minNumberValue(0)]"
+                            ></v-text-field>
+                          </v-col>
                         </v-row>
                       </v-container>
                     </v-form>
@@ -156,29 +165,41 @@ export default {
     password: "",
     search: "",
     dialogDelete: false,
+    selectedFile: null,
+    stockTracking: false,
     headers: [
       {
-        text: "Full Name",
+        text: "Name",
         align: "start",
-        value: "full_name",
+        value: "name",
       },
-      { text: "Username", value: "username" },
-      { text: "Role", value: "role", sortable: false },
+      { text: "Description", value: "description" },
+      { text: "Price", value: "price" },
+      { text: "Quantity", value: "quantity" },
+      { text: "Category", value: "category_id" },
+      { text: "Stock", value: "stock" },
       { text: "Action", value: "actions", sortable: false },
     ],
-    users: [],
+    items: [],
     editedIndex: -1,
     editedItem: {
-      full_name: "",
-      username: "",
-      role: "",
+      name: "",
+      description: "",
+      price: 0,
+      expired_date: "",
+      image_url: "",
+      quantity: 0,
+      category_id: 0,
+      stock: false,
+      id: 0,
+      is_active: false,
     },
     defaultItem: {
       full_name: "",
       username: "",
       role: "",
     },
-    roles: [
+    categories: [
       {
         text: "admin",
         value: true,
@@ -188,18 +209,22 @@ export default {
         value: false,
       },
     ],
-    roleSelected: false,
+    categorySelected: false,
     required(inputName) {
-      return (v) => (v && v.length > 0) || `${inputName} is required.`;
+      return (v) =>
+        (v && v.toString().length > 0) || `${inputName} is required.`;
     },
     noSpace() {
       return (v) => (v || "").indexOf(" ") < 0 || "No spaces are allowed";
+    },
+    minNumberValue(value) {
+      return (v) => (v && v >= value) || `Must be greater than ${value}`;
     },
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "New User" : "Edit User";
+      return this.editedIndex === -1 ? "New Item" : "Edit Item";
     },
   },
 
@@ -222,39 +247,43 @@ export default {
   methods: {
     load() {
       axios
-        .get("api/v1/users/?skip=0&limit=100")
+        .get("api/v1/items/all?skip=0&limit=100")
         .then((response) => {
-          this.users = response.data;
+          this.items = response.data;
         })
         .catch((err) => {
           console.log(err);
         });
     },
 
+    onFileSelected(file) {
+      this.selectedFile = file;
+    },
+
     editItem(item) {
-      this.editedIndex = this.users.indexOf(item);
+      this.editedIndex = this.items.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
       this.password = "";
     },
 
     deleteItem(item) {
-      this.editedIndex = this.users.indexOf(item);
+      this.editedIndex = this.items.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
     },
 
     deleteItemConfirm() {
-      // this.users.splice(this.editedIndex, 1);
+      // this.items.splice(this.editedIndex, 1);
       axios
-        .delete(`/api/v1/users/${this.editedItem.id}`)
+        .delete(`/api/v1/items/${this.editedItem.id}`)
         .then((response) => {
           if (response.status == 200) {
             this.$swal.fire({
               icon: "success",
-              title: "Delete user successfully",
+              title: "Add new item successfully",
             });
-            this.load()
+            this.load();
           }
         })
         .catch((err) => {
@@ -282,31 +311,48 @@ export default {
     },
 
     save() {
-      if (!this.$refs.form.validate()) {
-        return;
-      }
+    //   if (!this.$refs.form.validate()) {
+    //     return;
+    //   }
       if (this.editedIndex > -1) {
         //update
-        Object.assign(this.users[this.editedIndex], this.editedItem);
+        Object.assign(this.items[this.editedIndex], this.editedItem);
       } else {
         //add
-        axios
-          .post("/api/v1/users/", {
-            full_name: this.editedItem.full_name,
-            username: this.editedItem.username,
-            password: this.password,
-            is_admin: this.editedItem.is_admin,
-          })
-          .then(() => {
-            this.load();
-            this.$swal.fire({
-              icon: "success",
-              title: "Add new user successfully",
-            });
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+
+        const item_added =  {
+            name: this.editedItem.name,
+            description: this.editedItem.description,
+            price: this.editedItem.price,
+            quantity: this.editedItem.quantity,
+            category_id: null,
+            stock: this.editedItem.stock,
+        }
+
+        let fd = new FormData();
+
+        let item_json = JSON.stringify(item_added)
+
+        fd.append("data", item_json);
+
+        fd.append("image", this.selectedFile, this.selectedFile.name);
+
+        axios.post("/api/v1/items/create", fd).then((response) => {
+          console.log(response);
+        });
+
+        // axios
+        //   .post("/api/v1/items/", this.editedItem)
+        //   .then(() => {
+        //     this.load();
+        //     this.$swal.fire({
+        //       icon: "success",
+        //       title: "Add new item successfully",
+        //     });
+        //   })
+        //   .catch((err) => {
+        //     console.log(err);
+        //   });
       }
       this.close();
     },

@@ -1,7 +1,7 @@
 
 from sqlalchemy import Column, ForeignKey, Integer, String, Float, sql
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.sqltypes import Boolean, DateTime
+from sqlalchemy.sql.sqltypes import BIGINT, BigInteger, Boolean, DateTime
 from app.db.base_class import Base
 from app.models.item import Item
 from app.models.customer import Customer
@@ -10,7 +10,7 @@ from app.models.user import User
 
 class Order(Base):
     __tablename__ = "orders"
-    code = Column(Integer)
+    code = Column(BIGINT)
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     status = Column(Boolean, default=0)
@@ -21,6 +21,9 @@ class Order(Base):
     order_items = relationship("OrderItem", back_populates="order")
     created_date = Column(DateTime, default=sql.func.now())
     updated_date = Column(DateTime, default=sql.func.now())
+    
+    #try test add a colum with type BIGINT
+
 
 
 orders = Order.__table__
