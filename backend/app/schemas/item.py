@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel
 from sqlalchemy import DateTime, Float, sql
 from sqlalchemy.sql.schema import Column
-
+from app.schemas.category import CategoryId
 
 # Shared properties
 class ItemBase(BaseModel):
@@ -12,7 +12,7 @@ class ItemBase(BaseModel):
     price: Optional[float] = None
     image_url: Optional[str] = None
     quantity: Optional[int] = None
-    category_id: Optional[int] = None
+    categories: Optional[List[CategoryId]] = None
     stock: Optional[bool] = False
 
 # Properties to receive on item creation

@@ -42,12 +42,16 @@ def create_item_form(
     image: UploadFile = File(...),
 
 ):
+    if image is not None:
+        pass
     #this stimulate the process upload image to some cloud storage and get URL
-    with open("image/"+image.filename, "wb") as file:
-        shutil.copyfileobj(image.file, file)
+    # with open("image/"+image.filename, "wb") as file:
+    #     shutil.copyfileobj(image.file, file)
     
     item_json = json.loads(data)
     item_json["image_url"] = image.filename
+    item_categories = item_json["categories"]
+    # del item_json["categories"]
     item_create_sch = ItemCreate(**item_json)
     return item_repo.create(db, obj_in=item_create_sch)
 

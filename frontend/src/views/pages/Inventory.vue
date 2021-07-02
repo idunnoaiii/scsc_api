@@ -176,7 +176,7 @@ export default {
       { text: "Description", value: "description" },
       { text: "Price", value: "price" },
       { text: "Quantity", value: "quantity" },
-      { text: "Category", value: "category_id" },
+      { text: "Category", value: "categories" },
       { text: "Stock", value: "stock" },
       { text: "Action", value: "actions", sortable: false },
     ],
@@ -189,7 +189,7 @@ export default {
       expired_date: "",
       image_url: "",
       quantity: 0,
-      category_id: 0,
+      categories: 0,
       stock: false,
       id: 0,
       is_active: false,
@@ -325,7 +325,7 @@ export default {
             description: this.editedItem.description,
             price: this.editedItem.price,
             quantity: this.editedItem.quantity,
-            category_id: null,
+            categories: [],
             stock: this.editedItem.stock,
         }
 

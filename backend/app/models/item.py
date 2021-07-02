@@ -3,7 +3,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Float, sql
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import Boolean, DateTime
 from app.db.base_class import Base
-from app.models.category import categories
+from app.models.category import association_table 
 
 
 # class Category(Base):
@@ -20,11 +20,10 @@ class Item(Base):
     price = Column(Float, default=0)
     image_url = Column(String)
     quantity = Column(Integer, default=0)
-    expired_date = Column(DateTime, nullable=True, default=sql.func.now())
-    category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
     stock = Column(Boolean, default=False)
     created_date = Column(DateTime, default=sql.func.now())
     updated_date = Column(DateTime, default=sql.func.now())
+    categories = relationship("Category", secondary=association_table, back_populates="items")
 
 
 items = Item.__table__
