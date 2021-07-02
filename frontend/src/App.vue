@@ -94,7 +94,7 @@
       </template>
     </Dialog>
 
-    <ScanDialog v-if="$store.state.dialogViewName"></ScanDialog>
+    <ScanDialog v-if="$store.state.scanDialog"></ScanDialog>
   </v-app>
 </template>
 

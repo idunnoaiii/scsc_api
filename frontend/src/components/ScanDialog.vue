@@ -2,32 +2,39 @@
   <v-row justify="center">
     <v-dialog
       v-model="$store.state.scanDialog"
-      fullscreen
+      persistent
+      max-width="1278px"
       hide-overlay
       transition="dialog-bottom-transition"
     >
       <v-card>
-        <v-toolbar dark height="48" color="primary">
+        <v-toolbar dark height="48" color="deep-purple">
           <v-btn icon dark @click="$store.commit('TOGGLE_SCAN_DIALOG')">
             <v-icon>mdi-close</v-icon>
           </v-btn>
           <v-toolbar-title><slot name="dialogName"></slot></v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
-            <v-btn dark text @click="$store.commit('TOGGLE_SCAN_DIALOG')">
-              Thoát
-            </v-btn>
+            <v-btn dark text @click="captured = false"> Clear </v-btn>
           </v-toolbar-items>
         </v-toolbar>
         <!-- <v-divider></v-divider> -->
+        <v-text-field
+          label="Label"
+          v-if="$store.state.scanDialog"
+          @keyup.enter.native="takePicture"
+          class="d-none"
+          autofocus
+        ></v-text-field>
         <v-card class="camera">
-          <video class="feed" autoplay></video>
-          <canvas class="feed"></canvas>
+          <video class="feed" autoplay v-show="!captured"></video>
+          <canvas class="feed" v-show="captured"></canvas>
           <v-btn
             dark
-            class="mx-auto"
+            class="mx-auto btn-capture"
             color="purple darken-3 d-block"
             fab
+            elevation-10
             @click="takePicture"
           >
             <v-icon>mdi-camera</v-icon></v-btn
@@ -39,11 +46,13 @@
 </template>
 
 <script>
+import axios from "../axios";
 export default {
   data: function () {
     return {
       player: null,
       streaming: false,
+      captured: false,
     };
   },
   methods: {
@@ -52,7 +61,7 @@ export default {
         "mediaDevices" in navigator &&
         "getUserMedia" in navigator.mediaDevices
       ) {
-        let constraint = {
+        const constraint = {
           video: {
             width: {
               min: 640,
@@ -79,6 +88,8 @@ export default {
           .catch(function () {
             this.streaming = false;
           });
+      } else {
+        this.$swal("ccc");
       }
     },
 
@@ -92,26 +103,27 @@ export default {
         context.imageSmoothingQuality = "high";
         context.drawImage(this.player, 0, 0);
 
-        // const imgData = canvas.toDataURL('image/png');
-        var data = canvas.toDataURL("image/png");
-        console.log(data);
-        var request = new XMLHttpRequest();
-        request.open("POST", "http://localhost:8000/api/v1/items/scan/");
-        request.send(data);
+        this.captured = true;
 
-        request.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
-            // Typical action to be performed when the document is ready:
-            console.log(request.responseText);
-          }
-        };
+        const data = canvas.toDataURL("image/png");
+
+        axios.post("/api/v1/items/scan/", data).then((response) => {
+          console.log(response.data);
+        });
+
+        // request.onreadystatechange = function () {
+        //   if (this.readyState == 4 && this.status == 200) {
+        //     // Typical action to be performed when the document is ready:
+        //     console.log(request.responseText);
+        //   }
+        // };
 
         // this.player.srcObject.getVideoTracks().forEach(track => track.stop())
       }
     },
   },
 
-  beforeUpdate() {
+  mounted() {
     console.log("mounted");
     this.init();
   },
@@ -121,7 +133,8 @@ export default {
 <style lang="scss" scoped>
 .camera {
   width: 100vw;
-  height: 100vh;
+  // height: 100vh;
+  position: relative;
 
   .feed {
     display: block;
@@ -130,6 +143,12 @@ export default {
     height: 720px;
     margin: 0 auto;
     background-color: black;
+  }
+
+  .btn-capture {
+    position: absolute;
+    bottom: 20px;
+    left: calc(50% - 28px);
   }
 }
 </style>
