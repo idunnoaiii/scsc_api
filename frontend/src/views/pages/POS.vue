@@ -29,7 +29,7 @@
                 :items="orderItems"
                 class="elevation-4 mx-6"
               >
-                <template v-slot:item.actions="{ item }">
+                <template v-slot:[`item.actions`]="{ item }">
                   <v-icon small class="mr-2" @click="increaseQuantity(item)">
                     mdi-arrow-up-drop-circle-outline
                   </v-icon>
@@ -145,8 +145,8 @@
             <v-col cols="7">
               <v-sheet tile class="py-4 px-1">
                 <v-chip-group multiple active-class="primary--text">
-                  <v-chip v-for="cate in categories" :key="cate">
-                    {{ cate }}
+                  <v-chip v-for="cate in categories" :key="cate.value">
+                    {{ cate.text }}
                   </v-chip>
                 </v-chip-group>
               </v-sheet>
@@ -440,7 +440,7 @@ export default {
         //   is_active: true,
         // },
       ],
-      categories: ["Default"],
+      categories:[],
       customerValue: 0,
       totalItem: 0,
       totalPrice: 0,
@@ -458,7 +458,7 @@ export default {
       this.items = response.data;
     });
     axios.get("/api/v1/categories").then((response) => {
-      this.categories = response.data.map((item) => item.name);
+      this.categories = response.data.map((item) => ({text : item.name, value: item.id}));
     });
     axios.get("/api/v1/customers").then((response) => {
       this.customers = response.data.map((item) => ({

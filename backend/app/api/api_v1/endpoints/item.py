@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends, Body, Request, Form, UploadFile
+from fastapi import APIRouter, Depends, Body, Request, Form, UploadFile, HTTPException, status
 from fastapi.encoders import jsonable_encoder
-from fastapi.param_functions import File, Form
+from fastapi.param_functions import File, Form, Path
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import true
 from starlette.datastructures import FormData
 from app.api import deps
 from app.repositories import item_repo
 from app.schemas import Item, ItemCreate
-from typing import List
+from app.models import CategoryModel
+from typing import List, Optional
 import base64
 import json
 from app.ai_utils import predict
@@ -20,8 +22,15 @@ def read_item(
     skip: int = 0,
     limit: int = 100
 ):
+    ret = []
     items = item_repo.get_multi(db, skip=skip, limit=limit)
-    return items
+    for item in items:
+        itemDic = item.__dict__
+        cates = [cate.__dict__["id"] for cate in item.categories]
+        itemDic["categories"] = cates
+        ret.append(itemDic)
+
+    return ret
 
 
 @router.post("/", response_model=Item)
@@ -42,21 +51,48 @@ def create_item_form(
     image: UploadFile = File(...),
 
 ):
+    item_json = json.loads(data)
+
     if image is not None:
-        pass
+        item_json["image_url"] = image.filename
     #this stimulate the process upload image to some cloud storage and get URL
     # with open("image/"+image.filename, "wb") as file:
     #     shutil.copyfileobj(image.file, file)
     
-    item_json = json.loads(data)
-    item_json["image_url"] = image.filename
     item_categories = item_json["categories"]
+
+    item_json["categories"] = [{"id": v} for v in item_categories]
+
     # del item_json["categories"]
     item_create_sch = ItemCreate(**item_json)
     return item_repo.create(db, obj_in=item_create_sch)
 
 
+@router.put("/update")
+def update_item(
+    db: Session = Depends(deps.get_db),
+    data: str = Form(...),
+    image: UploadFile = File(None)
+):
+    item_json = json.loads(data)
 
+    item_in_db = item_repo.get(db, id=item_json["id"])
+
+    if item_in_db is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+
+    item_repo.update(db,  obj_dict=item_json)
+
+    if image is not None:
+        pass
+
+
+    return True
+
+    
+
+
+# for scanning function
 @router.post("/scan/")
 async def scan_item(
     db: Session = Depends(deps.get_db),
@@ -89,3 +125,12 @@ async def create_item_form(
         "dataText": dataText,
         "imageURL": image.filename
     }
+
+
+@router.delete("/{id}")
+def delete(
+    db: Session = Depends(deps.get_db),
+    id: int = Path(...)
+):
+    
+    return

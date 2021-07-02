@@ -12,7 +12,7 @@ class ItemBase(BaseModel):
     price: Optional[float] = None
     image_url: Optional[str] = None
     quantity: Optional[int] = None
-    categories: Optional[List[CategoryId]] = None
+    categories: Optional[List[int]] = None
     stock: Optional[bool] = False
 
 # Properties to receive on item creation

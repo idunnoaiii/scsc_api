@@ -32,7 +32,7 @@ class CategoryInDBBase(CategoryBase):
 
 
 class Category(CategoryBase):
-
+    id: int
     class Config: 
         orm_mode = True
 
