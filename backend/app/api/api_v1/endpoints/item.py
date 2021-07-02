@@ -132,5 +132,7 @@ def delete(
     db: Session = Depends(deps.get_db),
     id: int = Path(...)
 ):
-    
-    return
+    if id < 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    item_repo.in_active(db, id=id)
+    return True

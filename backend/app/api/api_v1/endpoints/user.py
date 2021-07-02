@@ -54,6 +54,6 @@ def delete_user(
     id: int = Path(...)
 ):
     if id < 0:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     user_repo.in_active(db, id=id)
     return True
