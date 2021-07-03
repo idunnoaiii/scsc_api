@@ -47,6 +47,8 @@
 
 <script>
 import axios from "../axios";
+import { mapMutations } from "vuex";
+
 export default {
   data: function () {
     return {
@@ -108,19 +110,20 @@ export default {
         const data = canvas.toDataURL("image/png");
 
         axios.post("/api/v1/items/scan/", data).then((response) => {
-          console.log(response.data);
+          if (response.status == 200 && response.data != []) {
+            for (let item of response.data) {
+              for (let i = 0; i < item.quantity; i++) this.addItemToOrder(item);
+            }
+            this.$store.commit("TOGGLE_SCAN_DIALOG");
+          }
         });
-
-        // request.onreadystatechange = function () {
-        //   if (this.readyState == 4 && this.status == 200) {
-        //     // Typical action to be performed when the document is ready:
-        //     console.log(request.responseText);
-        //   }
-        // };
 
         // this.player.srcObject.getVideoTracks().forEach(track => track.stop())
       }
     },
+    ...mapMutations("POS", {
+      addItemToOrder: "ADD_ITEM_TO_ORDER",
+    }),
   },
 
   mounted() {

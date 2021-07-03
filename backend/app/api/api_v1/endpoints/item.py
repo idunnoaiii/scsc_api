@@ -100,12 +100,17 @@ async def scan_item(
 ):
     img_base64 = await req.body()
     class_ids = predict(img_base64[22:])
-
     if class_ids != [] and class_ids[0] == -1:
         return [-1]
 
     elif class_ids != []:
+        class_id_count = {i:class_ids.count(i) for i in class_ids}
         items = item_repo.get_multi_by_list_id(db, listId=class_ids)
+        print(class_id_count)
+        for item in items:
+            if item.id in class_id_count.keys():
+                item.quantity = class_id_count[item.id]
+
         return items
 
     return []

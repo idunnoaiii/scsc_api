@@ -103,6 +103,9 @@
 </template>
 
 <script>
+import {mapGetters} from 'vuex';
+
+
 export default {
   name: "PayDialog",
   props: {
@@ -111,13 +114,12 @@ export default {
   data: function () {
     return {
       paymentAmount: 0,
-      totalPrice: 123.0,
       enableDialog: false,
     };
   },
   methods: {
     addToMonney(number) {
-      this.paymentAmount += number * 1000;
+      this.paymentAmount = Number(this.paymentAmount) + number * 1000;
     },
   },
   computed: {
@@ -128,6 +130,9 @@ export default {
       if (this.paymentAmount < this.totalPrice) return 0;
       return this.paymentAmount - this.totalPrice;
     },
+    ...mapGetters("POS", {
+      totalPrice: "totalPrice"
+    })
   },
 
 };

@@ -1,241 +1,116 @@
-
+import axios from '../../axios'
 
 const state = () => ({
-	customers: [
-		{
-			text: "Walk in customer",
-			value: 0,
-		},
-		{
-			text: "Thien",
-			value: 1,
-		},
-		{
-			text: "Nhan",
-			value: 2,
-		},
-	],
 	orderItems: [],
-	items: [
-		{
-			name: "Bánh chuối tròn",
-			description: null,
-			price: 20000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 1,
-			is_active: true,
-		},
-		{
-			name: "Bông lan trứng muối",
-			description: null,
-			price: 24000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 2,
-			is_active: true,
-		},
-		{
-			name: "Bánh Thỏi vàng",
-			description: null,
-			price: 14000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 3,
-			is_active: true,
-		},
-		{
-			name: "Bánh Mufin sữa",
-			description: null,
-			price: 25000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 4,
-			is_active: true,
-		},
-		{
-			name: "Bánh mì kem sữa",
-			description: null,
-			price: 25000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 5,
-			is_active: true,
-		},
-		{
-			name: "Bánh Tart phô mai",
-			description: null,
-			price: 20000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 6,
-			is_active: true,
-		},
-		{
-			name: "Bánh phô mai bơ tỏi",
-			description: null,
-			price: 20000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 7,
-			is_active: true,
-		},
-		{
-			name: "Bánh cade hột gà",
-			description: null,
-			price: 10000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 8,
-			is_active: true,
-		},
-		{
-			name: "Bánh Su kem",
-			description: null,
-			price: 15000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 9,
-			is_active: true,
-		},
-		{
-			name: "Bánh xúc xích phô mai",
-			description: null,
-			price: 10000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 10,
-			is_active: true,
-		},
-		{
-			name: "Bánh mi hạt sen",
-			description: null,
-			price: 30000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 11,
-			is_active: true,
-		},
-		{
-			name: "Bánh lột da hạt sen",
-			description: null,
-			price: 20000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 12,
-			is_active: true,
-		},
-		{
-			name: "Bánh mì táo đỏ",
-			description: null,
-			price: 25000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 13,
-			is_active: true,
-		},
-		{
-			name: "Bánh mini ngọt",
-			description: null,
-			price: 12000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 14,
-			is_active: true,
-		},
-		{
-			name: "Bánh bơ tỏi Pháp",
-			description: null,
-			price: 25000,
-			expired_date: null,
-			image_url: null,
-			quantity: null,
-			category_id: null,
-			stock: null,
-			id: 15,
-			is_active: true,
-		},
-		{
-			name: "string",
-			description: "string",
-			price: 0,
-			expired_date: "2021-06-26T12:12:48.117000",
-			image_url: "string",
-			quantity: 0,
-			category_id: null,
-			stock: true,
-			id: 18,
-			is_active: true,
-		},
-	],
-	categories: [
-		"Type1",
-		"Doraemon",
-		"Type2",
-		"Vietnam",
-		"Laos",
-		"Ronaldo",
-		"Messi",
-		"Hello kitty",
-	],
-	customerValue: 0,
+	customer_checkout: 0,
 	totalItem: 0,
 	totalPrice: 0,
-	grossPrice: 0,
-	tax: 10,
+	// paymentAmount: 0,
+	// tax: 10,
+	checkoutStatus: null,
+	showBillDialog: false,
 })
 
 const getters = {
-
+	totalOrderItem(state) {
+		return state.orderItems.reduce((acc, item) => acc + item.quantity, 0)
+	},
+	totalPrice(state) {
+		return state.orderItems.reduce((acc, item) => acc + (item.quantity * item.price), 0)
+	}
 }
 
 const actions = {
+	checkout({ commit, state }, payload) {
 
+		let orderDetail = {
+			code: new Date().getTime(),
+			user_id: 1,
+			status: true,
+			tax: 0,
+			subtotal: state.totalPrice,
+			paid: payload.amount,
+			change: payload.change,
+			order_items: [
+				{
+					item_id: 0,
+					price: 0,
+					quantity: 0,
+					item_name: "string",
+				},
+			],
+		};
+
+		orderDetail.order_items = state.orderItems.map((item) => ({
+			item_id: item.id,
+			price: item.price,
+			quantity: item.quantity,
+			item_name: item.name,
+		}));
+
+		axios
+			.get("/", orderDetail)
+			.then(() => {
+				commit('SET_CHECKOUT_STATUS', true)
+				commit('CLEAR_ORDER_ITEM')
+			})
+			.catch((err) => {
+				console.log(err);
+				commit('SET_CHECKOUT_STATUS', false)
+			});
+
+	},
 }
 
 const mutations = {
+	ADD_ITEM_TO_ORDER(state, item) {
+		let itemIndex = state.orderItems.findIndex(x => x.id == item.id);
+		if (itemIndex > -1) {
+			state.orderItems[itemIndex].quantity++;
+			return
+		}
+		let orderItem = {
+			id: item.id,
+			rownumber: state.orderItems.length + 1,
+			name: item.name,
+			quantity: 1,
+			price: item.price,
+		};
+		state.orderItems.push(orderItem)
+	},
+
+	SET_CHECKOUT_STATUS(state, status) {
+		state.checkoutStatus = status;
+	},
+
+	INCREASE_ITEM_QUANTITY(state, id) {
+		let item = state.orderItems.find(x => x.id == id)
+		if (item) item.quantity++
+	},
+
+	DECREASE_ITEM_QUANTITY(state, id) {
+		let item = state.orderItems.find(x => x.id == id)
+		if(item == null || item == undefined) 
+			return;
+		if (item.quantity > 1) {
+			item.quantity--;
+			return;
+		}
+		state.orderItems = state.orderItems.filter(x => x.id != id);
+	},
+
+	CLEAR_ORDER_ITEM(state){
+		state.orderItems = [];
+	},
+
+	SET_BILL_DIALOG(state, status){
+		state.showBillDialog = status;
+	},
+
+
+	CLEAR_CHECKOUT_DATA(state){
+		state.orderItems = [];
+	}
 
 }
 

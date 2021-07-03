@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as muType from './mutation-type'
-// import POS from './modules/POS'
+import POS from './modules/POS'
 
 Vue.use(Vuex)
 
@@ -29,6 +29,7 @@ export default new Vuex.Store({
   actions: {
   },
   modules: {
+    POS
   }
 })
 

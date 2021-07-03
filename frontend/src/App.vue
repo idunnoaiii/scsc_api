@@ -2,7 +2,7 @@
   <v-app id="app-body">
     <div>
       <v-app-bar color="deep-purple">
-        <v-toolbar-title class="white--text"> Bakery Store </v-toolbar-title>
+        <v-toolbar-title class="white--text">SCSC Bakery </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
           <v-btn small color="deep-purple  " class="white--text" to="/test">
@@ -83,14 +83,18 @@
       <!-- Provides the application the proper gutter -->
       <!-- If using vue-router -->
       <v-container fluid fill-height>
-        <router-view> </router-view>
+        <keep-alive>
+          <transition name="fade">
+            <router-view> </router-view>
+          </transition>
+        </keep-alive>
       </v-container>
     </v-main>
     <Dialog v-if="$store.state.dialogViewName">
       <template v-slot:dialogBody>
-        <keep-alive>
+        <!-- <keep-alive> -->
           <component :is="$store.state.dialogViewName"></component>
-        </keep-alive>
+        <!-- </keep-alive> -->
       </template>
     </Dialog>
 
@@ -122,8 +126,7 @@ export default {
     showScanDialog: function () {
       this.$store.commit(muType.TOGGLE_SCAN_DIALOG);
     },
-    initialize() {
-    },
+    initialize() {},
   },
   created() {
     this.initialize();
@@ -140,5 +143,12 @@ body {
 
 #app-body {
   max-height: 100vh;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .3s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>
