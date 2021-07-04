@@ -1,7 +1,7 @@
 <template>
   <v-app id="app-body">
     <div>
-      <v-app-bar color="deep-purple">
+      <v-app-bar color="deep-purple" app>
         <v-toolbar-title class="white--text">SCSC Bakery </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
@@ -55,7 +55,7 @@
             small
             color="deep-purple  "
             class="white--text"
-            @click="showDialog('Transcation')"
+            to="/transaction"
           >
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             Transaction
@@ -83,18 +83,16 @@
       <!-- Provides the application the proper gutter -->
       <!-- If using vue-router -->
       <v-container fluid fill-height>
-        <keep-alive>
-          <transition name="fade">
+        <transition name="fade">
+          <keep-alive>
             <router-view> </router-view>
-          </transition>
-        </keep-alive>
+          </keep-alive>
+        </transition>
       </v-container>
     </v-main>
     <Dialog v-if="$store.state.dialogViewName">
       <template v-slot:dialogBody>
-        <!-- <keep-alive> -->
-          <component :is="$store.state.dialogViewName"></component>
-        <!-- </keep-alive> -->
+        <component :is="$store.state.dialogViewName"></component>
       </template>
     </Dialog>
 
@@ -145,10 +143,10 @@ body {
   max-height: 100vh;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .3s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
-}
+// .fade-enter-active, .fade-leave-active {
+//   transition: opacity .33s;
+// }
+// .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+//   opacity: 0;
+// }
 </style>
