@@ -1,17 +1,17 @@
-from typing import List
+from typing import Dict, List
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app.repositories.base import RepoBase
-from app.models.item import Item
-from app.schemas.item import ItemCreate, ItemUpdate
+from app.models import ItemModel, CategoryModel
+from app.schemas import ItemCreate, ItemUpdate
 
 
-class ItemRepo(RepoBase[Item, ItemCreate, ItemUpdate]):
+class ItemRepo(RepoBase[ItemModel, ItemCreate, ItemUpdate]):
     def create_with_owner(
         self, db: Session, *, obj_in: ItemCreate, owner_id: int
-    ) -> Item:
+    ) -> ItemModel:
         obj_in_data = jsonable_encoder(obj_in)
         db_obj = self.model(**obj_in_data, owner_id=owner_id)
         db.add(db_obj)
@@ -22,14 +22,65 @@ class ItemRepo(RepoBase[Item, ItemCreate, ItemUpdate]):
 
     def get_multi_by_owner(
         self, db: Session, *, owner_id: int, skip: int = 0, limit: int = 100
-    ) -> List[Item]:
+    ) -> List[ItemModel]:
+        
         return (
             db.query(self.model)
-            .filter(Item.owner_id == owner_id)
+            .filter(ItemModel.owner_id == owner_id)
             .offset(skip)
             .limit(limit)
             .all()
         )
 
 
-item = ItemRepo(Item)
+    def update(
+        self,
+        db: Session,
+        *,
+        obj_dict: Dict
+    ) -> ItemModel:
+
+        obj_db = db.query(ItemModel).get(obj_dict["id"])
+        obj_db_data = jsonable_encoder(obj_db)
+
+        #update field
+        for field in obj_db_data:
+            if field in obj_dict:
+                setattr(obj_db, field, obj_dict[field])
+
+        #update child
+        # new_cate_ids = [j for j in obj_dict["categories"] if j not in [cate.id for cate in obj_db.categories]]
+
+        if obj_dict["categories"] != []:
+            cates = db.query(CategoryModel).filter(CategoryModel.id.in_(obj_dict["categories"])).all()
+            obj_db.categories = cates
+
+        db.add(obj_db)
+        db.commit()
+        db.refresh(obj_db)
+        return obj_db
+
+
+
+    # def update(
+    #     self,
+    #     db: Session,
+    #     *,
+    #     db_obj: ItemModel,
+    #     obj_in: Union[UpdateSchemaType, Dict[str, Any]]
+    # ) -> ModelType:
+    #     obj_data = jsonable_encoder(db_obj)
+    #     if isinstance(obj_in, dict):
+    #         update_data = obj_in
+    #     else:
+    #         update_data = obj_in.dict(exclude_unset=True)
+    #     for field in obj_data:
+    #         if field in update_data:
+    #             setattr(db_obj, field, update_data[field])
+    #     db.add(db_obj)
+    #     db.commit()
+    #     db.refresh(db_obj)
+    #     return db_obj 
+
+
+item = ItemRepo(ItemModel)

@@ -17,6 +17,11 @@ class CategoryCreate(CategoryBase):
 class CategoryUpdate(CategoryBase):
     pass
 
+class CategoryId(BaseModel):
+    id: int
+
+    class Config:
+        orm_mode = True
 
 class CategoryInDBBase(CategoryBase):
     id: int
@@ -27,9 +32,10 @@ class CategoryInDBBase(CategoryBase):
 
 
 class Category(CategoryBase):
-
+    id: int
     class Config: 
         orm_mode = True
+
 
 
 class CategoryInDB(CategoryInDBBase):

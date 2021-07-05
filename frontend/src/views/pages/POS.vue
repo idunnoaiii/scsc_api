@@ -18,7 +18,14 @@
                 ></v-autocomplete>
               </v-col>
               <v-col cols="2">
-                <v-btn fab elevation-2 medium class="rounded-5" color="primary">
+                <v-btn
+                  fab
+                  elevation-2
+                  medium
+                  class="rounded-5"
+                  color="primary"
+                  @click="setBillDialog(true)"
+                >
                   <v-icon left dark class="mx-0"> mdi-plus </v-icon>
                 </v-btn>
               </v-col>
@@ -29,11 +36,11 @@
                 :items="orderItems"
                 class="elevation-4 mx-6"
               >
-                <template v-slot:item.actions="{ item }">
-                  <v-icon small class="mr-2" @click="increaseQuantity(item)">
+                <template v-slot:[`item.actions`]="{ item }">
+                  <v-icon small class="mr-2" @click="increaseQuantity(item.id)">
                     mdi-arrow-up-drop-circle-outline
                   </v-icon>
-                  <v-icon small class="mr-2" @click="decreaseQuantity(item)">
+                  <v-icon small class="mr-2" @click="decreaseQuantity(item.id)">
                     mdi-arrow-down-drop-circle-outline
                   </v-icon>
                   <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
@@ -49,7 +56,7 @@
                   <v-col cols="6">
                     <v-row>
                       <v-col cols="6" class=""> Total Items(s) </v-col>
-                      <v-col cols="6"> : {{ this.totalItem }}</v-col>
+                      <v-col cols="6"> : {{ this.totalOrderItem }}</v-col>
                     </v-row>
                   </v-col>
                   <v-col cols="6">
@@ -61,7 +68,7 @@
                       <v-col cols="6">
                         Gross Price (inc {{ this.tax }}% Tax)
                       </v-col>
-                      <v-col cols="6"> : {{ this.grossPrice }} VND</v-col>
+                      <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
                     </v-row>
                   </v-col>
                 </v-row>
@@ -92,7 +99,7 @@
                   <v-btn
                     elevation="4"
                     small
-                    class="rounded-5 mr-lg-5 white--text"
+                    class="rounded-5 mr-lg-5 white--text d-none"
                     color="#5fbeaa"
                   >
                     <v-icon left dark class="mx-0 white--text" color="white"
@@ -104,11 +111,12 @@
                     elevation="4"
                     small
                     class="rounded-5 white--text"
-                    color="#81c868"
+                    color="green"
                     @click="enablePayDialog"
+                    :disabled="this.orderItems.length == 0"
                   >
-                    <v-icon left dark class="mx-0" color="white"
-                      >> mdi-cash
+                    <v-icon left dark class="mx-0" color="white">
+                      mdi-cash
                     </v-icon>
                     <span class="hidden-sm-and-down ml-3">Pay</span>
                   </v-btn>
@@ -145,8 +153,8 @@
             <v-col cols="7">
               <v-sheet tile class="py-4 px-1">
                 <v-chip-group multiple active-class="primary--text">
-                  <v-chip v-for="cate in categories" :key="cate">
-                    {{ cate }}
+                  <v-chip v-for="cate in categories" :key="cate.value">
+                    {{ cate.text }}
                   </v-chip>
                 </v-chip-group>
               </v-sheet>
@@ -213,10 +221,11 @@
 
     <PayDialog
       v-on:close-payment-dialog="closePayDialog()"
-      v-on:confirm-payment="confirmPayment"
+      v-on:confirm-payment="checkout"
       v-bind:show="this.showPayDialog"
     >
     </PayDialog>
+    <BillDialog v-bind:show="this.showBillDialog"> </BillDialog>
   </v-layout>
 </template>
 
@@ -224,11 +233,14 @@
 import axios from "../../axios";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import PayDialog from "../../components/POS/PayDialog.vue";
+import BillDialog from "../../components/BillDialog.vue";
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 
 export default {
   components: {
     ConfirmDialog,
     PayDialog,
+    BillDialog,
   },
   data() {
     return {
@@ -245,205 +257,9 @@ export default {
         { text: "", value: "actions", sortable: false },
       ],
       customers: [],
-      orderItems: [],
-      items: [
-        // {
-        //   name: "Bánh chuối tròn",
-        //   description: null,
-        //   price: 20000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 1,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bông lan trứng muối",
-        //   description: null,
-        //   price: 24000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 2,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh Thỏi vàng",
-        //   description: null,
-        //   price: 14000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 3,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh Mufin sữa",
-        //   description: null,
-        //   price: 25000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 4,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh mì kem sữa",
-        //   description: null,
-        //   price: 25000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 5,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh Tart phô mai",
-        //   description: null,
-        //   price: 20000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 6,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh phô mai bơ tỏi",
-        //   description: null,
-        //   price: 20000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 7,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh cade hột gà",
-        //   description: null,
-        //   price: 10000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 8,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh Su kem",
-        //   description: null,
-        //   price: 15000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 9,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh xúc xích phô mai",
-        //   description: null,
-        //   price: 10000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 10,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh mi hạt sen",
-        //   description: null,
-        //   price: 30000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 11,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh lột da hạt sen",
-        //   description: null,
-        //   price: 20000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 12,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh mì táo đỏ",
-        //   description: null,
-        //   price: 25000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 13,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh mini ngọt",
-        //   description: null,
-        //   price: 12000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 14,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "Bánh bơ tỏi Pháp",
-        //   description: null,
-        //   price: 25000,
-        //   expired_date: null,
-        //   image_url: null,
-        //   quantity: null,
-        //   category_id: null,
-        //   stock: null,
-        //   id: 15,
-        //   is_active: true,
-        // },
-        // {
-        //   name: "string",
-        //   description: "string",
-        //   price: 0,
-        //   expired_date: "2021-06-26T12:12:48.117000",
-        //   image_url: "string",
-        //   quantity: 0,
-        //   category_id: null,
-        //   stock: true,
-        //   id: 18,
-        //   is_active: true,
-        // },
-      ],
-      categories: ["Default"],
+      items: [],
+      categories: [],
       customerValue: 0,
-      totalItem: 0,
-      totalPrice: 0,
       grossPrice: 0,
       tax: 10,
       defaultItem: {},
@@ -453,12 +269,14 @@ export default {
     };
   },
   mounted() {
-    this.$swal("hello");
     axios.get("/api/v1/items/all?skip=0&limit=100").then((response) => {
       this.items = response.data;
     });
     axios.get("/api/v1/categories").then((response) => {
-      this.categories = response.data.map((item) => item.name);
+      this.categories = response.data.map((item) => ({
+        text: item.name,
+        value: item.id,
+      }));
     });
     axios.get("/api/v1/customers").then((response) => {
       this.customers = response.data.map((item) => ({
@@ -470,51 +288,7 @@ export default {
     });
   },
   methods: {
-    initialize() {},
-    getListItem() {
-      axios.get("/api/v1/items/all?skip=0&limit=100").then((data) => {
-        this.items = data.data;
-      });
-    },
-    addItemToOrder(item) {
-      let isNewItem = true;
-      this.orderItems.forEach((orderItem) => {
-        if (orderItem.id == item.id) {
-          orderItem.quantity++;
-          isNewItem = false;
-          return;
-        }
-      });
-
-      if (isNewItem) {
-        let orderItem = {
-          id: item.id,
-          rownumber: this.orderItems.length + 1,
-          name: item.name,
-          quantity: 1,
-          price: item.price,
-        };
-
-        this.orderItems.push(orderItem);
-      }
-      this.caculateTotalPrice();
-    },
-    caculateTotalPrice() {
-      let totalItem = 0;
-      let totalPrice = 0;
-      for (let index = 0; index < this.orderItems.length; index++) {
-        let item = this.orderItems[index];
-        item.rownumber = index + 1;
-        totalItem += item.quantity;
-        totalPrice += item.quantity * item.price;
-      }
-
-      this.totalItem = totalItem;
-      this.totalPrice = totalPrice;
-      this.grossPrice = totalPrice;
-    },
     deleteItem(item) {
-      console.log(item);
       this.$swal
         .fire({
           title: "Are you sure?",
@@ -529,8 +303,6 @@ export default {
           if (result.isConfirmed) {
             this.editedIndex = this.orderItems.indexOf(item);
             this.orderItems.splice(this.editedIndex, 1);
-            this.caculateTotalPrice();
-            // this.$swal.fire("Deleted!", "Your file has been deleted.", "success");
           }
         });
     },
@@ -544,16 +316,7 @@ export default {
         this.editedIndex = -1;
       });
     },
-    increaseQuantity(item) {
-      item.quantity++;
-      this.caculateTotalPrice();
-    },
-    decreaseQuantity(item) {
-      if (item.quantity > 1) {
-        item.quantity--;
-        this.caculateTotalPrice();
-      } else this.deleteItem(item);
-    },
+    
     enablePayDialog() {
       this.showPayDialog = true;
       console.log("ahihi");
@@ -561,50 +324,46 @@ export default {
     closePayDialog() {
       this.showPayDialog = false;
     },
-    confirmPayment(payload) {
-
-      let orderDetail = {
-        code: new Date().getTime(),
-        user_id: 1,
-        status: true,
-        tax: 0,
-        subtotal: this.totalPrice,
-        paid: payload.amount,
-        change: payload.change,
-        order_items: [
-          {
-            item_id: 0,
-            price: 0,
-            quantity: 0,
-            item_name: "string",
-          },
-        ],
-      };
-
-      orderDetail.order_items = this.orderItems.map((item) => ({
-        item_id: item.id,
-        price: item.price,
-        quantity: item.quantity,
-        item_name: item.name,
-      }));
-
-      axios
-        .post("/api/v1/orders/", orderDetail)
-        .then((response) => {
-          console.log(response);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-        
-    },
     blurCustomer() {
       console.log(this.customerValue);
       if (this.customerValue) return;
       this.customerValue = this.customers[0];
     },
     clearOrderItem() {
-      this.orderItems = [];
+      // this.orderItems = [];
+    },
+    ...mapMutations("POS", {
+      addItemToOrder: "ADD_ITEM_TO_ORDER",
+      clearOrderItem: "CLEAR_ORDER_ITEM",
+      setBillDialog: "SET_BILL_DIALOG",
+      increaseQuantity: "INCREASE_ITEM_QUANTITY",
+      decreaseQuantity: "DECREASE_ITEM_QUANTITY"
+    }),
+    ...mapActions("POS", {
+      checkout: "checkout",
+    }),
+  },
+  computed: {
+    ...mapState("POS", {
+      orderItems: "orderItems",
+      showBillDialog: "showBillDialog",
+      checkoutStatus: "checkoutStatus",
+    }),
+    ...mapGetters("POS", {
+      totalOrderItem: "totalOrderItem",
+      totalPrice: "totalPrice",
+    }),
+  },
+
+  watch: {
+    checkoutStatus: function (newValue) {
+      if (newValue == true) {
+        this.$swal.fire({
+          icon: "success",
+          title: "Checkout successfully",
+        });
+        this.showPayDialog = false;
+      }
     },
   },
 };

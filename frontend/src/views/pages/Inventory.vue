@@ -13,6 +13,9 @@
           <template v-slot:[`item.stock`]="{ item }">
             <span>{{ item.stock == true ? "Yes" : "No" }}</span>
           </template>
+          <template v-slot:[`item.quantity`]="{ item }">
+            <span>{{ item.stock == false ? "N/A" : item.quantity }}</span>
+          </template>
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title class="text-h4">Items</v-toolbar-title>
@@ -66,6 +69,24 @@
                               :rules="[required('Price'), minNumberValue(1000)]"
                             ></v-text-field>
                           </v-col>
+
+                          <v-col cols="12">
+                            <v-chip-group
+                              column
+                              multiple
+                              active-class="primary--text"
+                              v-model="editedItem.categories"
+                            >
+                              <v-chip
+                                v-for="cate_all in categories_all"
+                                :key="cate_all.id"
+                                :value="cate_all.id"
+                              >
+                                {{ cate_all.name }}
+                              </v-chip>
+                            </v-chip-group>
+                          </v-col>
+
                           <v-col cols="12" v-if="editedIndex === -1">
                             <v-file-input
                               accept="image/*"
@@ -167,6 +188,8 @@ export default {
     dialogDelete: false,
     selectedFile: null,
     stockTracking: false,
+    categories_all: [],
+    categories_range: [],
     headers: [
       {
         text: "Name",
@@ -176,7 +199,6 @@ export default {
       { text: "Description", value: "description" },
       { text: "Price", value: "price" },
       { text: "Quantity", value: "quantity" },
-      { text: "Category", value: "category_id" },
       { text: "Stock", value: "stock" },
       { text: "Action", value: "actions", sortable: false },
     ],
@@ -189,7 +211,7 @@ export default {
       expired_date: "",
       image_url: "",
       quantity: 0,
-      category_id: 0,
+      categories: [],
       stock: false,
       id: 0,
       is_active: false,
@@ -199,16 +221,6 @@ export default {
       username: "",
       role: "",
     },
-    categories: [
-      {
-        text: "admin",
-        value: true,
-      },
-      {
-        text: "user",
-        value: false,
-      },
-    ],
     categorySelected: false,
     required(inputName) {
       return (v) =>
@@ -254,6 +266,13 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+
+      axios.get("/api/v1/categories").then((response) => {
+        this.categories_all = response.data.map((item) => ({
+          name: item.name,
+          id: item.id,
+        }));
+      });
     },
 
     onFileSelected(file) {
@@ -281,7 +300,7 @@ export default {
           if (response.status == 200) {
             this.$swal.fire({
               icon: "success",
-              title: "Add new item successfully",
+              title: "Delete item successfully",
             });
             this.load();
           }
@@ -311,48 +330,70 @@ export default {
     },
 
     save() {
-    //   if (!this.$refs.form.validate()) {
-    //     return;
-    //   }
-      if (this.editedIndex > -1) {
-        //update
-        Object.assign(this.items[this.editedIndex], this.editedItem);
-      } else {
-        //add
+      if (!this.$refs.form.validate()) {
+        return;
+      }
 
-        const item_added =  {
-            name: this.editedItem.name,
-            description: this.editedItem.description,
-            price: this.editedItem.price,
-            quantity: this.editedItem.quantity,
-            category_id: null,
-            stock: this.editedItem.stock,
+      const item_added = {
+        name: this.editedItem.name,
+        description: this.editedItem.description,
+        price: this.editedItem.price,
+        quantity: this.editedItem.quantity,
+        categories: this.editedItem.categories,
+        stock: this.editedItem.stock,
+      };
+
+      if (this.editedIndex > -1) {
+        // update
+        let fd = new FormData();
+
+        //if update action then add id to item for notice
+        item_added.id = this.editedItem.id;
+
+        let item_json = JSON.stringify(item_added);
+
+        fd.append("data", item_json);
+
+        if (this.selectedFile) {
+          fd.append("image", this.selectedFile, this.selectedFile.name);
         }
+
+        console.log(item_json);
+
+        axios
+          .put("/api/v1/items/update", fd)
+          .then((response) => {
+            if (response.status == 200) {
+              this.$swal({
+                icon: "success",
+                title: "Update new item successfully",
+              });
+              this.load();
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else {
+        // insert
 
         let fd = new FormData();
 
-        let item_json = JSON.stringify(item_added)
+        let item_json = JSON.stringify(item_added);
 
         fd.append("data", item_json);
 
         fd.append("image", this.selectedFile, this.selectedFile.name);
 
         axios.post("/api/v1/items/create", fd).then((response) => {
-          console.log(response);
+          if (response.status == 200) {
+            this.$swal({
+              icon: "success",
+              title: "Add new item successfully",
+            });
+            this.load();
+          }
         });
-
-        // axios
-        //   .post("/api/v1/items/", this.editedItem)
-        //   .then(() => {
-        //     this.load();
-        //     this.$swal.fire({
-        //       icon: "success",
-        //       title: "Add new item successfully",
-        //     });
-        //   })
-        //   .catch((err) => {
-        //     console.log(err);
-        //   });
       }
       this.close();
     },
