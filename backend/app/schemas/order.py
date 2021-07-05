@@ -79,9 +79,17 @@ class OrderInDBBase(OrderBase):
 # Properties to return to client
 class Order(OrderBase):
     order_items: Optional[List[OrderItem]] # fix the pkey error
+
+    class Config:
+        orm_mode = True
+
+
+class OrderTrans(OrderBase):
     created_date: datetime
     cutomer: Optional[Customer]
     user: Optional[UserInDBBase]
+    order_items: Optional[List[OrderItem]] # fix the pkey error
+
     class Config:
         orm_mode = True
 

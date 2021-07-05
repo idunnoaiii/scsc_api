@@ -1,3 +1,4 @@
+from app.schemas.order import OrderTrans
 import fastapi
 from fastapi.param_functions import Body
 from typing import List
@@ -42,7 +43,7 @@ def checkout_onhold(
     
     
 
-@router.get("/filter", response_model=List[Order])
+@router.get("/filter", response_model=List[OrderTrans])
 def get_order_by_daterange(
     db: Session = Depends(get_db),
     startDate: datetime.datetime = Query(...),

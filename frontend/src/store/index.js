@@ -15,7 +15,8 @@ export default new Vuex.Store({
   state: {
     dialog: false,
     scanDialog: false,
-    dialogViewName: ''
+    dialogViewName: '',
+    isAuthenticated: false
   },
   mutations: {
     [muType.SHOW_GLOBAL_DIALOG](state, name){

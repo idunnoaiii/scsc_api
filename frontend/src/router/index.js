@@ -5,6 +5,7 @@ import POS from '../views/pages/POS.vue'
 import User from '../views/pages/User'
 import Inventory from '../views/pages/Inventory'
 import Transaction from '../views/pages/Transaction'
+import Category from '../views/pages/Category'
 import Testlayout from '../views/pages/Testlayout'
 
 
@@ -39,6 +40,11 @@ const routes = [
     path: '/transaction',
     name: 'Transaction',
     component: Transaction
+  },
+    {
+    path: '/category',
+    name: 'Category',
+    component: Category
   },
   {
     path: '/test',

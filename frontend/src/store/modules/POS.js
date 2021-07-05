@@ -21,14 +21,14 @@ const getters = {
 }
 
 const actions = {
-	checkout({ commit, state }, payload) {
+	checkout({ commit, state, getters }, payload) {
 
 		let orderDetail = {
 			code: new Date().getTime(),
 			user_id: 1,
 			status: true,
 			tax: 0,
-			subtotal: state.totalPrice,
+			subtotal: getters.totalPrice,
 			paid: payload.amount,
 			change: payload.change,
 			order_items: [
@@ -49,7 +49,7 @@ const actions = {
 		}));
 
 		axios
-			.get("/", orderDetail)
+			.post("/api/v1/orders/", orderDetail)
 			.then(() => {
 				commit('SET_CHECKOUT_STATUS', true)
 				commit('CLEAR_ORDER_ITEM')

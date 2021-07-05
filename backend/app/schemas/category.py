@@ -15,6 +15,7 @@ class CategoryCreate(CategoryBase):
 
 
 class CategoryUpdate(CategoryBase):
+    id: int
     pass
 
 class CategoryId(BaseModel):

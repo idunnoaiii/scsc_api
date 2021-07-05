@@ -134,7 +134,7 @@
             <v-col cols="4">
               <v-text-field
                 solo
-                label="Search product by name or sku"
+                label="Search"
                 clearable
                 width="200px"
                 hide-details
@@ -147,9 +147,10 @@
                 elevation="4"
                 big
                 class="rounded-5 ml-2 white--text"
+                @click="clearSearch"
                 color="primary"
               >
-                <v-icon>mdi-text-box-search-outline</v-icon>
+                Clear
               </v-btn>
             </v-col>
             <v-col cols="7">
@@ -245,7 +246,7 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import PayDialog from "../../components/POS/PayDialog.vue";
 import BillDialog from "../../components/BillDialog.vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import _ from "lodash"
+import _ from "lodash";
 
 export default {
   components: {
@@ -278,7 +279,7 @@ export default {
       showDialogDelete: false,
       showPayDialog: false,
       searchCriteria: {
-        searchValue: "ass",
+        searchValue: "",
         categories_selected: [],
       },
     };
@@ -354,20 +355,25 @@ export default {
       // this.orderItems = [];
     },
 
-    handlerSearch(criteria) {
+    handlerSearch() {
+      axios
+        .post("/api/v1/items/search", this.searchCriteria)
+        .then((response) => {
+          this.items = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
 
-      console.log(JSON.stringify(criteria))
+    clearSearch() {
+      this.searchCriteria.searchValue = "";
+      this.searchCriteria.categories_selected = [];
+      this.handlerSearch();
+    },
 
-      axios.post("/api/v1/items/search", this.searchCriteria)
-      .then((response) => {
-        this.items = response.data;
-        // console.log(response.data);
-      })
-      .catch((error) => {console.log(error)})
-    }, 
-
-    inputSearchDelay: _.debounce(function(e){
-      this.searchCriteria.searchValue = e
+    inputSearchDelay: _.debounce(function (e) {
+      this.searchCriteria.searchValue = e;
     }, 1000),
 
     ...mapMutations("POS", {
@@ -405,9 +411,9 @@ export default {
     },
     searchCriteria: {
       handler: function (newValue) {
-        this.handlerSearch(newValue);
+        if (newValue) this.handlerSearch();
       },
-      deep: true
+      deep: true,
     },
   },
 };
