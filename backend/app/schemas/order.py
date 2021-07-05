@@ -3,6 +3,8 @@ from typing import List, Optional
 from pydantic import BaseModel
 from sqlalchemy import DateTime, Float, sql
 from sqlalchemy.sql import schema
+from app.schemas.customer import Customer
+from .user import UserInDBBase
 
 
 # ---- OrderItem section ---------------------------
@@ -77,7 +79,9 @@ class OrderInDBBase(OrderBase):
 # Properties to return to client
 class Order(OrderBase):
     order_items: Optional[List[OrderItem]] # fix the pkey error
-    
+    created_date: datetime
+    cutomer: Optional[Customer]
+    user: Optional[UserInDBBase]
     class Config:
         orm_mode = True
 

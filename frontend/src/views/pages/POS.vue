@@ -138,6 +138,8 @@
                 clearable
                 width="200px"
                 hide-details
+                :value="searchCriteria.searchValue"
+                @input="inputSearchDelay"
               ></v-text-field>
             </v-col>
             <v-col cols="1">
@@ -152,8 +154,16 @@
             </v-col>
             <v-col cols="7">
               <v-sheet tile class="py-4 px-1">
-                <v-chip-group multiple active-class="primary--text">
-                  <v-chip v-for="cate in categories" :key="cate.value">
+                <v-chip-group
+                  multiple
+                  active-class="primary--text"
+                  v-model="searchCriteria.categories_selected"
+                >
+                  <v-chip
+                    v-for="cate in categories"
+                    :key="cate.value"
+                    :value="cate.value"
+                  >
                     {{ cate.text }}
                   </v-chip>
                 </v-chip-group>
@@ -165,7 +175,7 @@
             <v-card
               v-for="item in items"
               :key="item.id"
-              class="ma-2 d-flex flex-column"
+              class="mx-5 my-2 d-flex flex-column"
               @click="addItemToOrder(item)"
             >
               <!-- <v-img
@@ -235,6 +245,7 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import PayDialog from "../../components/POS/PayDialog.vue";
 import BillDialog from "../../components/BillDialog.vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import _ from "lodash"
 
 export default {
   components: {
@@ -266,6 +277,10 @@ export default {
       editedIndex: 0,
       showDialogDelete: false,
       showPayDialog: false,
+      searchCriteria: {
+        searchValue: "ass",
+        categories_selected: [],
+      },
     };
   },
   mounted() {
@@ -312,32 +327,55 @@ export default {
     closeDelete() {
       this.showDialogDelete = false;
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedItem = Object.assigcategories_selectedn(
+          {},
+          this.defaultItem
+        );
         this.editedIndex = -1;
       });
     },
-    
+
     enablePayDialog() {
       this.showPayDialog = true;
       console.log("ahihi");
     },
+
     closePayDialog() {
       this.showPayDialog = false;
     },
+
     blurCustomer() {
       console.log(this.customerValue);
       if (this.customerValue) return;
       this.customerValue = this.customers[0];
     },
+
     clearOrderItem() {
       // this.orderItems = [];
     },
+
+    handlerSearch(criteria) {
+
+      console.log(JSON.stringify(criteria))
+
+      axios.post("/api/v1/items/search", this.searchCriteria)
+      .then((response) => {
+        this.items = response.data;
+        // console.log(response.data);
+      })
+      .catch((error) => {console.log(error)})
+    }, 
+
+    inputSearchDelay: _.debounce(function(e){
+      this.searchCriteria.searchValue = e
+    }, 1000),
+
     ...mapMutations("POS", {
       addItemToOrder: "ADD_ITEM_TO_ORDER",
       clearOrderItem: "CLEAR_ORDER_ITEM",
       setBillDialog: "SET_BILL_DIALOG",
       increaseQuantity: "INCREASE_ITEM_QUANTITY",
-      decreaseQuantity: "DECREASE_ITEM_QUANTITY"
+      decreaseQuantity: "DECREASE_ITEM_QUANTITY",
     }),
     ...mapActions("POS", {
       checkout: "checkout",
@@ -364,6 +402,12 @@ export default {
         });
         this.showPayDialog = false;
       }
+    },
+    searchCriteria: {
+      handler: function (newValue) {
+        this.handlerSearch(newValue);
+      },
+      deep: true
     },
   },
 };

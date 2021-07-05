@@ -19,6 +19,8 @@ class Order(Base):
     paid = Column(Integer)
     change = Column(Integer)
     order_items = relationship("OrderItem", back_populates="order")
+    cutomer = relationship("Customer", primaryjoin="Customer.id == Order.customer_id")
+    user = relationship("User", primaryjoin="User.id == Order.user_id")
     created_date = Column(DateTime, default=sql.func.now())
     updated_date = Column(DateTime, default=sql.func.now())
     

@@ -1,7 +1,7 @@
 <template>
   <v-app id="app-body">
     <div>
-      <v-app-bar color="deep-purple">
+      <v-app-bar color="deep-purple" app>
         <v-toolbar-title class="white--text">SCSC Bakery </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
@@ -17,19 +17,32 @@
             small
             color="deep-purple  "
             class="white--text"
-            to="/inventory"
-          >
-            <v-icon left dark> mdi-store </v-icon>Inventory
-          </v-btn>
-
-          <v-btn
-            small
-            color="deep-purple  "
-            class="white--text"
             @click="showDialog('Login')"
           >
-            <v-icon left dark> mdi-basket </v-icon> Category
+            <v-icon left dark> mdi-basket </v-icon> Hold
           </v-btn>
+          <v-menu offset-y rounded="0">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn small color="deep-purple  " dark v-bind="attrs" v-on="on">
+                <v-icon left dark> mdi-store </v-icon>Store
+              </v-btn>
+            </template>
+            <v-list color="deep-purple  " class="white--text">
+              <v-list-item link to="/inventory">
+                <v-list-item-title class="white--text">Item</v-list-item-title>
+              </v-list-item>
+              <v-list-item link>
+                <v-list-item-title class="white--text" to="/category"
+                  >Category</v-list-item-title
+                >
+              </v-list-item>
+              <v-list-item link to="/users">
+                <v-list-item-title class="white--text"
+                  >Account</v-list-item-title
+                >
+              </v-list-item>
+            </v-list>
+          </v-menu>
 
           <!-- <div class="d-inline-block elevation-2 ">
                 <v-btn elevation="0" small class="rounded-0" color="white ">
@@ -55,15 +68,12 @@
             small
             color="deep-purple  "
             class="white--text"
-            @click="showDialog('Transcation')"
+            to="/transaction"
           >
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             Transaction
           </v-btn>
 
-          <v-btn small color="deep-purple  " class="white--text" to="/users">
-            <v-icon left dark> mdi-account </v-icon> User
-          </v-btn>
           <v-btn small color="deep-purple  " class="white--text">
             <v-icon left dark> mdi-account </v-icon> Admin
           </v-btn>
@@ -83,18 +93,16 @@
       <!-- Provides the application the proper gutter -->
       <!-- If using vue-router -->
       <v-container fluid fill-height>
-        <keep-alive>
-          <transition name="fade">
+        <transition name="fade">
+          <keep-alive>
             <router-view> </router-view>
-          </transition>
-        </keep-alive>
+          </keep-alive>
+        </transition>
       </v-container>
     </v-main>
     <Dialog v-if="$store.state.dialogViewName">
       <template v-slot:dialogBody>
-        <!-- <keep-alive> -->
-          <component :is="$store.state.dialogViewName"></component>
-        <!-- </keep-alive> -->
+        <component :is="$store.state.dialogViewName"></component>
       </template>
     </Dialog>
 
@@ -118,7 +126,14 @@ export default {
     User,
     POS,
   },
-
+  data: () => ({
+    items: [
+      { title: "Click Me" },
+      { title: "Click Me" },
+      { title: "Click Me" },
+      { title: "Click Me 2" },
+    ],
+  }),
   methods: {
     showDialog: function (name) {
       this.$store.commit(muType.SHOW_GLOBAL_DIALOG, name);
@@ -145,10 +160,10 @@ body {
   max-height: 100vh;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .3s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
-}
+// .fade-enter-active, .fade-leave-active {
+//   transition: opacity .33s;
+// }
+// .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+//   opacity: 0;
+// }
 </style>

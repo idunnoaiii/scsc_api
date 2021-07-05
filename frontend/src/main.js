@@ -4,8 +4,13 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 import VueSweetalert2 from 'vue-sweetalert2'
+import VMdDateRangePicker from "v-md-date-range-picker";
+
 
 import 'sweetalert2/dist/sweetalert2.min.css';
+// import "v-md-date-range-picker/dist/v-md-date-range-picker.css";
+
+Vue.use(VMdDateRangePicker);
 
 Vue.config.productionTip = false
 

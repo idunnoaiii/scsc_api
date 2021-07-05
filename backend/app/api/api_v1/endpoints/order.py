@@ -1,13 +1,15 @@
 import fastapi
 from fastapi.param_functions import Body
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.sqltypes import Integer
 from app.api.deps import get_db
 
 from app.repositories import order_repo
 from app.schemas import Order, OrderCreate
+
+import datetime
 
 router = APIRouter()
 
@@ -39,3 +41,11 @@ def checkout_onhold(
         return
     
     
+
+@router.get("/filter", response_model=List[Order])
+def get_order_by_daterange(
+    db: Session = Depends(get_db),
+    startDate: datetime.datetime = Query(...),
+    endDate: datetime.datetime = Query(...)
+):
+    return order_repo.filter_by_daterange(db, startDate=startDate, endDate=endDate)

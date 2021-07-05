@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import List
 from fastapi.encoders import jsonable_encoder
-
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from app.repositories.base import RepoBase
@@ -19,6 +20,18 @@ class OrderRepo(RepoBase[Order, OrderCreate, OrderUpdate]):
         db.commit()
         db.refresh(order_db)
         return order_db
+
+
+    def filter_by_daterange(self, db: Session, *, startDate: datetime, endDate: datetime) -> List[Order]:
+
+        return db.query(Order).filter(
+            and_(
+
+                Order.is_active == True,
+                Order.created_date >= startDate,
+                Order.created_date <= endDate
+            )
+        ).all()
 
 
 

@@ -1,145 +1,285 @@
 <template>
-  <v-container>
-                <v-row>
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="4"
-                  >
-                    <v-text-field
-                      v-model="editedItem.full_name"
-                      label="Tên tài khoản"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="4"
-                  >
-                    <v-text-field
-                      v-model="editedItem.username"
-                      label="Tên đăng nhập"
-                    ></v-text-field>
-                  </v-col>
-                  
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="4"
-                  >
-                    <v-text-field
-                      v-model="editedItem.role"
-                      label="Quyền"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-              </v-container>
+  <v-layout>
+    <v-col cols="8" md="8">
+      <v-card outlined height="100%">
+        <v-container class="mt-5" flat>
+          <v-row>
+            <v-spacer></v-spacer>
+            <v-md-date-range-picker
+              opens="right"
+              class="my-2"
+              @change="pickDateRange"
+            >
+            </v-md-date-range-picker>
+          </v-row>
+        </v-container>
+
+        <v-container fluid width="100%" class="mt-5">
+          <v-row>
+            <v-col cols="12" sm="4">
+              <v-hover v-slot="{ hover }" open-delay="200">
+                <v-card color="cyan darken-1" :elevation="hover ? 16 : 2">
+                  <v-row>
+                    <v-col cols="12" sm="8">
+                      <v-list-item three-line>
+                        <v-list-item-content>
+                          <v-list-item-title class="text-h4 md-1 white--text">
+                            ${{revenue}}
+                          </v-list-item-title>
+                          <v-list-item-subtitle class="white--text">
+                            Revenue
+                          </v-list-item-subtitle>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                      <div
+                        size="100"
+                        class="text-h1 text-center white--text ml-n15"
+                      >
+                        <v-icon color="cyan lighten-5" size="100"
+                          >mdi-currency-cny</v-icon
+                        >
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-hover>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-hover v-slot="{ hover }" open-delay="200">
+                <v-card color="pink darken-1" :elevation="hover ? 16 : 2">
+                  <v-row>
+                    <v-col cols="12" sm="8">
+                      <v-list-item three-line>
+                        <v-list-item-content>
+                          <v-list-item-title class="text-h4 mb-1 white--text">
+                            {{ orders.length }}
+                          </v-list-item-title>
+                          <v-list-item-subtitle class="white--text">
+                            Orders
+                          </v-list-item-subtitle>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                      <div
+                        size="100"
+                        class="text-h1 text-center white--text ml-n15"
+                      >
+                        <v-icon color="pink lighten-5" size="100"
+                          >mdi-receipt</v-icon
+                        >
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-hover>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-hover v-slot="{ hover }" open-delay="200">
+                <v-card color="orange darken-1" :elevation="hover ? 16 : 2">
+                  <v-row>
+                    <v-col cols="12" sm="8">
+                      <v-list-item three-line>
+                        <v-list-item-content>
+                          <v-list-item-title class="text-h4 mb-1 white--text">
+                            {{totalItemSold}}
+                          </v-list-item-title>
+                          <v-list-item-subtitle class="white--text">
+                            Item sold
+                          </v-list-item-subtitle>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                      <div
+                        size="100"
+                        class="text-h1 text-center white--text ml-n15"
+                      >
+                        <v-icon color="orange lighten-3" size="100"
+                          >mdi-chart-line</v-icon
+                        >
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-hover>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-sheet elevation="2">
+                <v-card-title>
+                  Orders
+                  <v-spacer></v-spacer>
+                  <v-text-field
+                    v-model="search"
+                    append-icon="mdi-magnify"
+                    label="Search"
+                    single-line
+                    hide-details
+                  ></v-text-field>
+                </v-card-title>
+                <v-data-table
+                  :headers="orderHeaders"
+                  :items="orders"
+                  :search="search"
+                  @click:row="handleClick"
+                >
+                  <template v-slot:[`item.created_date`]="{ item }">
+                    <span>{{ item.created_date | toMoment }}</span>
+                  </template>
+                </v-data-table>
+              </v-sheet>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card>
+    </v-col>
+    <v-col cols="4" md="4">
+      <v-card outlined height="100%">
+        <v-list-item three-line>
+          <v-list-item-content>
+            <v-list-item-title class="text-h5 mb-1"> Orders </v-list-item-title>
+            <v-sheet elevation="2">
+              <v-data-table
+                :headers="orderItemHeaders"
+                :items="orderItems"
+                :search="search"
+                @click:row="handleClick"
+              >
+                <template v-slot:[`item.created_date`]="{ item }">
+                  <span>{{ item.created_date | toMoment }}</span>
+                </template>
+              </v-data-table>
+            </v-sheet>
+          </v-list-item-content>
+        </v-list-item>
+      </v-card>
+    </v-col>
+  </v-layout>
 </template>
+
+
 <script>
-  export default {
-    data: () => ({
-      dialog: false,
-      dialogDelete: false,
-      headers: [
+import axios from "../../axios";
+import moment from "moment";
+
+export default {
+  data() {
+    return {
+      dateRange: [],
+      search: "",
+      orderHeaders: [
         {
-          text: 'Full Name',
-          align: 'start',
-          value: 'full_name',
+          text: "Code",
+          align: "start",
+          sortable: true,
+          value: "code",
         },
-        { text: 'Tên tài khoản', value: 'username' },
-        { text: 'Tên đăng nhập', value: 'role' ,sortable: false},
-        { text: '', value: 'actions', sortable: false },
+        { text: "Date", value: "created_date" },
+        { text: "Total", value: "subtotal" },
+        { text: "Paid", value: "paid" },
+        { text: "Change", value: "change" },
+        { text: "Customer", value: "customer.name" },
+        { text: "Cashier", value: "user.username" },
       ],
-      users: [],
-      editedIndex: -1,
-      editedItem: {
-        full_name: '',
-        username: '',
-        role: ''
-      },
-      defaultItem: {
-        full_name: '',
-        username: '',
-        role: ''
-      },
-    }),
-
-    computed: {
-      formTitle () {
-        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
-      },
+      orderItemHeaders: [
+        { text: "Name", value: "item_name" },
+        { text: "Quantity", value: "quantity" },
+        { text: "Price", value: "price" },
+      ],
+      orders: [
+        {
+          customer_id: null,
+          code: 0,
+          user_id: 1,
+          status: true,
+          tax: 0,
+          subtotal: 165000,
+          paid: 500000,
+          change: 499877,
+          order_items: [
+            {
+              order_id: 30,
+              item_id: 1,
+              price: 20000,
+              quantity: 3,
+              item_name: "Bánh chuối tròn",
+            },
+            {
+              order_id: 30,
+              item_id: 9,
+              price: 15000,
+              quantity: 2,
+              item_name: "Bánh Su kem",
+            },
+            {
+              order_id: 30,
+              item_id: 10,
+              price: 10000,
+              quantity: 2,
+              item_name: "Bánh xúc xích phô mai",
+            },
+            {
+              order_id: 30,
+              item_id: 13,
+              price: 25000,
+              quantity: 1,
+              item_name: "Bánh mì táo đỏ",
+            },
+            {
+              order_id: 30,
+              item_id: 11,
+              price: 30000,
+              quantity: 1,
+              item_name: "Bánh mi hạt sen",
+            },
+          ],
+        },
+      ],
+      orderItems: [],
+    };
+  },
+  created() {
+    this.init();
+    console.log(
+      moment("2021-06-27T03:32:14.693000").format("MMMM Do YYYY, h:mm:ss a")
+    );
+  },
+  methods: {
+    init: function () {
+      axios.get("/api/v1/orders/all?skip=0&limit=100").then((response) => {
+        this.orders = response.data;
+      });
     },
-
-    watch: {
-      dialog (val) {
-        val || this.close()
-      },
-      dialogDelete (val) {
-        val || this.closeDelete()
-      },
+    handleClick(row) {
+      this.orderItems = row.order_items;
     },
-
-    created () {
-      this.initialize()
+    pickDateRange(value) {
+      let startDate = value[0].add(-(new Date().getTimezoneOffset())/60, "hour").toISOString();
+      let endDate = value[1].endOf("day").add(-(new Date().getTimezoneOffset())/60, "hour").toISOString()
+      axios.get(`/api/v1/orders/filter?startDate=${startDate}&endDate=${endDate}`)
+      .then((response) => {
+        this.orders = response.data;
+      })
     },
+  },
 
-    methods: {
-      initialize () {
-        this.users = [
-          {
-            full_name: 'TestingAdmin',
-            username:'Admin',
-            role: 'Admin',
-          },
-          {
-            full_name: 'TestingUser',
-            username:'User',
-            role: 'User',
-          }
-        ]
-      },
-
-      editItem (item) {
-        this.editedIndex = this.users.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
-      },
-
-      deleteItem (item) {
-        this.editedIndex = this.users.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialogDelete = true
-      },
-
-      deleteItemConfirm () {
-        this.users.splice(this.editedIndex, 1)
-        this.closeDelete()
-      },
-
-      close () {
-        this.dialog = false
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
-      },
-
-      closeDelete () {
-        this.dialogDelete = false
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
-      },
-
-      save () {
-        if (this.editedIndex > -1) {
-          Object.assign(this.users[this.editedIndex], this.editedItem)
-        } else {
-          this.users.push(this.editedItem)
-        }
-        this.close()
-      },
+  computed: {
+    revenue(){
+      return this.orders.reduce((acc, item) => acc + item.subtotal, 0)
     },
-  }
+    totalItemSold(){
+      return this.orders.reduce((acc, item)=> acc + item.order_items.length, 0)
+    }
+  },
+
+  filters: {
+    toMoment: function (date) {
+      return moment(date).format("MM/DD/YYYY, h:mm a");
+    },
+  },
+};
 </script>
