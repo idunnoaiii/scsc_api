@@ -5,7 +5,12 @@
         <v-container class="mt-5" flat>
           <v-row>
             <v-spacer></v-spacer>
-            <v-md-date-range-picker class="my-2"></v-md-date-range-picker>
+            <v-md-date-range-picker
+              opens="right"
+              class="my-2"
+              @change="pickDateRange"
+            >
+            </v-md-date-range-picker>
           </v-row>
         </v-container>
 
@@ -18,29 +23,24 @@
                     <v-col cols="12" sm="8">
                       <v-list-item three-line>
                         <v-list-item-content>
-                          <div class="mb-4">
-                            <v-btn fab color="cyan" elevation="0">
-                              <v-icon color="white">fab fa-bitcoin</v-icon>
-                            </v-btn>
-                          </div>
-                          <v-list-item-title class="headline md-1 white--text">
-                            $1000
+                          <v-list-item-title class="text-h4 md-1 white--text">
+                            ${{revenue}}
                           </v-list-item-title>
                           <v-list-item-subtitle class="white--text">
-                            Market Cap $151.458
+                            Revenue
                           </v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>
                     </v-col>
                     <v-col cols="12" sm="4">
-                      <!-- <v-avatar size="100" class="ml-n10 mt-6"> -->
                       <div
                         size="100"
-                        class="text-h1 text-center white--text mt-6 ml-n15"
+                        class="text-h1 text-center white--text ml-n15"
                       >
-                        15
+                        <v-icon color="cyan lighten-5" size="100"
+                          >mdi-currency-cny</v-icon
+                        >
                       </div>
-                      <!-- </v-avatar> -->
                     </v-col>
                   </v-row>
                 </v-card>
@@ -53,29 +53,24 @@
                     <v-col cols="12" sm="8">
                       <v-list-item three-line>
                         <v-list-item-content>
-                          <div class="mb-4">
-                            <v-btn fab color="pink lighten-2" elevation="0">
-                              <v-icon color="white"> fas fa-rupee-sign</v-icon>
-                            </v-btn>
-                          </div>
-                          <v-list-item-title class="headline mb-1 white--text">
-                            $12000
+                          <v-list-item-title class="text-h4 mb-1 white--text">
+                            {{ orders.length }}
                           </v-list-item-title>
                           <v-list-item-subtitle class="white--text">
-                            Market Cap $151.458
+                            Orders
                           </v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>
                     </v-col>
                     <v-col cols="12" sm="4">
-                      <!-- <v-avatar size="100" class="ml-n10 mt-6"> -->
                       <div
                         size="100"
-                        class="text-h1 text-center white--text mt-6 ml-n15"
+                        class="text-h1 text-center white--text ml-n15"
                       >
-                        15
+                        <v-icon color="pink lighten-5" size="100"
+                          >mdi-receipt</v-icon
+                        >
                       </div>
-                      <!-- </v-avatar> -->
                     </v-col>
                   </v-row>
                 </v-card>
@@ -88,29 +83,24 @@
                     <v-col cols="12" sm="8">
                       <v-list-item three-line>
                         <v-list-item-content>
-                          <div class="mb-4">
-                            <v-btn fab color="orange lighten-2" elevation="0">
-                              <v-icon color="white"> fas fa-rupee-sign</v-icon>
-                            </v-btn>
-                          </div>
-                          <v-list-item-title class="headline mb-1 white--text">
-                            $12000
+                          <v-list-item-title class="text-h4 mb-1 white--text">
+                            {{totalItemSold}}
                           </v-list-item-title>
                           <v-list-item-subtitle class="white--text">
-                            Market Cap $151.458
+                            Item sold
                           </v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>
                     </v-col>
                     <v-col cols="12" sm="4">
-                      <!-- <v-avatar size="100" class="ml-n10 mt-6"> -->
                       <div
                         size="100"
-                        class="text-h1 text-center white--text mt-6 ml-n15"
+                        class="text-h1 text-center white--text ml-n15"
                       >
-                        15
+                        <v-icon color="orange lighten-3" size="100"
+                          >mdi-chart-line</v-icon
+                        >
                       </div>
-                      <!-- </v-avatar> -->
                     </v-col>
                   </v-row>
                 </v-card>
@@ -196,9 +186,9 @@ export default {
         { text: "Cashier", value: "user.username" },
       ],
       orderItemHeaders: [
-        { text:"Name", value: "item_name"},
-        { text:"Quantity", value: "quantity"},
-        { text:"Price", value: "price"}
+        { text: "Name", value: "item_name" },
+        { text: "Quantity", value: "quantity" },
+        { text: "Price", value: "price" },
       ],
       orders: [
         {
@@ -249,9 +239,7 @@ export default {
           ],
         },
       ],
-      orderItems: [
-
-      ]
+      orderItems: [],
     };
   },
   created() {
@@ -269,6 +257,23 @@ export default {
     handleClick(row) {
       this.orderItems = row.order_items;
     },
+    pickDateRange(value) {
+      let startDate = value[0].add(-(new Date().getTimezoneOffset())/60, "hour").toISOString();
+      let endDate = value[1].endOf("day").add(-(new Date().getTimezoneOffset())/60, "hour").toISOString()
+      axios.get(`/api/v1/orders/filter?startDate=${startDate}&endDate=${endDate}`)
+      .then((response) => {
+        this.orders = response.data;
+      })
+    },
+  },
+
+  computed: {
+    revenue(){
+      return this.orders.reduce((acc, item) => acc + item.subtotal, 0)
+    },
+    totalItemSold(){
+      return this.orders.reduce((acc, item)=> acc + item.order_items.length, 0)
+    }
   },
 
   filters: {

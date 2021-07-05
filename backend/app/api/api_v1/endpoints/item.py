@@ -141,3 +141,14 @@ def delete(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     item_repo.in_active(db, id=id)
     return True
+
+
+
+@router.post("/search")
+def search_item(
+    db: Session = Depends(deps.get_db),
+    searchValue: str = Body(None),
+    categories_selected: List[int] = Body(...)
+):
+    return item_repo.search(db, searchValue= searchValue,categories= categories_selected)
+    

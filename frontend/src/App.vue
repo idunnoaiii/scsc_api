@@ -17,19 +17,32 @@
             small
             color="deep-purple  "
             class="white--text"
-            to="/inventory"
-          >
-            <v-icon left dark> mdi-store </v-icon>Inventory
-          </v-btn>
-
-          <v-btn
-            small
-            color="deep-purple  "
-            class="white--text"
             @click="showDialog('Login')"
           >
-            <v-icon left dark> mdi-basket </v-icon> Category
+            <v-icon left dark> mdi-basket </v-icon> Hold
           </v-btn>
+          <v-menu offset-y rounded="0">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn small color="deep-purple  " dark v-bind="attrs" v-on="on">
+                <v-icon left dark> mdi-store </v-icon>Store
+              </v-btn>
+            </template>
+            <v-list color="deep-purple  " class="white--text">
+              <v-list-item link to="/inventory">
+                <v-list-item-title class="white--text">Item</v-list-item-title>
+              </v-list-item>
+              <v-list-item link>
+                <v-list-item-title class="white--text" to="/category"
+                  >Category</v-list-item-title
+                >
+              </v-list-item>
+              <v-list-item link to="/users">
+                <v-list-item-title class="white--text"
+                  >Account</v-list-item-title
+                >
+              </v-list-item>
+            </v-list>
+          </v-menu>
 
           <!-- <div class="d-inline-block elevation-2 ">
                 <v-btn elevation="0" small class="rounded-0" color="white ">
@@ -61,9 +74,6 @@
             Transaction
           </v-btn>
 
-          <v-btn small color="deep-purple  " class="white--text" to="/users">
-            <v-icon left dark> mdi-account </v-icon> User
-          </v-btn>
           <v-btn small color="deep-purple  " class="white--text">
             <v-icon left dark> mdi-account </v-icon> Admin
           </v-btn>
@@ -116,7 +126,14 @@ export default {
     User,
     POS,
   },
-
+  data: () => ({
+    items: [
+      { title: "Click Me" },
+      { title: "Click Me" },
+      { title: "Click Me" },
+      { title: "Click Me 2" },
+    ],
+  }),
   methods: {
     showDialog: function (name) {
       this.$store.commit(muType.SHOW_GLOBAL_DIALOG, name);

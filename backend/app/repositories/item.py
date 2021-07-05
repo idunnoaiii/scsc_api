@@ -1,7 +1,9 @@
 from typing import Dict, List
 
 from fastapi.encoders import jsonable_encoder
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import or_
 
 from app.repositories.base import RepoBase
 from app.models import ItemModel, CategoryModel
@@ -61,6 +63,29 @@ class ItemRepo(RepoBase[ItemModel, ItemCreate, ItemUpdate]):
         return obj_db
 
 
+    def search(
+        self,
+        db: Session,
+        *,
+        searchValue: str,
+        categories: List[int]
+    ):
+        ret = []
+        items = set()
+        searchValue = searchValue.strip().lower() if searchValue is not None else ""
+        if categories != []:
+            cates = db.query(CategoryModel).filter(
+                    CategoryModel.id.in_(categories)
+            ).all()
+
+            for cat in cates:
+                for i in cat.items:
+                    items.add(i)
+
+            ret = [i for i in items if searchValue == "" or (i.name.lower().find(searchValue.lower()) != -1)]
+            return ret
+
+        return db.query(ItemModel).filter(ItemModel.name.ilike("%"+searchValue+"%")).all()
 
     # def update(
     #     self,
