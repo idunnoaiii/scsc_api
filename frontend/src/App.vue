@@ -1,8 +1,10 @@
 <template>
   <v-app id="app-body">
     <div>
-      <v-app-bar color="deep-purple" app>
-        <v-toolbar-title class="white--text">SCSC Bakery </v-toolbar-title>
+      <v-app-bar v-if="this.$store.state.isAuthenticated" color="deep-purple" app>
+        <v-toolbar-title class="white--text" link to="/"
+          >SCSC Bakery</v-toolbar-title
+        >
         <v-spacer></v-spacer>
         <v-toolbar-items>
           <v-btn small color="deep-purple  " class="white--text" to="/test">
@@ -17,22 +19,23 @@
             small
             color="deep-purple  "
             class="white--text"
-            @click="showDialog('Login')"
+            to="/transaction"
           >
-            <v-icon left dark> mdi-basket </v-icon> Hold
+            <v-icon left dark> mdi-card-account-details-outline </v-icon>
+            Transaction
           </v-btn>
           <v-menu offset-y rounded="0">
             <template v-slot:activator="{ on, attrs }">
               <v-btn small color="deep-purple  " dark v-bind="attrs" v-on="on">
-                <v-icon left dark> mdi-store </v-icon>Store
+                <v-icon left dark> mdi-store </v-icon>Manage Store
               </v-btn>
             </template>
             <v-list color="deep-purple  " class="white--text">
               <v-list-item link to="/inventory">
                 <v-list-item-title class="white--text">Item</v-list-item-title>
               </v-list-item>
-              <v-list-item link>
-                <v-list-item-title class="white--text" to="/category"
+              <v-list-item link to="/category">
+                <v-list-item-title class="white--text"
                   >Category</v-list-item-title
                 >
               </v-list-item>
@@ -64,27 +67,35 @@
               <v-icon centered dark class="mx-0"> mdi-power </v-icon>
             </v-btn> -->
 
-          <v-btn
-            small
-            color="deep-purple  "
-            class="white--text"
-            to="/transaction"
-          >
-            <v-icon left dark> mdi-card-account-details-outline </v-icon>
-            Transaction
-          </v-btn>
-
-          <v-btn small color="deep-purple  " class="white--text">
+          <!-- <v-btn small color="deep-purple  " class="white--text">
             <v-icon left dark> mdi-account </v-icon> Admin
-          </v-btn>
+          </v-btn> -->
 
-          <v-btn small color="green" dark @click="showScanDialog">
+           <v-menu offset-y rounded="0">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn small color="deep-purple  " dark v-bind="attrs" v-on="on">
+                <v-icon left dark>mdi-account </v-icon>Admin
+              </v-btn>
+            </template>
+            <v-list color="deep-purple  " class="white--text">
+              <v-list-item link to="/inventory">
+                <v-list-item-title class="white--text">Profile</v-list-item-title>
+              </v-list-item>
+              <v-list-item link to="/category">
+                <v-list-item-title class="white--text"
+                  >Logout</v-list-item-title
+                >
+              </v-list-item>
+            </v-list>
+          </v-menu>
+
+          <!-- <v-btn small color="green" dark @click="showScanDialog">
             <v-icon centered dark> mdi-cog-outline </v-icon>
-          </v-btn>
+          </v-btn> -->
 
-          <v-btn small dark color="red">
+          <!-- <v-btn small dark color="red">
             <v-icon centered dark> mdi-logout-variant </v-icon>
-          </v-btn>
+          </v-btn> -->
         </v-toolbar-items>
       </v-app-bar>
     </div>
@@ -160,10 +171,11 @@ body {
   max-height: 100vh;
 }
 
-// .fade-enter-active, .fade-leave-active {
-//   transition: opacity .33s;
-// }
-// .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-//   opacity: 0;
-// }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.33s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 </style>
