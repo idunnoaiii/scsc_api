@@ -1,7 +1,7 @@
 <template>
   <v-app id="app-body">
     <div>
-      <v-app-bar v-if="this.$store.state.isAuthenticated" color="deep-purple" app>
+      <v-app-bar v-if="$store.state.isAuthenticated" color="deep-purple" app>
         <v-toolbar-title class="white--text" link to="/"
           >SCSC Bakery</v-toolbar-title
         >
@@ -138,6 +138,7 @@ export default {
     POS,
   },
   data: () => ({
+    isLogined: true,
     items: [
       { title: "Click Me" },
       { title: "Click Me" },
@@ -156,6 +157,7 @@ export default {
   },
   created() {
     this.initialize();
+    this.$store.commit("SET_AUTH_STATUS", true);
   },
 };
 </script>

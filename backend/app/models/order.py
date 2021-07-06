@@ -22,10 +22,8 @@ class Order(Base):
     cutomer = relationship("Customer", primaryjoin="Customer.id == Order.customer_id")
     user = relationship("User", primaryjoin="User.id == Order.user_id")
     created_date = Column(DateTime, default=sql.func.now())
-    updated_date = Column(DateTime, default=sql.func.now())
-    
+    updated_date = Column(DateTime, default=sql.func.now())    
     #try test add a colum with type BIGINT
-
 
 
 orders = Order.__table__
@@ -39,23 +37,6 @@ class OrderItem(Base):
     quantity = Column(Integer)
     item_name = Column(String(length=100))
     order = relationship("Order", back_populates="order_items")
-    
+
+
 order_items = OrderItem.__table__
-
-# class Association(Base):
-#     __tablename__ = 'association'
-#     left_id = Column(Integer, ForeignKey('left.id'), primary_key=True)
-#     right_id = Column(Integer, ForeignKey('right.id'), primary_key=True)
-#     extra_data = Column(String(50))
-#     child = relationship("Child", back_populates="parents")
-#     parent = relationship("Parent", back_populates="children")
-
-# class Parent(Base):
-#     __tablename__ = 'left'
-#     id = Column(Integer, primary_key=True)
-#     children = relationship("Association", back_populates="parent")
-
-# class Child(Base):
-#     __tablename__ = 'right'
-#     id = Column(Integer, primary_key=True)
-#     parents = relationship("Association", back_populates="child")
