@@ -16,18 +16,30 @@ export default new Vuex.Store({
     dialog: false,
     scanDialog: false,
     dialogViewName: '',
-    isAuthenticated: false
+    isAuthenticated: false,
+    token: '',
+    isAdmin: false
   },
   mutations: {
-    [muType.SHOW_GLOBAL_DIALOG](state, name){
+    [muType.SHOW_GLOBAL_DIALOG](state, name) {
       state.dialog = !state.dialog
       state.dialogViewName = name
     },
-    [muType.TOGGLE_SCAN_DIALOG](state){
+    [muType.TOGGLE_SCAN_DIALOG](state) {
       state.scanDialog = !state.scanDialog
+    },
+    SET_LOGIN_TOKEN(state, token) {
+      state.token = token
+    },
+    SET_AUTH_STATUS(state, status) {
+      state.isAuthenticated = status
+    },
+    SET_ROLE(state, status) {
+      state.isAdmin = status
     }
   },
   actions: {
+    
   },
   modules: {
     POS

@@ -6,7 +6,7 @@ from sqlalchemy.sql.expression import true
 from starlette.datastructures import FormData
 from app.api import deps
 from app.repositories import item_repo
-from app.schemas import Item, ItemCreate
+from app.schemas import Item, ItemCreate, User
 from app.models import CategoryModel
 from typing import List, Optional
 import base64
@@ -19,6 +19,7 @@ router = APIRouter()
 @router.get("/all", response_model=List[Item])
 def read_item(
     db: Session = Depends(deps.get_db),
+    user: User = Depends(deps.get_current_active_admin),
     skip: int = 0,
     limit: int = 100
 ):

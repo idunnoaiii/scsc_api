@@ -15,6 +15,7 @@
                   label="Tên đăng nhập"
                   type="text"
                   class="elevation-0"
+                  v-model="username"
                 >
                 </v-text-field>
                 <v-text-field
@@ -23,6 +24,7 @@
                   name="password"
                   label="Mật khẩu"
                   type="password"
+                  v-model="password"
                 >
                 </v-text-field>
                 <v-alert
@@ -32,7 +34,7 @@
                   dismissible
                   type="error"
                   transition="scale-transition"
-                  >Sai tên đăng nhập hoặc mật khẩu!
+                  >Incorect username or password!
                 </v-alert>
               </v-form>
             </v-card-text>
@@ -43,11 +45,15 @@
           </v-card>
         </v-flex>
       </v-layout>
-    </v-container>
+    </v-container> 
   </v-layout>
 </template>
 
 <script>
+
+import {setLocalToken} from '../../utils'
+import axios from '../../axios'
+
 export default {
   name: "Login",
   props: {
@@ -56,13 +62,32 @@ export default {
   data() {
     return {
       err: false,
+      username: "",
+      password: "",
     };
   },
   methods: {
     login: function () {
-      this.$router.push("/");
+      const params = new URLSearchParams();
+      params.append('username', this.username);
+      params.append('password', this.password);
+      axios.post("/api/v1/login/access-token", params)
+      .then(response => {
+        const token = response.data.access_token;
+        if(token){
+          setLocalToken(token);
+          this.$store.commit('SET_LOGIN_TOKEN', token);
+          this.$store.commit('SET_AUTH_STATUS', true);
+          this.$store.commit('SET_ROLE', true);
+          this.$router.push("/");
+        }
+      })
+      .catch(err => console.log(err))
     },
   },
+  created(){
+      this.$store.commit("SET_AUTH_STATUS", false) ;
+  }
 };
 </script>
 

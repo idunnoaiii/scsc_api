@@ -246,6 +246,7 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import PayDialog from "../../components/POS/PayDialog.vue";
 import BillDialog from "../../components/BillDialog.vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import {getLocalToken} from '../../utils'
 import _ from "lodash";
 
 export default {
@@ -285,7 +286,11 @@ export default {
     };
   },
   mounted() {
-    axios.get("/api/v1/items/all?skip=0&limit=100").then((response) => {
+    axios.get("/api/v1/items/all?skip=0&limit=100", {
+      headers: {
+        Authorization: `bearer ${getLocalToken()}`
+      }
+    }).then((response) => {
       this.items = response.data;
     });
     axios.get("/api/v1/categories").then((response) => {
