@@ -1,27 +1,46 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="show" persistent max-width="600px">
-
+    <v-dialog v-model="show" persistent max-width="630px">
       <v-card>
-        <v-card-title>
-          <span class="text-h5">Payment</span>
-        </v-card-title>
+        <v-toolbar color="primary">
+          <v-card-title>
+            <span class="text-h5 white--text">Payment</span>
+          </v-card-title>
+        </v-toolbar>
         <v-card-text>
           <v-container>
             <v-row>
               <v-col cols="12" sm="6" md="6">
                 <v-text-field
-                  label="Customer"
-                  value="Thien"
-                  readonly
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6" md="6">
-                <v-text-field
-                  label="In-charge"
+                  label="Cashier"
                   value="Clerk"
                   readonly
                 ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="9">
+                <v-autocomplete
+                  :items="customers"
+                  @blur="blurCustomer"
+                  v-model="customerValue"
+                  auto-select-first
+                  clearable
+                  deletable-chips
+                  solo
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="2">
+                <v-btn
+                  fab
+                  elevation-2
+                  medium
+                  class="rounded-5"
+                  color="primary"
+                  @click="$store.commit('SHOW_GLOBAL_DIALOG', 'AddCustomer')"
+                >
+                  <v-icon left dark class="mx-0"> mdi-plus </v-icon>
+                </v-btn>
               </v-col>
             </v-row>
             <v-row>
@@ -51,7 +70,7 @@
                 ></v-text-field>
                 <v-btn
                   :key="n"
-                  class="ml-0"
+                  class="mx-1"
                   v-for="n in [1, 2, 5, 10, 20, 50, 100, 200, 500]"
                   @click="addToMonney(n)"
                   color="green"
@@ -77,24 +96,28 @@
             </v-row>
           </v-container>
         </v-card-text>
+        <v-divider class="mb-4"></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            color="red darken-1"
-            small
+            color="primary darken-1"
             class="white--text"
             @click="$emit('close-payment-dialog')"
           >
-            Close
+            Cancel
           </v-btn>
           <v-btn
             color="green darken-1"
-            small
             class="white--text"
-            @click="$emit('confirm-payment', { amount: paymentAmount, change: change })"
+            @click="
+              $emit('confirm-payment', {
+                amount: paymentAmount,
+                change: change,
+              })
+            "
             :disabled="!canPurchase"
           >
-            Confirm Payment
+            Confirm
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -103,8 +126,7 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex';
-
+import { mapGetters, mapActions, mapState } from "vuex";
 
 export default {
   name: "PayDialog",
@@ -115,12 +137,22 @@ export default {
     return {
       paymentAmount: 0,
       enableDialog: false,
+      customerValue: { text: "Walk in customer", value: -1 },
     };
   },
   methods: {
     addToMonney(number) {
       this.paymentAmount = Number(this.paymentAmount) + number * 1000;
     },
+
+    blurCustomer() {
+      if (!this.customerValue) {
+        this.customerValue = this.customers[0];
+      }
+    },
+    ...mapActions("POS", {
+      getCustomer: "getCustomer",
+    }),
   },
   computed: {
     canPurchase: function () {
@@ -131,10 +163,15 @@ export default {
       return this.paymentAmount - this.totalPrice;
     },
     ...mapGetters("POS", {
-      totalPrice: "totalPrice"
-    })
+      totalPrice: "totalPrice",
+    }),
+    ...mapState("POS", {
+      customers: "customers",
+    }),
   },
-
+  created() {
+    this.getCustomer();
+  },
 };
 </script>
 

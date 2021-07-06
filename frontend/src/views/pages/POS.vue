@@ -4,32 +4,7 @@
       <v-card outlined height="100%">
         <v-container fill-height class="d-flex align-baseline">
           <div>
-            <v-row>
-              <v-col cols="9" class="ml-4">
-                <v-autocomplete
-                  :items="customers"
-                  @blur="blurCustomer"
-                  v-model="customerValue"
-                  auto-select-first
-                  clearable
-                  deletable-chips
-                  hide-details
-                  solo
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="2">
-                <v-btn
-                  fab
-                  elevation-2
-                  medium
-                  class="rounded-5"
-                  color="primary"
-                  @click="setBillDialog(true)"
-                >
-                  <v-icon left dark class="mx-0"> mdi-plus </v-icon>
-                </v-btn>
-              </v-col>
-            </v-row>
+        
             <v-row class="mt-4">
               <v-data-table
                 :headers="headers"
@@ -43,7 +18,7 @@
                   <v-icon small class="mr-2" @click="decreaseQuantity(item.id)">
                     mdi-arrow-down-drop-circle-outline
                   </v-icon>
-                  <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+                  <v-icon small @click="deleteItem(item.id)"> mdi-delete </v-icon>
                 </template>
               </v-data-table>
             </v-row>
@@ -86,15 +61,14 @@
                   </v-btn> -->
                   <v-btn
                     elevation="4"
-                    small
                     class="rounded-5 mr-lg-5 white--text"
-                    color="red"
+                    color="red darken-1"
                     @click="clearOrderItem"
                   >
                     <v-icon left dark class="mx-0" color="white"
                       >> mdi-cancel
                     </v-icon>
-                    <span class="hidden-sm-and-down ml-3">Cancel</span>
+                    <span class="hidden-sm-and-down ml-3">Clear</span>
                   </v-btn>
                   <v-btn
                     elevation="4"
@@ -109,9 +83,8 @@
                   </v-btn>
                   <v-btn
                     elevation="4"
-                    small
                     class="rounded-5 white--text"
-                    color="green"
+                    color="green darken-1"
                     @click="enablePayDialog"
                     :disabled="this.orderItems.length == 0"
                   >
@@ -246,7 +219,6 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import PayDialog from "../../components/POS/PayDialog.vue";
 import BillDialog from "../../components/BillDialog.vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import {getLocalToken} from '../../utils'
 import _ from "lodash";
 
 export default {
@@ -269,10 +241,9 @@ export default {
         { text: "Price", value: "price" },
         { text: "", value: "actions", sortable: false },
       ],
-      customers: [],
       items: [],
       categories: [],
-      customerValue: 0,
+     
       grossPrice: 0,
       tax: 10,
       defaultItem: {},
@@ -285,48 +256,39 @@ export default {
       },
     };
   },
-  mounted() {
-    axios.get("/api/v1/items/all?skip=0&limit=100", {
-      headers: {
-        Authorization: `bearer ${getLocalToken()}`
-      }
-    }).then((response) => {
-      this.items = response.data;
-    });
+  created() {
+    axios
+      .get("/api/v1/items/all?skip=0&limit=100")
+      .then((response) => {
+        this.items = response.data;
+      });
     axios.get("/api/v1/categories").then((response) => {
       this.categories = response.data.map((item) => ({
         text: item.name,
         value: item.id,
       }));
     });
-    axios.get("/api/v1/customers").then((response) => {
-      this.customers = response.data.map((item) => ({
-        text: `${item.phone} - ${item.name}`,
-        value: item.phone,
-      }));
-      this.customers.unshift({ text: "Walk in customer", value: -1 });
-      this.customerValue = this.customers[0];
-    });
+   
   },
   methods: {
-    deleteItem(item) {
-      this.$swal
-        .fire({
-          title: "Are you sure?",
-          text: "You won't be able to revert this!",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Yes, delete it!",
-        })
-        .then((result) => {
-          if (result.isConfirmed) {
-            this.editedIndex = this.orderItems.indexOf(item);
-            this.orderItems.splice(this.editedIndex, 1);
-          }
-        });
-    },
+    // deleteItem(item) {
+    //   // this.$swal
+    //   //   .fire({
+    //   //     title: "Are you sure?",
+    //   //     text: "You won't be able to revert this!",
+    //   //     icon: "warning",
+    //   //     showCancelButton: true,
+    //   //     confirmButtonColor: "#3085d6",
+    //   //     cancelButtonColor: "#d33",
+    //   //     confirmButtonText: "Yes, delete it!",
+    //   //   })
+    //   //   .then((result) => {
+    //   //     if (result.isConfirmed) {
+    //   //     }
+    //   //   });
+    //   this.editedIndex = this.orderItems.indexOf(item);
+    //   this.orderItems.splice(this.editedIndex, 1);
+    // },
     deleteItemConfirm() {
       this.closeDelete();
     },
@@ -350,11 +312,7 @@ export default {
       this.showPayDialog = false;
     },
 
-    blurCustomer() {
-      console.log(this.customerValue);
-      if (this.customerValue) return;
-      this.customerValue = this.customers[0];
-    },
+   
 
     clearOrderItem() {
       // this.orderItems = [];
@@ -379,7 +337,7 @@ export default {
 
     inputSearchDelay: _.debounce(function (e) {
       this.searchCriteria.searchValue = e;
-    }, 1000),
+    }, 300),
 
     ...mapMutations("POS", {
       addItemToOrder: "ADD_ITEM_TO_ORDER",
@@ -387,6 +345,7 @@ export default {
       setBillDialog: "SET_BILL_DIALOG",
       increaseQuantity: "INCREASE_ITEM_QUANTITY",
       decreaseQuantity: "DECREASE_ITEM_QUANTITY",
+      deleteItem: "DELETE_ITEM_ORDER"
     }),
     ...mapActions("POS", {
       checkout: "checkout",

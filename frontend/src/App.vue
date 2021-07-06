@@ -1,23 +1,23 @@
 <template>
   <v-app id="app-body">
     <div>
-      <v-app-bar v-if="$store.state.isAuthenticated" color="deep-purple" app>
+      <v-app-bar v-if="$store.state.isAuthenticated" color="primary" app>
         <v-toolbar-title class="white--text" link to="/"
           >SCSC Bakery</v-toolbar-title
         >
         <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn small color="deep-purple  " class="white--text" to="/test">
+          <v-btn small color="primary  " class="white--text" to="/test">
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             test
           </v-btn>
-          <v-btn small color="deep-purple  " class="white--text" to="/">
+          <v-btn small color="primary  " class="white--text" to="/">
             <v-icon left dark> mdi-card-account-details-outline </v-icon> Point
             of Sale
           </v-btn>
           <v-btn
             small
-            color="deep-purple  "
+            color="primary  "
             class="white--text"
             to="/transaction"
           >
@@ -26,11 +26,11 @@
           </v-btn>
           <v-menu offset-y rounded="0">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn small color="deep-purple  " dark v-bind="attrs" v-on="on">
+              <v-btn small color="primary  " dark v-bind="attrs" v-on="on">
                 <v-icon left dark> mdi-store </v-icon>Manage Store
               </v-btn>
             </template>
-            <v-list color="deep-purple  " class="white--text">
+            <v-list color="primary  " class="white--text">
               <v-list-item link to="/inventory">
                 <v-list-item-title class="white--text">Item</v-list-item-title>
               </v-list-item>
@@ -67,21 +67,21 @@
               <v-icon centered dark class="mx-0"> mdi-power </v-icon>
             </v-btn> -->
 
-          <!-- <v-btn small color="deep-purple  " class="white--text">
+          <!-- <v-btn small color="primary  " class="white--text">
             <v-icon left dark> mdi-account </v-icon> Admin
           </v-btn> -->
 
            <v-menu offset-y rounded="0">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn small color="deep-purple  " dark v-bind="attrs" v-on="on">
+              <v-btn small color="primary  " dark v-bind="attrs" v-on="on">
                 <v-icon left dark>mdi-account </v-icon>Admin
               </v-btn>
             </template>
-            <v-list color="deep-purple  " class="white--text">
+            <v-list color="primary  " class="white--text">
               <v-list-item link to="/inventory">
                 <v-list-item-title class="white--text">Profile</v-list-item-title>
               </v-list-item>
-              <v-list-item link to="/category">
+              <v-list-item link @click="logout">
                 <v-list-item-title class="white--text"
                   >Logout</v-list-item-title
                 >
@@ -89,9 +89,9 @@
             </v-list>
           </v-menu>
 
-          <!-- <v-btn small color="green" dark @click="showScanDialog">
+          <v-btn small color="green" dark @click="showScanDialog">
             <v-icon centered dark> mdi-cog-outline </v-icon>
-          </v-btn> -->
+          </v-btn>
 
           <!-- <v-btn small dark color="red">
             <v-icon centered dark> mdi-logout-variant </v-icon>
@@ -104,11 +104,9 @@
       <!-- Provides the application the proper gutter -->
       <!-- If using vue-router -->
       <v-container fluid fill-height>
-        <transition name="fade">
           <keep-alive>
             <router-view> </router-view>
           </keep-alive>
-        </transition>
       </v-container>
     </v-main>
     <Dialog v-if="$store.state.dialogViewName">
@@ -127,7 +125,10 @@ import Dialog from "./components/Dialog.vue";
 import ScanDialog from "./components/ScanDialog.vue";
 import User from "./views/pages/User.vue";
 import POS from "./views/pages/POS.vue";
+import Login from "./views/pages/Login.vue";
 import * as muType from "./store/mutation-type";
+import axios from './axios'
+import AddCustomer from "./components/AddCustomer.vue"
 
 export default {
   name: "App",
@@ -136,15 +137,11 @@ export default {
     ScanDialog,
     User,
     POS,
+    Login,
+    AddCustomer
   },
   data: () => ({
     isLogined: true,
-    items: [
-      { title: "Click Me" },
-      { title: "Click Me" },
-      { title: "Click Me" },
-      { title: "Click Me 2" },
-    ],
   }),
   methods: {
     showDialog: function (name) {
@@ -154,10 +151,16 @@ export default {
       this.$store.commit(muType.TOGGLE_SCAN_DIALOG);
     },
     initialize() {},
+    logout() {
+      localStorage.removeItem("token");
+      this.$store.commit("SET_LOGIN_TOKEN", "");
+      this.$store.commit("SET_AUTH_STATUS", false);
+      this.$router.replace("/login");
+    },
   },
-  created() {
-    this.initialize();
-    this.$store.commit("SET_AUTH_STATUS", true);
+  beforeCreate: function() {
+    this.$store.commit("INITIALIZE_STORE");
+    axios.defaults.headers.common["Authorization"] = this.$store.state.token
   },
 };
 </script>

@@ -201,41 +201,7 @@ export default {
           paid: 500000,
           change: 499877,
           order_items: [
-            {
-              order_id: 30,
-              item_id: 1,
-              price: 20000,
-              quantity: 3,
-              item_name: "Bánh chuối tròn",
-            },
-            {
-              order_id: 30,
-              item_id: 9,
-              price: 15000,
-              quantity: 2,
-              item_name: "Bánh Su kem",
-            },
-            {
-              order_id: 30,
-              item_id: 10,
-              price: 10000,
-              quantity: 2,
-              item_name: "Bánh xúc xích phô mai",
-            },
-            {
-              order_id: 30,
-              item_id: 13,
-              price: 25000,
-              quantity: 1,
-              item_name: "Bánh mì táo đỏ",
-            },
-            {
-              order_id: 30,
-              item_id: 11,
-              price: 30000,
-              quantity: 1,
-              item_name: "Bánh mi hạt sen",
-            },
+           
           ],
         },
       ],
@@ -250,9 +216,7 @@ export default {
   },
   methods: {
     init: function () {
-      axios.get("/api/v1/orders/all?skip=0&limit=100").then((response) => {
-        this.orders = response.data;
-      });
+      this.pickDateRange([moment().startOf("day"), moment()]);
     },
     handleClick(row) {
       this.orderItems = row.order_items;
@@ -260,6 +224,7 @@ export default {
     pickDateRange(value) {
       let startDate = value[0].add(-(new Date().getTimezoneOffset())/60, "hour").toISOString();
       let endDate = value[1].endOf("day").add(-(new Date().getTimezoneOffset())/60, "hour").toISOString()
+      console.log(startDate, endDate)
       axios.get(`/api/v1/orders/filter?startDate=${startDate}&endDate=${endDate}`)
       .then((response) => {
         this.orders = response.data;
