@@ -182,7 +182,7 @@ export default {
         { text: "Total", value: "subtotal" },
         { text: "Paid", value: "paid" },
         { text: "Change", value: "change" },
-        { text: "Customer", value: "customer.name" },
+        { text: "Discount", value: "discount" },
         { text: "Cashier", value: "user.username" },
       ],
       orderItemHeaders: [

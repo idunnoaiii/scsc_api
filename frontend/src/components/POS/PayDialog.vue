@@ -140,6 +140,7 @@
               $emit('confirm-payment', {
                 amount: paymentAmount,
                 change: change,
+                discountValue: getDiscountValue,
               })
             "
             :disabled="!canPurchase"
@@ -201,10 +202,12 @@ export default {
     getPriceAfterDiscount: function () {
       return this.totalPrice - this.getDiscountValue;
     },
+
     getDiscountValue: function () {
-      if (this.discount.type == 0)
+      if (this.discount.type == 0){
         return (this.totalPrice * this.discount.value) / 100;
-      else return this.discount.value;
+      }
+      return this.discount.value;
     },
   },
   created() {
