@@ -36,7 +36,9 @@ const actions = {
 			user_id: 1,
 			status: true,
 			tax: 0,
-			subtotal: getters.totalPrice,
+			subtotal: getters.totalPrice - payload.discountValue,
+			total: getters.totalPrice,
+			discount: payload.discountValue,
 			paid: payload.amount,
 			change: payload.change,
 			order_items: [
