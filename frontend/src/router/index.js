@@ -6,6 +6,7 @@ import User from '../views/pages/User'
 import Inventory from '../views/pages/Inventory'
 import Transaction from '../views/pages/Transaction'
 import Category from '../views/pages/Category'
+import Discount from '../views/pages/Discount'
 import Testlayout from '../views/pages/Testlayout'
 
 
@@ -21,30 +22,49 @@ const routes = [
     path: '/',
     name: 'POS',
     component: POS,
-    // children:[{
-    //   path:'pos',
-    //   component:POS
-    // }]
+    meta: {
+      requireLogin: true
+    }
   },
   {
     path: '/users',
     name: 'User',
-    component: User
-  }, 
+    component: User,
+    meta: {
+      requireLogin: true
+    }
+  },
   {
     path: '/inventory',
     name: 'Inventory',
-    component: Inventory
+    component: Inventory,
+    meta: {
+      requireLogin: true
+    }
   },
   {
     path: '/transaction',
     name: 'Transaction',
-    component: Transaction
+    component: Transaction,
+    meta: {
+      requireLogin: true
+    }
   },
-    {
+  {
     path: '/category',
     name: 'Category',
-    component: Category
+    component: Category,
+    meta: {
+      requireLogin: true
+    }
+  },
+    {
+    path: '/discount',
+    name: 'Discount',
+    component: Discount,
+    meta: {
+      requireLogin: true
+    }
   },
   {
     path: '/test',
@@ -66,5 +86,15 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requireLogin) && !localStorage.getItem("token")) {
+    next('/login')
+  } else {
+    next()
+  }
+})
+
 
 export default router

@@ -8,8 +8,6 @@ class Customer(Base):
     __tablename__ = "customers"
     name = Column(String, index=True)
     phone = Column(Integer, unique=True, index=True, nullable=False)
-    email = Column(String)
-    address = Column(String)
     created_date = Column(DateTime, default=sql.func.now())
     updated_date = Column(DateTime, default=sql.func.now())
 

@@ -4,11 +4,16 @@ const state = () => ({
 	orderItems: [],
 	customer_checkout: 0,
 	totalItem: 0,
-	totalPrice: 0,
-	// paymentAmount: 0,
-	// tax: 10,
+	totalPay: 0,
+	discount: {
+		threshold: 0,
+		type: 0,
+		value: 0
+	},
 	checkoutStatus: null,
 	showBillDialog: false,
+	customers: [],
+	customerValue: 0,
 })
 
 const getters = {
@@ -17,6 +22,9 @@ const getters = {
 	},
 	totalPrice(state) {
 		return state.orderItems.reduce((acc, item) => acc + (item.quantity * item.price), 0)
+	},
+	discount(state){
+		return state.discount;
 	}
 }
 
@@ -60,6 +68,29 @@ const actions = {
 			});
 
 	},
+
+	getCustomer({ commit }) {
+		axios.get("/api/v1/customers")
+			.then((response) => {
+				if (response.data) {
+					const customers = response.data.map((item) => ({
+						text: `${item.phone} - ${item.name}`,
+						value: item.phone,
+					}));
+					customers.unshift({ text: "Walk in customer", value: -1 });
+					commit('SET_CUSTOMERS', customers)
+				}
+
+			});
+	},
+
+	calculateDiscount({getters, commit}) {
+		axios.get(`/api/v1/discounts/calculate/${getters.totalPrice}`)
+			.then(response => {
+				commit("SET_DISCOUNT", response.data)
+			})
+	}
+
 }
 
 const mutations = {
@@ -90,7 +121,7 @@ const mutations = {
 
 	DECREASE_ITEM_QUANTITY(state, id) {
 		let item = state.orderItems.find(x => x.id == id)
-		if(item == null || item == undefined) 
+		if (item == null || item == undefined)
 			return;
 		if (item.quantity > 1) {
 			item.quantity--;
@@ -99,17 +130,29 @@ const mutations = {
 		state.orderItems = state.orderItems.filter(x => x.id != id);
 	},
 
-	CLEAR_ORDER_ITEM(state){
+	CLEAR_ORDER_ITEM(state) {
 		state.orderItems = [];
 	},
 
-	SET_BILL_DIALOG(state, status){
+	SET_BILL_DIALOG(state, status) {
 		state.showBillDialog = status;
 	},
 
 
-	CLEAR_CHECKOUT_DATA(state){
+	CLEAR_CHECKOUT_DATA(state) {
 		state.orderItems = [];
+	},
+
+	DELETE_ITEM_ORDER(state, id) {
+		state.orderItems = state.orderItems.filter(x => x.id != id);
+	},
+
+	SET_CUSTOMERS(state, payload) {
+		state.customers = payload
+	},
+
+	SET_DISCOUNT(state, payload) {
+		state.discount = payload
 	}
 
 }

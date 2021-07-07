@@ -8,7 +8,7 @@
       transition="dialog-bottom-transition"
     >
       <v-card>
-        <v-toolbar dark height="48" color="deep-purple">
+        <v-toolbar dark height="48" color="primary">
           <v-btn icon dark @click="$store.commit('TOGGLE_SCAN_DIALOG')">
             <v-icon>mdi-close</v-icon>
           </v-btn>

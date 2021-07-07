@@ -45,14 +45,13 @@
           </v-card>
         </v-flex>
       </v-layout>
-    </v-container> 
+    </v-container>
   </v-layout>
 </template>
 
 <script>
-
-import {setLocalToken} from '../../utils'
-import axios from '../../axios'
+import { setLocalToken } from "../../utils";
+import axios from "../../axios";
 
 export default {
   name: "Login",
@@ -69,25 +68,28 @@ export default {
   methods: {
     login: function () {
       const params = new URLSearchParams();
-      params.append('username', this.username);
-      params.append('password', this.password);
-      axios.post("/api/v1/login/access-token", params)
-      .then(response => {
-        const token = response.data.access_token;
-        if(token){
-          setLocalToken(token);
-          this.$store.commit('SET_LOGIN_TOKEN', token);
-          this.$store.commit('SET_AUTH_STATUS', true);
-          this.$store.commit('SET_ROLE', true);
-          this.$router.push("/");
-        }
-      })
-      .catch(err => console.log(err))
+      params.append("username", this.username);
+      params.append("password", this.password);
+      axios
+        .post("/api/v1/login/access-token", params)
+        .then((response) => {
+          const token = response.data.access_token;
+          if (token) {
+            setLocalToken(token);
+            this.$store.commit("SET_LOGIN_TOKEN", token);
+            this.$store.commit("SET_AUTH_STATUS", true);
+            this.$store.commit("SET_ROLE", true);
+            this.$router.push("/");
+          }
+        })
+        .catch((err) => console.log(err));
     },
   },
-  created(){
-      this.$store.commit("SET_AUTH_STATUS", false) ;
-  }
+  beforeCreate() {
+    if (localStorage.getItem("token")) {
+      this.$router.replace("/");
+    }
+  },
 };
 </script>
 
