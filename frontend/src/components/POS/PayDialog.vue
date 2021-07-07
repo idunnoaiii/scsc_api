@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="show" persistent max-width="630px">
+    <v-dialog v-model="$store.state.payDialog" persistent max-width="640px">
       <v-card>
         <v-toolbar color="primary">
           <v-card-title>
@@ -45,12 +45,39 @@
             </v-row>
             <v-row>
               <v-col cols="3">
-                <div class="subtitle-1 text--grey">Total Price</div>
+                <div class="subtitle-1 text--grey">Amount</div>
+              </v-col>
+              <v-col cols="3">
+                <v-text-field
+                  placeholder="Placeholder"
+                  :value="totalPrice"
+                  readonly
+                  solo
+                ></v-text-field
+              ></v-col>
+              <v-col cols="3" v-if="discount.value != 0">
+                <div class="subtitle-1 text--grey">Discount:</div>
+                <div class="caption text--grey">
+                  {{ discount.type == 0 ? "Percentage(%)" : "Cash"
+                  }}{{ ":" + discount.value }}
+                </div>
+              </v-col>
+              <v-col cols="3" v-if="discount.value != 0">
+                <v-text-field
+                  :value="getDiscountValue"
+                  readonly
+                  solo
+                ></v-text-field
+              ></v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="3">
+                <div class="subtitle-1 text--grey">Total Pay</div>
               </v-col>
               <v-col cols="9">
                 <v-text-field
                   placeholder="Placeholder"
-                  :value="totalPrice"
+                  :value="getPriceAfterDiscount"
                   readonly
                   solo
                 ></v-text-field
@@ -102,7 +129,7 @@
           <v-btn
             color="primary darken-1"
             class="white--text"
-            @click="$emit('close-payment-dialog')"
+            @click="$store.commit('SET_PAYDIALOG', false)"
           >
             Cancel
           </v-btn>
@@ -152,25 +179,37 @@ export default {
     },
     ...mapActions("POS", {
       getCustomer: "getCustomer",
+      calculateDiscount: "calculateDiscount",
     }),
   },
   computed: {
     canPurchase: function () {
-      return this.paymentAmount >= this.totalPrice;
+      return this.paymentAmount >= this.getPriceAfterDiscount;
     },
     change: function () {
       if (this.paymentAmount < this.totalPrice) return 0;
-      return this.paymentAmount - this.totalPrice;
+      return this.paymentAmount - this.getPriceAfterDiscount;
     },
     ...mapGetters("POS", {
       totalPrice: "totalPrice",
+      discount: "discount",
     }),
     ...mapState("POS", {
       customers: "customers",
     }),
+
+    getPriceAfterDiscount: function () {
+      return this.totalPrice - this.getDiscountValue;
+    },
+    getDiscountValue: function () {
+      if (this.discount.type == 0)
+        return (this.totalPrice * this.discount.value) / 100;
+      else return this.discount.value;
+    },
   },
   created() {
     this.getCustomer();
+    this.calculateDiscount();
   },
 };
 </script>

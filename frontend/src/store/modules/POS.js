@@ -4,9 +4,12 @@ const state = () => ({
 	orderItems: [],
 	customer_checkout: 0,
 	totalItem: 0,
-	totalPrice: 0,
-	// paymentAmount: 0,
-	// tax: 10,
+	totalPay: 0,
+	discount: {
+		threshold: 0,
+		type: 0,
+		value: 0
+	},
 	checkoutStatus: null,
 	showBillDialog: false,
 	customers: [],
@@ -19,6 +22,9 @@ const getters = {
 	},
 	totalPrice(state) {
 		return state.orderItems.reduce((acc, item) => acc + (item.quantity * item.price), 0)
+	},
+	discount(state){
+		return state.discount;
 	}
 }
 
@@ -76,7 +82,15 @@ const actions = {
 				}
 
 			});
+	},
+
+	calculateDiscount({getters, commit}) {
+		axios.get(`/api/v1/discounts/calculate/${getters.totalPrice}`)
+			.then(response => {
+				commit("SET_DISCOUNT", response.data)
+			})
 	}
+
 }
 
 const mutations = {
@@ -137,7 +151,9 @@ const mutations = {
 		state.customers = payload
 	},
 
-
+	SET_DISCOUNT(state, payload) {
+		state.discount = payload
+	}
 
 }
 

@@ -19,7 +19,6 @@ router = APIRouter()
 @router.get("/all", response_model=List[Item])
 def read_item(
     db: Session = Depends(deps.get_db),
-    user: User = Depends(deps.get_current_active_admin),
     skip: int = 0,
     limit: int = 100
 ):

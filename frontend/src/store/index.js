@@ -17,6 +17,7 @@ export default new Vuex.Store({
     scanDialog: false,
     dialogViewName: 'User',
     isAuthenticated: false,
+    payDialog: false,
     token: '',
     isAdmin: false
   },
@@ -37,14 +38,17 @@ export default new Vuex.Store({
     SET_ROLE(state, status) {
       state.isAdmin = status
     },
-    INITIALIZE_STORE(state){
+    SET_PAYDIALOG(state, status) {
+      state.payDialog = status
+    },
+    INITIALIZE_STORE(state) {
       const token = localStorage.getItem("token")
       state.token = token != null ? token : "";
       state.isAuthenticated = token != null ? true : false;
     }
   },
   actions: {
-    
+
   },
   modules: {
     POS

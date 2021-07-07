@@ -85,7 +85,7 @@
                     elevation="4"
                     class="rounded-5 white--text"
                     color="green darken-1"
-                    @click="enablePayDialog"
+                    @click="$store.commit('SET_PAYDIALOG', true)"
                     :disabled="this.orderItems.length == 0"
                   >
                     <v-icon left dark class="mx-0" color="white">
@@ -204,9 +204,8 @@
     </ConfirmDialog>
 
     <PayDialog
-      v-on:close-payment-dialog="closePayDialog()"
       v-on:confirm-payment="checkout"
-      v-bind:show="this.showPayDialog"
+      v-if="$store.state.payDialog"
     >
     </PayDialog>
     <BillDialog v-bind:show="this.showBillDialog"> </BillDialog>
@@ -249,7 +248,6 @@ export default {
       defaultItem: {},
       editedIndex: 0,
       showDialogDelete: false,
-      showPayDialog: false,
       searchCriteria: {
         searchValue: "",
         categories_selected: [],

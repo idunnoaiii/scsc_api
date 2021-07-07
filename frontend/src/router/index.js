@@ -6,6 +6,7 @@ import User from '../views/pages/User'
 import Inventory from '../views/pages/Inventory'
 import Transaction from '../views/pages/Transaction'
 import Category from '../views/pages/Category'
+import Discount from '../views/pages/Discount'
 import Testlayout from '../views/pages/Testlayout'
 
 
@@ -53,6 +54,14 @@ const routes = [
     path: '/category',
     name: 'Category',
     component: Category,
+    meta: {
+      requireLogin: true
+    }
+  },
+    {
+    path: '/discount',
+    name: 'Discount',
+    component: Discount,
     meta: {
       requireLogin: true
     }

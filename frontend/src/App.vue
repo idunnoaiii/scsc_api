@@ -15,12 +15,7 @@
             <v-icon left dark> mdi-card-account-details-outline </v-icon> Point
             of Sale
           </v-btn>
-          <v-btn
-            small
-            color="primary  "
-            class="white--text"
-            to="/transaction"
-          >
+          <v-btn small color="primary  " class="white--text" to="/transaction">
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             Transaction
           </v-btn>
@@ -37,6 +32,11 @@
               <v-list-item link to="/category">
                 <v-list-item-title class="white--text"
                   >Category</v-list-item-title
+                >
+              </v-list-item>
+              <v-list-item link to="/discount">
+                <v-list-item-title class="white--text"
+                  >Discount</v-list-item-title
                 >
               </v-list-item>
               <v-list-item link to="/users">
@@ -71,7 +71,7 @@
             <v-icon left dark> mdi-account </v-icon> Admin
           </v-btn> -->
 
-           <v-menu offset-y rounded="0">
+          <v-menu offset-y rounded="0">
             <template v-slot:activator="{ on, attrs }">
               <v-btn small color="primary  " dark v-bind="attrs" v-on="on">
                 <v-icon left dark>mdi-account </v-icon>Admin
@@ -79,7 +79,9 @@
             </template>
             <v-list color="primary  " class="white--text">
               <v-list-item link to="/inventory">
-                <v-list-item-title class="white--text">Profile</v-list-item-title>
+                <v-list-item-title class="white--text"
+                  >Profile</v-list-item-title
+                >
               </v-list-item>
               <v-list-item link @click="logout">
                 <v-list-item-title class="white--text"
@@ -104,12 +106,12 @@
       <!-- Provides the application the proper gutter -->
       <!-- If using vue-router -->
       <v-container fluid fill-height>
-          <keep-alive>
-            <router-view> </router-view>
-          </keep-alive>
+        <keep-alive>
+          <router-view> </router-view>
+        </keep-alive>
       </v-container>
     </v-main>
-    <Dialog v-if="$store.state.dialogViewName">
+    <Dialog v-if="$store.state.dialog">
       <template v-slot:dialogBody>
         <component :is="$store.state.dialogViewName"></component>
       </template>
@@ -127,8 +129,8 @@ import User from "./views/pages/User.vue";
 import POS from "./views/pages/POS.vue";
 import Login from "./views/pages/Login.vue";
 import * as muType from "./store/mutation-type";
-import axios from './axios'
-import AddCustomer from "./components/AddCustomer.vue"
+import axios from "./axios";
+import AddCustomer from "./components/AddCustomer.vue";
 
 export default {
   name: "App",
@@ -138,7 +140,7 @@ export default {
     User,
     POS,
     Login,
-    AddCustomer
+    AddCustomer,
   },
   data: () => ({
     isLogined: true,
@@ -158,9 +160,9 @@ export default {
       this.$router.replace("/login");
     },
   },
-  beforeCreate: function() {
+  beforeCreate: function () {
     this.$store.commit("INITIALIZE_STORE");
-    axios.defaults.headers.common["Authorization"] = this.$store.state.token
+    axios.defaults.headers.common["Authorization"] = this.$store.state.token;
   },
 };
 </script>

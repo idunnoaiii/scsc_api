@@ -75,6 +75,9 @@ class RepoBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.commit()
 
 
+ 
+
+
     def get_multi_by_list_id(
         self, db: Session, *, listId: List[int]
     ) -> List[ModelType]:
