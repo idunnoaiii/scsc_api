@@ -4,21 +4,44 @@
       <v-card outlined height="100%">
         <v-container fill-height class="d-flex align-baseline">
           <div>
-        
+            
             <v-row class="mt-4">
               <v-data-table
                 :headers="headers"
                 :items="orderItems"
                 class="elevation-4 mx-6"
               >
+                <template v-slot:[`item.quantity`]="props">
+                  <v-edit-dialog
+                    :return-value.sync="props.item.quantity"
+                    @save="save"
+                    @cancel="cancel"
+                    @open="open"
+                    @close="close"
+                  >
+                    {{ props.item.quantity }}
+                    <template v-slot:input>
+                      <v-text-field
+                        v-model="props.item.quantity"
+                        label="Edit"
+                        single-line
+                        counter
+                        type="number"
+                        step="1"
+                      ></v-text-field>
+                    </template>
+                  </v-edit-dialog>
+                </template>
                 <template v-slot:[`item.actions`]="{ item }">
-                  <v-icon small class="mr-2" @click="increaseQuantity(item.id)">
+                  <v-icon small color="green darken-1" class="mr-2" @click="increaseQuantity(item.id)">
                     mdi-arrow-up-drop-circle-outline
                   </v-icon>
-                  <v-icon small class="mr-2" @click="decreaseQuantity(item.id)">
+                  <v-icon small color="orange darken-1" class="mr-2" @click="decreaseQuantity(item.id)">
                     mdi-arrow-down-drop-circle-outline
                   </v-icon>
-                  <v-icon small @click="deleteItem(item.id)"> mdi-delete </v-icon>
+                  <v-icon small color="red darken-1" @click="deleteItem(item.id)">
+                    mdi-delete
+                  </v-icon>
                 </template>
               </v-data-table>
             </v-row>
@@ -182,9 +205,9 @@
                   font-weight-medium
                   text-center text-subtitle-1
                   pa-0
-                  green--text
                   align-item-end
                 "
+                green-text
               >
                 {{ item.price }} VND
               </v-card-text>
@@ -203,10 +226,7 @@
       </template>
     </ConfirmDialog>
 
-    <PayDialog
-      v-on:confirm-payment="checkout"
-      v-if="$store.state.payDialog"
-    >
+    <PayDialog v-on:confirm-payment="checkout" v-if="$store.state.payDialog">
     </PayDialog>
     <BillDialog v-bind:show="this.showBillDialog"> </BillDialog>
   </v-layout>
@@ -242,7 +262,7 @@ export default {
       ],
       items: [],
       categories: [],
-     
+
       grossPrice: 0,
       tax: 10,
       defaultItem: {},
@@ -255,18 +275,15 @@ export default {
     };
   },
   created() {
-    axios
-      .get("/api/v1/items/all?skip=0&limit=100")
-      .then((response) => {
-        this.items = response.data;
-      });
+    axios.get("/api/v1/items/all?skip=0&limit=100").then((response) => {
+      this.items = response.data;
+    });
     axios.get("/api/v1/categories").then((response) => {
       this.categories = response.data.map((item) => ({
         text: item.name,
         value: item.id,
       }));
     });
-   
   },
   methods: {
     // deleteItem(item) {
@@ -310,8 +327,6 @@ export default {
       this.showPayDialog = false;
     },
 
-   
-
     clearOrderItem() {
       // this.orderItems = [];
     },
@@ -343,7 +358,7 @@ export default {
       setBillDialog: "SET_BILL_DIALOG",
       increaseQuantity: "INCREASE_ITEM_QUANTITY",
       decreaseQuantity: "DECREASE_ITEM_QUANTITY",
-      deleteItem: "DELETE_ITEM_ORDER"
+      deleteItem: "DELETE_ITEM_ORDER",
     }),
     ...mapActions("POS", {
       checkout: "checkout",

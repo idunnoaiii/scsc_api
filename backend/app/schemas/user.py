@@ -17,7 +17,7 @@ class TokenPayload(BaseModel):
 
 class UserBase(BaseModel):
     full_name: Optional[str] = None
-    username: str = None
+    username: Optional[str] = None
     is_admin: Optional[bool] = True
 
 
@@ -27,6 +27,12 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(UserBase):
+    id: int
+    password: Optional[str] = None
+    pass
+
+class UserUpdatePassword(UserBase):
+    id: Optional[int] = None
     password: Optional[str] = None
 
 
@@ -39,6 +45,7 @@ class UserInDBBase(UserBase):
 
 class User(UserInDBBase):
     pass
+
 
 class UserInDB(UserInDBBase):
     hashed_password: str
