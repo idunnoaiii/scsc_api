@@ -2,7 +2,6 @@
   <v-row justify="center">
     <v-dialog
       v-model="$store.state.scanDialog"
-      persistent
       max-width="1278px"
       hide-overlay
       transition="dialog-bottom-transition"

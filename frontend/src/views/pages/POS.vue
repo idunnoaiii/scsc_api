@@ -4,7 +4,6 @@
       <v-card outlined height="100%">
         <v-container fill-height class="d-flex align-baseline">
           <div>
-            
             <v-row class="mt-4">
               <v-data-table
                 :headers="headers"
@@ -33,13 +32,27 @@
                   </v-edit-dialog>
                 </template>
                 <template v-slot:[`item.actions`]="{ item }">
-                  <v-icon small color="green darken-1" class="mr-2" @click="increaseQuantity(item.id)">
+                  <v-icon
+                    small
+                    color="green darken-1"
+                    class="mr-2"
+                    @click="increaseQuantity(item.id)"
+                  >
                     mdi-arrow-up-drop-circle-outline
                   </v-icon>
-                  <v-icon small color="orange darken-1" class="mr-2" @click="decreaseQuantity(item.id)">
+                  <v-icon
+                    small
+                    color="orange darken-1"
+                    class="mr-2"
+                    @click="decreaseQuantity(item.id)"
+                  >
                     mdi-arrow-down-drop-circle-outline
                   </v-icon>
-                  <v-icon small color="red darken-1" @click="deleteItem(item.id)">
+                  <v-icon
+                    small
+                    color="red darken-1"
+                    @click="deleteItem(item.id)"
+                  >
                     mdi-delete
                   </v-icon>
                 </template>
@@ -126,7 +139,7 @@
     <v-col lg="8">
       <v-card class="" height="100%" outlined tile>
         <v-container class="d-flex align-content-lg-start" fluid fill-height>
-          <v-row class="m-5 pa-5 align-center">
+          <v-row class="m-5 pa-4 align-center">
             <v-col cols="4">
               <v-text-field
                 solo
@@ -167,51 +180,46 @@
               </v-sheet>
             </v-col>
           </v-row>
-          <v-divider class="pa-2"></v-divider>
-          <v-row class="m-5 pa-5">
-            <v-card
+          <v-row>
+            <v-divider></v-divider>
+          </v-row>
+          <v-row class="m-5 pa-4">
+            <v-col
+              cols="2"
+              md="3"
+              sm="6"
+              lg="2"
               v-for="item in items"
               :key="item.id"
-              class="mx-5 my-2 d-flex flex-column"
-              @click="addItemToOrder(item)"
             >
-              <!-- <v-img
-              class="ma-1 item-img"
-              height="120"
-              width="120"
-              src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-            ></v-img> -->
-              <img
-                src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-                class="item-img"
-                alt=""
-              />
-
-              <v-card-title
-                class="
-                  text-center text-body-2
-                  pa-1
-                  mt-1
-                  item-name-text
-                  darkgrey--text
-                "
-              >
-                {{ item.name }}
-              </v-card-title>
-              <v-divider class="mx-2"></v-divider>
-
-              <v-card-text
-                class="
-                  font-weight-medium
-                  text-center text-subtitle-1
-                  pa-0
-                  align-item-end
-                "
-                green-text
-              >
-                {{ item.price }} VND
-              </v-card-text>
-            </v-card>
+              <v-card @click="addItemToOrder(item)">
+                <v-list-item three-line>
+                  <v-list-item-content>
+                    <div class="mb-2">
+                      <img
+                        src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+                        class="item-img"
+                        alt="image"
+                      />
+                    </div>
+                    <v-list-item-title
+                      class="
+                        headline
+                        mb-2
+                        primary--text
+                        text--darken-2
+                        font-weight-light
+                      "
+                    >
+                      {{ item.price }} VND
+                    </v-list-item-title>
+                    <v-list-item-subtitle class="text-truncate d-block">
+                      {{ item.name }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-card>
+            </v-col>
           </v-row>
         </v-container>
       </v-card>
@@ -398,7 +406,7 @@ export default {
 
 
 <style scoped>
-.h-min-85vh {
+/* .h-min-85vh {
   min-height: 65vh !important;
 }
 .fontsize-13 {
@@ -408,10 +416,11 @@ export default {
   word-wrap: break-word;
   max-width: 120px;
 }
+*/
 
 .item-img {
-  height: 120px !important;
-  width: 120px !important;
+  height: 100%;
+  width: 100%;
 }
 
 .swal2-popup.swal2-modal.swal2-icon-warning.swal2-show {
