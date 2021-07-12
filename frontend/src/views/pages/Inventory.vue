@@ -13,6 +13,18 @@
           <template v-slot:[`item.stock`]="{ item }">
             <span>{{ item.stock == true ? "Yes" : "No" }}</span>
           </template>
+          <template v-slot:[`item.description`]="{ item }">
+            <!-- <span>{{ item.stock == true ? "Yes" : "No" }}</span> -->
+            <v-img
+              :src="
+                item.image_url != null
+                  ? item.image_url
+                  : 'https://storage.googleapis.com/scscbakery.appspot.com/no-image.png'
+              "
+              max-height="50px"
+              max-width="50px"
+            />
+          </template>
           <template v-slot:[`item.quantity`]="{ item }">
             <span>{{ item.stock == false ? "N/A" : item.quantity }}</span>
           </template>
@@ -66,6 +78,8 @@
                               v-model="editedItem.price"
                               label="Price*"
                               type="Number"
+                              min="0"
+                              step="1000"
                               :rules="[required('Price'), minNumberValue(1000)]"
                             ></v-text-field>
                           </v-col>
@@ -87,12 +101,15 @@
                             </v-chip-group>
                           </v-col>
 
-                          <v-col cols="12" v-if="editedIndex === -1">
+                          <v-col cols="6">
                             <v-file-input
                               accept="image/*"
                               label="Image"
                               @change="onFileSelected"
                             ></v-file-input>
+                          </v-col>
+                          <v-col cols="6">
+                            <v-img :src="editedItem.image_url"></v-img>
                           </v-col>
 
                           <v-col cols="12" sm="6" md="12">
@@ -109,6 +126,7 @@
                               v-model="editedItem.quantity"
                               label="Quantity*"
                               type="Number"
+                              min="0"
                               :rules="[required('Quantity'), minNumberValue(0)]"
                             ></v-text-field>
                           </v-col>
@@ -209,7 +227,7 @@ export default {
       description: "",
       price: 0,
       expired_date: "",
-      image_url: "",
+      image_url: null,
       quantity: 0,
       categories: [],
       stock: false,
@@ -277,6 +295,13 @@ export default {
 
     onFileSelected(file) {
       this.selectedFile = file;
+      if (file) {
+        const fileReader = new FileReader();
+        fileReader.addEventListener("load", () => {
+          this.editedItem.image_url = fileReader.result;
+        });
+        fileReader.readAsDataURL(file);
+      }
     },
 
     editItem(item) {
@@ -357,8 +382,6 @@ export default {
         if (this.selectedFile) {
           fd.append("image", this.selectedFile, this.selectedFile.name);
         }
-
-        console.log(item_json);
 
         axios
           .put("/api/v1/items/update", fd)

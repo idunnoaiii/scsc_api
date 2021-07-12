@@ -19,31 +19,6 @@
               </v-col>
             </v-row>
             <v-row>
-              <v-col cols="9">
-                <v-autocomplete
-                  :items="customers"
-                  @blur="blurCustomer"
-                  v-model="customerValue"
-                  auto-select-first
-                  clearable
-                  deletable-chips
-                  solo
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="2">
-                <v-btn
-                  fab
-                  elevation-2
-                  medium
-                  class="rounded-5"
-                  color="primary"
-                  @click="$store.commit('SHOW_GLOBAL_DIALOG', 'AddCustomer')"
-                >
-                  <v-icon left dark class="mx-0"> mdi-plus </v-icon>
-                </v-btn>
-              </v-col>
-            </v-row>
-            <v-row>
               <v-col cols="3">
                 <div class="subtitle-1 text--grey">Amount</div>
               </v-col>

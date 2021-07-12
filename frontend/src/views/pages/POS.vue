@@ -10,10 +10,9 @@
                 :items="orderItems"
                 class="elevation-4 mx-6"
               >
-                <template v-slot:[`item.quantity`]="props">
+                <!-- <template v-slot:[`item.quantity`]="props">
                   <v-edit-dialog
                     :return-value.sync="props.item.quantity"
-                    @save="save"
                     @cancel="cancel"
                     @open="open"
                     @close="close"
@@ -30,7 +29,7 @@
                       ></v-text-field>
                     </template>
                   </v-edit-dialog>
-                </template>
+                </template> -->
                 <template v-slot:[`item.actions`]="{ item }">
                   <v-icon
                     small
@@ -139,7 +138,7 @@
     <v-col lg="8">
       <v-card class="" height="100%" outlined tile>
         <v-container class="d-flex align-content-lg-start" fluid fill-height>
-          <v-row class="m-5 pa-4 align-center">
+          <v-row class="pa-1 align-center">
             <v-col cols="4">
               <v-text-field
                 solo
@@ -195,20 +194,19 @@
               <v-card @click="addItemToOrder(item)">
                 <v-list-item three-line>
                   <v-list-item-content>
-                    <div class="mb-2">
+                    <div class="mb-2" style="min-height:120px">
                       <img
-                        src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+                        :src="item.image_url != null ? item.image_url: 'https://storage.googleapis.com/scscbakery.appspot.com/no-image.png'"
                         class="item-img"
                         alt="image"
                       />
                     </div>
                     <v-list-item-title
                       class="
-                        headline
                         mb-2
                         primary--text
                         text--darken-2
-                        font-weight-light
+                        font-weight-bold
                       "
                     >
                       {{ item.price }} VND
@@ -335,10 +333,6 @@ export default {
       this.showPayDialog = false;
     },
 
-    clearOrderItem() {
-      // this.orderItems = [];
-    },
-
     handlerSearch() {
       axios
         .post("/api/v1/items/search", this.searchCriteria)
@@ -419,7 +413,7 @@ export default {
 */
 
 .item-img {
-  height: 100%;
+  max-height: 140px;
   width: 100%;
 }
 
