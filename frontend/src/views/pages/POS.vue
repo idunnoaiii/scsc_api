@@ -76,7 +76,7 @@
                     </v-row>
                     <v-row>
                       <v-col cols="6">
-                        Gross Price (inc {{ this.tax }}% Tax)
+                        Gross Price
                       </v-col>
                       <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
                     </v-row>
@@ -194,11 +194,12 @@
               <v-card @click="addItemToOrder(item)">
                 <v-list-item three-line>
                   <v-list-item-content>
-                    <div class="mb-2" style="min-height:120px">
+                    <div class="mb-2" style="min-height:140px">
                       <img
                         :src="item.image_url != null ? item.image_url: 'https://storage.googleapis.com/scscbakery.appspot.com/no-image.png'"
                         class="item-img"
                         alt="image"
+                        max-height="120px"
                       />
                     </div>
                     <v-list-item-title

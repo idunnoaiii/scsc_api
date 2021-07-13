@@ -137,10 +137,10 @@
             </v-toolbar>
           </template>
           <template v-slot:[`item.actions`]="{ item }">
-            <v-icon small color="primary" class="mr-2" @click="editItem(item)">
+            <v-icon small class="mr-2" @click="editItem(item)">
               mdi-pencil
             </v-icon>
-            <v-icon small color="red darken-1" @click="deleteItem(item)"> mdi-delete </v-icon>
+            <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
           </template>
           <template v-slot:no-data>
             <v-btn color="primary" @click="load"> Reset </v-btn>
