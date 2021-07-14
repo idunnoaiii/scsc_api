@@ -19,7 +19,8 @@ export default new Vuex.Store({
     isAuthenticated: false,
     payDialog: false,
     token: '',
-    isAdmin: false
+    isAdmin: false,
+    scanMode: true
   },
   mutations: {
     [muType.SHOW_GLOBAL_DIALOG](state, name) {
@@ -45,6 +46,9 @@ export default new Vuex.Store({
       const token = localStorage.getItem("token")
       state.token = token != null ? token : "";
       state.isAuthenticated = token != null ? true : false;
+    },
+    TOGGLE_SCAN_MODE(state){
+      state.scanMode = !state.scanMode;
     }
   },
   actions: {

@@ -75,9 +75,7 @@
                       <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
                     </v-row>
                     <v-row>
-                      <v-col cols="6">
-                        Gross Price
-                      </v-col>
+                      <v-col cols="6"> Gross Price </v-col>
                       <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
                     </v-row>
                   </v-col>
@@ -135,7 +133,7 @@
         </v-container>
       </v-card>
     </v-col>
-    <v-col lg="8">
+    <v-col lg="8" v-if="!$store.state.scanMode">
       <v-card class="" height="100%" outlined tile>
         <v-container class="d-flex align-content-lg-start" fluid fill-height>
           <v-row class="pa-1 align-center">
@@ -194,21 +192,20 @@
               <v-card @click="addItemToOrder(item)">
                 <v-list-item three-line>
                   <v-list-item-content>
-                    <div class="mb-2" style="min-height:140px">
+                    <div class="mb-2" style="min-height: 140px">
                       <img
-                        :src="item.image_url != null ? item.image_url: 'https://storage.googleapis.com/scscbakery.appspot.com/no-image.png'"
+                        :src="
+                          item.image_url != null
+                            ? item.image_url
+                            : 'https://storage.googleapis.com/scscbakery.appspot.com/no-image.png'
+                        "
                         class="item-img"
                         alt="image"
                         max-height="120px"
                       />
                     </div>
                     <v-list-item-title
-                      class="
-                        mb-2
-                        primary--text
-                        text--darken-2
-                        font-weight-bold
-                      "
+                      class="mb-2 primary--text text--darken-2 font-weight-bold"
                     >
                       {{ item.price }} VND
                     </v-list-item-title>
@@ -219,6 +216,15 @@
                 </v-list-item>
               </v-card>
             </v-col>
+          </v-row>
+        </v-container>
+      </v-card>
+    </v-col>
+    <v-col lg="8" v-if="$store.state.scanMode">
+      <v-card class="" height="100%" outlined tile>
+        <v-container class="d-flex align-content-lg-start" fluid fill-height>
+          <v-row class="pa-1 align-center"> 
+              <Scanning/>
           </v-row>
         </v-container>
       </v-card>
@@ -244,6 +250,7 @@ import axios from "../../axios";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import PayDialog from "../../components/POS/PayDialog.vue";
 import BillDialog from "../../components/BillDialog.vue";
+import Scanning from "../../components/Scanning.vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import _ from "lodash";
 
@@ -252,6 +259,7 @@ export default {
     ConfirmDialog,
     PayDialog,
     BillDialog,
+    Scanning
   },
   data() {
     return {
