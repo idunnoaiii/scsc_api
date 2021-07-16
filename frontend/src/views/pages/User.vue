@@ -10,6 +10,9 @@
           width="90%"
           :search="search"
         >
+          <template v-slot:[`item.is_admin`]="{ item }">
+            <span>{{ item.is_admin == true ? "Admin" : "Cashier" }}</span>
+          </template> 
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title class="text-h4"> Users</v-toolbar-title>
@@ -70,7 +73,7 @@
                               label="Role"
                               :rules="[
                                 (v) =>
-                                  (v != null && v != undifined) ||
+                                  (v != null && v != undefined) ||
                                   'Roles is required.',
                               ]"
                             ></v-select>
@@ -111,7 +114,7 @@
               <v-dialog v-model="dialogDelete" max-width="500px">
                 <v-card>
                   <v-card-title class="text-h5"
-                    >Are you sure you want to delete this item?</v-card-title
+                    >Are you sure you want to delete this user?</v-card-title
                   >
                   <v-card-actions>
                     <v-spacer></v-spacer>
@@ -163,7 +166,7 @@ export default {
         value: "full_name",
       },
       { text: "Username", value: "username" },
-      { text: "Role", value: "role", sortable: false },
+      { text: "Role", value: "is_admin", sortable: false },
       { text: "Action", value: "actions", sortable: false },
     ],
     users: [],
@@ -171,12 +174,12 @@ export default {
     editedItem: {
       full_name: "",
       username: "",
-      role: "",
+      is_admin: false,
     },
     defaultItem: {
       full_name: "",
       username: "",
-      role: "",
+      is_admin: false,
     },
     roles: [
       {
@@ -184,7 +187,7 @@ export default {
         value: true,
       },
       {
-        text: "user",
+        text: "cashier",
         value: false,
       },
     ],
@@ -254,7 +257,7 @@ export default {
               icon: "success",
               title: "Delete user successfully",
             });
-            this.load()
+            this.load();
           }
         })
         .catch((err) => {
@@ -285,18 +288,35 @@ export default {
       if (!this.$refs.form.validate()) {
         return;
       }
+
+      const userObj = {
+        full_name: this.editedItem.full_name,
+        is_admin: this.editedItem.is_admin,
+      };
+
       if (this.editedIndex > -1) {
         //update
-        Object.assign(this.users[this.editedIndex], this.editedItem);
+        userObj.id = this.editedItem.id;
+        axios
+          .put("/api/v1/users/", userObj)
+          .then(() => {
+            this.load();
+            this.$swal.fire({
+              icon: "success",
+              title: "Add new user successfully",
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       } else {
         //add
+
+        userObj.password = this.password;
+        userObj.username = this.editedItem.username;
+
         axios
-          .post("/api/v1/users/", {
-            full_name: this.editedItem.full_name,
-            username: this.editedItem.username,
-            password: this.password,
-            is_admin: this.editedItem.is_admin,
-          })
+          .post("/api/v1/users/", userObj)
           .then(() => {
             this.load();
             this.$swal.fire({

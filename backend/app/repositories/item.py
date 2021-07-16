@@ -85,7 +85,7 @@ class ItemRepo(RepoBase[ItemModel, ItemCreate, ItemUpdate]):
             ret = [i for i in items if searchValue == "" or (i.name.lower().find(searchValue.lower()) != -1)]
             return ret
 
-        return db.query(ItemModel).filter(ItemModel.name.ilike("%"+searchValue+"%")).all()
+        return db.query(ItemModel).filter(ItemModel.name.ilike("%"+searchValue+"%")).filter(ItemModel.is_active == True).all()
 
     # def update(
     #     self,

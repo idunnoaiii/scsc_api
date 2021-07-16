@@ -11,6 +11,7 @@ from app.models import user as UserModel
 from app.repositories import user_repo
 from app.db.session import engine
 from app.api.deps import get_db
+from app.core.security import get_password_hash
 
 router = APIRouter()
 
@@ -30,6 +31,19 @@ def read_users(
     return user_repo.get_multi(db, skip=skip, limit=limit)
 
 
+
+@router.put("/", response_model=schemas.User)
+def create(
+    db: Session = Depends(get_db),
+    update_obj: schemas.UserUpdate = Body(...)
+):
+    db_obj = user_repo.get(db, id=update_obj.id)
+    if db_obj is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    return user_repo.update(db, db_obj=db_obj, obj_in=update_obj)
+
+
 # @router.post("/", response_model=schemas.UserCreate)
 @router.post("/")
 async def create_user(
@@ -38,7 +52,7 @@ async def create_user(
 ):
     # user_in_db = UserModel.User(**user.dict())
     user_in = user.dict()
-    user_in["hashed_password"] = user_in["password"]
+    user_in["hashed_password"] = get_password_hash(user_in["password"])
     del user_in["password"]
     with engine.connect() as con, con.begin() as tran:
         con.execute(UserModel.users.insert().values(**user_in))

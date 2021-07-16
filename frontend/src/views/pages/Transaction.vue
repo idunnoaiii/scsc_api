@@ -243,7 +243,8 @@ export default {
 
   filters: {
     toMoment: function (date) {
-      return moment(date).format("MM/DD/YYYY, h:mm a");
+      return moment(date).add(-(new Date().getTimezoneOffset()/60), "hour").format("MM/DD/YYYY, h:mm a");
+      // return moment(date).format("MM/DD/YYYY, h:mm a");
     },
   },
 };

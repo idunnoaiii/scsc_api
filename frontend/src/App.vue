@@ -7,11 +7,22 @@
         >
         <v-spacer></v-spacer>
         <v-toolbar-items>
+          <v-btn
+            small
+            width="80px"
+            :color="`primary ${
+              $store.state.scanMode == true ? 'lighten-2' : ''
+            }`"
+            dark
+            @click="toggleScanningMode"
+          >
+            <v-icon centered dark> mdi-camera </v-icon>
+          </v-btn>
           <v-btn small color="primary  " class="white--text" to="/test">
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             test
           </v-btn>
-          <v-btn small color="primary  " class="white--text" to="/">
+          <v-btn small color="primary " class="white--text" to="/">
             <v-icon left dark> mdi-card-account-details-outline </v-icon> Point
             of Sale
           </v-btn>
@@ -91,15 +102,14 @@
             </v-list>
           </v-menu>
 
-          <v-btn small color="green" dark @click="showScanDialog">
-            <v-icon centered dark> mdi-cog-outline </v-icon>
-          </v-btn>
-
           <!-- <v-btn small dark color="red">
             <v-icon centered dark> mdi-logout-variant </v-icon>
           </v-btn> -->
         </v-toolbar-items>
       </v-app-bar>
+      <v-navigation-drawer v-model="$store.state.itemDialog" width="33%" absolute temporary>
+        <ItemBoard/>
+      </v-navigation-drawer>
     </div>
     <!-- Sizes your content based upon application components -->
     <v-main>
@@ -125,6 +135,7 @@
 <script>
 import Dialog from "./components/Dialog.vue";
 import ScanDialog from "./components/ScanDialog.vue";
+import ItemBoard from "./components/ItemBoard.vue";
 import User from "./views/pages/User.vue";
 import POS from "./views/pages/POS.vue";
 import Login from "./views/pages/Login.vue";
@@ -141,6 +152,7 @@ export default {
     POS,
     Login,
     AddCustomer,
+    ItemBoard
   },
   data: () => ({
     isLogined: true,
@@ -158,6 +170,9 @@ export default {
       this.$store.commit("SET_LOGIN_TOKEN", "");
       this.$store.commit("SET_AUTH_STATUS", false);
       this.$router.replace("/login");
+    },
+    toggleScanningMode() {
+      this.$store.commit("TOGGLE_SCAN_MODE");
     },
   },
   beforeCreate: function () {

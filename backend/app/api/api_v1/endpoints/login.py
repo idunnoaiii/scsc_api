@@ -41,12 +41,12 @@ def login_access_token(
     }
 
 
-@router.post("/test-token", response_model=schemas.User)
-def test_token(current_user: models.UserModel = Depends(deps.get_current_user)) -> Any:
-    """
-    Test access token
-    """
-    return current_user
+# @router.post("/test-token", response_model=schemas.User)
+# def test_token(current_user: models.UserModel = Depends(deps.get_current_user)) -> Any:
+#     """
+#     Test access token
+#     """
+#     return current_user
 
 
 # @router.post("/password-recovery/{email}", response_model=schemas.Msg)
@@ -68,28 +68,28 @@ def test_token(current_user: models.UserModel = Depends(deps.get_current_user)) 
 #     return {"msg": "Password recovery email sent"}
 
 
-@router.post("/reset-password/")
-def reset_password(
-    token: str = Body(...),
-    new_password: str = Body(...),
-    db: Session = Depends(deps.get_db),
-) -> Any:
-    """
-    Reset password
-    """
-    email = verify_password_reset_token(token)
-    if not email:
-        raise HTTPException(status_code=400, detail="Invalid token")
-    user = user_repo.get_by_username(db, email=email)
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="The user with this username does not exist in the system.",
-        )
-    elif not user_repo.is_active(user):
-        raise HTTPException(status_code=400, detail="Inactive user")
-    hashed_password = get_password_hash(new_password)
-    user.hashed_password = hashed_password
-    db.add(user)
-    db.commit()
-    return {"msg": "Password updated successfully"}
+# @router.post("/reset-password/")
+# def reset_password(
+#     token: str = Body(...),
+#     new_password: str = Body(...),
+#     db: Session = Depends(deps.get_db),
+# ) -> Any:
+#     """
+#     Reset password
+#     """
+#     email = verify_password_reset_token(token)
+#     if not email:
+#         raise HTTPException(status_code=400, detail="Invalid token")
+#     user = user_repo.get_by_username(db, email=email)
+#     if not user:
+#         raise HTTPException(
+#             status_code=404,
+#             detail="The user with this username does not exist in the system.",
+#         )
+#     elif not user_repo.is_active(user):
+#         raise HTTPException(status_code=400, detail="Inactive user")
+#     hashed_password = get_password_hash(new_password)
+#     user.hashed_password = hashed_password
+#     db.add(user)
+#     db.commit()
+#     return {"msg": "Password updated successfully"}

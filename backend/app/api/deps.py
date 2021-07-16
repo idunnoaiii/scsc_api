@@ -12,7 +12,9 @@ from app.schemas.user import TokenPayload
 import app.utils as settings
 from app.core.config import settings
 from app.db.session import SessionLocal
-
+import firebase_admin
+from firebase_admin import storage
+from firebase_admin import credentials
 
 def get_db() -> Generator:
     try:
@@ -63,3 +65,13 @@ def get_current_active_admin(
             status_code=status.HTTP_403_FORBIDDEN, detail="The user doesn't have enough privileges"
         )
     return current_user
+
+
+def get_firebase_bucket():
+    if not firebase_admin._apps:
+        cred = credentials.Certificate("certification.json")
+        firebase_admin.initialize_app(cred, {
+            'storageBucket': 'scscbakery.appspot.com'
+        })
+    bucket = storage.bucket()
+    return bucket 

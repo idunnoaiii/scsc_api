@@ -20,17 +20,8 @@ def get_output_layers(net):
     return output_layers
 
 
-# def draw_prediction(img, class_id, confidence, x, y, x_plus_w, y_plus_h):
-#     label = str(classes[class_id])
 
-#     color = COLORS[class_id]
-
-#     cv2.rectangle(img, (x, y), (x_plus_w, y_plus_h), color, 2)
-
-#     cv2.putText(img, label, (x + 30, y + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-
-
-def predict(base64_img) -> List[int]:
+def predict(base64_img):
     try:
         classes_fname: str = "classes.txt"
         weight_fname: str = "yolov3.backup"
@@ -41,6 +32,7 @@ def predict(base64_img) -> List[int]:
 
         Width = image.shape[1]
         Height = image.shape[0]
+        print(Width, Height)
         scale = 0.00392
 
         classes = None
@@ -63,6 +55,8 @@ def predict(base64_img) -> List[int]:
         class_ids = []
         confidences = []
         boxes = []
+        positions = []
+        boxes_positions = []
         conf_threshold = 0.35
         nms_threshold = 0.4
 
@@ -82,6 +76,7 @@ def predict(base64_img) -> List[int]:
                     class_ids.append(class_id)
                     confidences.append(float(confidence))
                     boxes.append([x, y, w, h])
+                    boxes_positions.append([detection[0] , detection[1] , detection[2], detection[3]])
 
         indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
 
@@ -89,14 +84,11 @@ def predict(base64_img) -> List[int]:
 
         for i in indices:
             i = i[0]
-            box = boxes[i]
-            x = box[0]
-            y = box[1]
-            w = box[2]
-            h = box[3]
-            ret_classes.append(class_ids[i])
+            box = boxes_positions[i]
+            positions.append([int(class_ids[i]+1), float(box[0]), float(box[1]), float(box[2]), float(box[3]), float(confidences[i])])
+            ret_classes.append(int(class_ids[i]+1))
             # draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h))
             
-        return [int(x+1) for x in ret_classes]
+        return ret_classes, positions
     except:
-        return [-1]
+        return None, None

@@ -19,7 +19,12 @@ export default new Vuex.Store({
     isAuthenticated: false,
     payDialog: false,
     token: '',
-    isAdmin: false
+    isAdmin: false,
+    scanMode: true,
+    itemDialog: false,
+    capturedResponse: null,
+    capturedItemPicked: null,
+    capturedItemPickedIndex: null,
   },
   mutations: {
     [muType.SHOW_GLOBAL_DIALOG](state, name) {
@@ -41,10 +46,42 @@ export default new Vuex.Store({
     SET_PAYDIALOG(state, status) {
       state.payDialog = status
     },
+    SET_ITEM_DIALOG(state, status) {
+      state.itemDialog = status
+    },
     INITIALIZE_STORE(state) {
       const token = localStorage.getItem("token")
       state.token = token != null ? token : "";
       state.isAuthenticated = token != null ? true : false;
+    },
+    TOGGLE_SCAN_MODE(state) {
+      state.scanMode = !state.scanMode;
+    },
+    SET_SCAN_MODE(state, status) {
+      state.scanMode = status
+    },
+    SET_CAPTURED_RESPONSE(state, data) {
+      state.capturedResponse = data
+    },
+    REMOVE_CAPTURED_ITEM(state, index) {
+      console.log("REMOVE_CAPTURED_ITEM")
+      if (state.capturedResponse && state.capturedResponse.positions) {
+        state.capturedResponse.positions[index] = null
+        console.log(state.capturedResponse.positions)
+      }
+    },
+    SET_CAPTURED_ITEM_PICK(state, payload) {
+      state.capturedItemPicked = state.capturedResponse.items.find(x => x.id == payload.id)
+      state.capturedItemPickedIndex = payload.index
+      state.updateBox = payload.update
+      console.log(state.updateBox)
+    },
+    CHANGE_CAPTURED_ITEM_PICK(state, item) {
+      console.log(state.capturedResponse.positions[state.capturedItemPickedIndex][0], item.id)
+      state.capturedResponse.positions[state.capturedItemPickedIndex][0] = item.id
+      if (state.capturedResponse.items.find(x => x.id == item.id) == null)
+        state.capturedResponse.items.push(item)
+      state.updateBox(item.name, item.price)
     }
   },
   actions: {

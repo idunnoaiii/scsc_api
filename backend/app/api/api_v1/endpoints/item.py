@@ -47,17 +47,26 @@ def create_item(
 @router.post("/create")
 def create_item_form(
     db: Session = Depends(deps.get_db),
+    bucket = Depends(deps.get_firebase_bucket),
     data: str = Form(...),
-    image: UploadFile = File(...),
+    image: UploadFile = File(None),
 
 ):
     item_json = json.loads(data)
 
     if image is not None:
-        item_json["image_url"] = image.filename
-    #this stimulate the process upload image to some cloud storage and get URL
-    # with open("image/"+image.filename, "wb") as file:
-    #     shutil.copyfileobj(image.file, file)
+        # item_json["image_url"] = image.filename
+        try:
+            blob = bucket.blob(f"image/{image.filename}")
+            blob.upload_from_file(image.file)
+            blob.make_public()
+        except:
+            pass
+        else:
+            item_json["image_url"] = blob.public_url
+        #this stimulate the process upload image to some cloud storage and get URL
+        # with open("image/"+image.filename, "wb") as file:
+        #     shutil.copyfileobj(image.file, file)
     
     item_categories = item_json["categories"]
 
@@ -65,16 +74,32 @@ def create_item_form(
 
     # del item_json["categories"]
     item_create_sch = ItemCreate(**item_json)
-    return item_repo.create(db, obj_in=item_create_sch)
+    created = item_repo.create(db, obj_in=item_create_sch)
 
 
 @router.put("/update")
 def update_item(
     db: Session = Depends(deps.get_db),
+    bucket = Depends(deps.get_firebase_bucket),
     data: str = Form(...),
     image: UploadFile = File(None)
 ):
     item_json = json.loads(data)
+
+    if image is not None:
+        # item_json["image_url"] = image.filename
+        try:
+            blob = bucket.blob(f"image/{image.filename}")
+            blob.upload_from_file(image.file)
+            blob.make_public()
+        except:
+            pass
+        else:
+            item_json["image_url"] = blob.public_url
+
+        #this stimulate the process upload image to some cloud storage and get URL
+        # with open("image/"+image.filename, "wb") as file:
+        #     shutil.copyfileobj(image.file, file)
 
     item_in_db = item_repo.get(db, id=item_json["id"])
 
@@ -99,21 +124,24 @@ async def scan_item(
     req: Request = None
 ):
     img_base64 = await req.body()
-    class_ids = predict(img_base64[22:])
-    if class_ids != [] and class_ids[0] == -1:
-        return [-1]
+    class_ids, positions = predict(img_base64[22:])
+    if class_ids is None:
+        return None
 
-    elif class_ids != []:
+    if class_ids != []:
         class_id_count = {i:class_ids.count(i) for i in class_ids}
         items = item_repo.get_multi_by_list_id(db, listId=class_ids)
-        print(class_id_count)
         for item in items:
             if item.id in class_id_count.keys():
                 item.quantity = class_id_count[item.id]
 
-        return items
+        print(items, positions)
+        return {
+            "items": items,
+            "positions": positions 
+        }
 
-    return []
+    return None
 
 
 #test the upload image
