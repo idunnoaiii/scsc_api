@@ -85,7 +85,7 @@ def predict(base64_img):
         for i in indices:
             i = i[0]
             box = boxes_positions[i]
-            positions.append([int(class_ids[i]+1), float(box[0]), float(box[1]), float(box[2]), float(box[3])])
+            positions.append([int(class_ids[i]+1), float(box[0]), float(box[1]), float(box[2]), float(box[3]), float(confidences[i])])
             ret_classes.append(int(class_ids[i]+1))
             # draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h))
             

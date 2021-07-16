@@ -133,7 +133,7 @@
         </v-container>
       </v-card>
     </v-col>
-    <v-col lg="8" v-if="!$store.state.scanMode">
+    <v-col lg="8">
       <v-card class="" height="100%" outlined tile>
         <v-container class="d-flex align-content-lg-start" fluid fill-height>
           <v-row class="pa-1 align-center">
@@ -180,7 +180,7 @@
           <v-row>
             <v-divider></v-divider>
           </v-row>
-          <v-row class="m-5 pa-4">
+          <v-row class="m-5 pa-4" v-show="!$store.state.scanMode">
             <v-col
               cols="2"
               md="3"
@@ -217,18 +217,20 @@
               </v-card>
             </v-col>
           </v-row>
-        </v-container>
-      </v-card>
-    </v-col>
-    <v-col lg="8" v-if="$store.state.scanMode">
-      <v-card class="" height="100%" outlined tile>
-        <v-container class="d-flex align-content-lg-start" fluid fill-height>
-          <v-row class="pa-1 align-center"> 
-              <Scanning/>
+          <v-row class="pa-1 align-center" v-show="$store.state.scanMode">
+            <Scanning />
           </v-row>
         </v-container>
       </v-card>
     </v-col>
+    <!-- <keep-alive>
+      <v-col lg="8">
+        <v-card class="" height="100%" outlined tile>
+          <v-container class="d-flex align-content-lg-start" fluid fill-height>
+          </v-container>
+        </v-card>
+      </v-col>
+    </keep-alive> -->
     <ConfirmDialog
       v-on:close-payment-dialog="closeDelete()"
       v-on:delete-item-confirm="deleteItemConfirm()"
@@ -259,7 +261,7 @@ export default {
     ConfirmDialog,
     PayDialog,
     BillDialog,
-    Scanning
+    Scanning,
   },
   data() {
     return {
@@ -343,6 +345,7 @@ export default {
     },
 
     handlerSearch() {
+      this.$store.commit("SET_SCAN_MODE", false);
       axios
         .post("/api/v1/items/search", this.searchCriteria)
         .then((response) => {
