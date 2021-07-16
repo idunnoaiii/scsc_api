@@ -76,6 +76,7 @@
 <script>
 import { setLocalToken } from "../../utils";
 import axios from "../../axios";
+import {parseJwt} from "../../utils"
 
 export default {
   name: "Login",
@@ -110,9 +111,12 @@ export default {
           const token = response.data.access_token;
           if (token) {
             setLocalToken(token);
+            let jwtObj = parseJwt(token);
+            let sub = JSON.parse(jwtObj.sub)
             this.$store.commit("SET_LOGIN_TOKEN", token);
             this.$store.commit("SET_AUTH_STATUS", true);
-            this.$store.commit("SET_ROLE", true);
+            this.$store.commit("SET_ROLE", sub.is_admin);
+            this.$store.commit("SET_USERNAME", sub.username);
             this.$router.replace("/");
           }
         })

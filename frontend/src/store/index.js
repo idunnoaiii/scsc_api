@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as muType from './mutation-type'
 import POS from './modules/POS'
+import { parseJwt } from '../utils'
 
 Vue.use(Vuex)
 
@@ -20,6 +21,7 @@ export default new Vuex.Store({
     payDialog: false,
     token: '',
     isAdmin: false,
+    username: null,
     scanMode: true,
     itemDialog: false,
     capturedResponse: null,
@@ -43,6 +45,9 @@ export default new Vuex.Store({
     SET_ROLE(state, status) {
       state.isAdmin = status
     },
+    SET_USERNAME(state, username) {
+      state.username = username
+    },
     SET_PAYDIALOG(state, status) {
       state.payDialog = status
     },
@@ -53,6 +58,10 @@ export default new Vuex.Store({
       const token = localStorage.getItem("token")
       state.token = token != null ? token : "";
       state.isAuthenticated = token != null ? true : false;
+      let jwtObj = parseJwt(token);
+      let sub = JSON.parse(jwtObj.sub)
+      state.isAdmin = sub.is_admin;
+      state.username = sub.username;
     },
     TOGGLE_SCAN_MODE(state) {
       state.scanMode = !state.scanMode;
