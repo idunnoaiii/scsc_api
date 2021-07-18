@@ -180,7 +180,7 @@ export default {
 
     getDiscountValue: function () {
       if (this.discount.type == 0){
-        return (this.totalPrice * this.discount.value) / 100;
+        return Math.round((this.totalPrice * this.discount.value) / 100000)*1000;
       }
       return this.discount.value;
     },

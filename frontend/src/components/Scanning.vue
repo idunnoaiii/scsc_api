@@ -95,9 +95,10 @@ export default {
               this.streaming = true;
             }
           })
-          .catch(function () {
+          .catch(()=>{
             this.streaming = false;
             this.$swal("No camera found");
+            this.$store.commit("SET_SCAN_MODE", false);
           });
       } else {
         this.$swal("This browser is not supported");
@@ -112,7 +113,7 @@ export default {
         height: box_height,
         fill: "rgba(0,0,0,0)",
         stroke: confidence > 0.8 ? "green" : "yellow",
-        strokeWidth: 5,
+        strokeWidth: 3,
         originX: "center",
         originY: "center",
         lockMovementX: true,
@@ -217,7 +218,7 @@ export default {
                       pos[5]
                     ),
                     self.drawText(
-                      item.name + "\n" + item.price + "\n" + counter,
+                      item.name + "\n" + item.price ,
                       (pos[1] - pos[3] / 2) * self.videoTagWidth + 20,
                       (pos[2] - pos[4] / 2) * self.videoTagHeight + 20
                     ),
@@ -299,7 +300,7 @@ export default {
     fabric.Object.prototype.controls.deleteControl = new fabric.Control({
       x: 0.5,
       y: -0.5,
-      offsetY: 16,
+      offsetY: 40,
       cursorStyle: "pointer",
       mouseUpHandler: deleteObject,
       render: renderIcon,

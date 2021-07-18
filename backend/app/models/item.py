@@ -16,6 +16,7 @@ from app.models.category import association_table
 class Item(Base):
     __tablename__ = "items"
     name = Column(String(length=200), index=True)
+    slug = Column(String(length=200))
     description = Column(String, nullable=True)
     price = Column(Float, default=0)
     image_url = Column(String)

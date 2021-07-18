@@ -1,18 +1,17 @@
 from typing import Dict, List
 
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
-from sqlalchemy.sql.expression import or_
 
 from app.repositories.base import RepoBase
 from app.models import ItemModel, CategoryModel
 from app.schemas import ItemCreate, ItemUpdate
 
 
-class ItemRepo(RepoBase[ItemModel, ItemCreate, ItemUpdate]):
+class ItemRepo(RepoBase[ItemModel, ItemCreate, ItemUpdate]): 
     def create_with_owner(
-        self, db: Session, *, obj_in: ItemCreate, owner_id: int
+        self, db: Session, *, obj_in: dict, owner_id: int
     ) -> ItemModel:
         obj_in_data = jsonable_encoder(obj_in)
         db_obj = self.model(**obj_in_data, owner_id=owner_id)
@@ -33,6 +32,29 @@ class ItemRepo(RepoBase[ItemModel, ItemCreate, ItemUpdate]):
             .limit(limit)
             .all()
         )
+
+
+    def create(
+        self,
+        db: Session,
+        *,
+        obj_dict: Dict
+    ) -> ItemModel:
+
+        temp_cate = obj_dict["categories"] 
+        del obj_dict["categories"] 
+        obj_db = ItemModel(**obj_dict)
+
+        if temp_cate != []:
+            cates = db.query(CategoryModel).filter(CategoryModel.id.in_(temp_cate)).all()
+            obj_db.categories = cates
+
+
+        db.add(obj_db)
+        db.commit()
+        db.refresh(obj_db)
+        return obj_db
+
 
 
     def update(
@@ -82,10 +104,13 @@ class ItemRepo(RepoBase[ItemModel, ItemCreate, ItemUpdate]):
                 for i in cat.items:
                     items.add(i)
 
-            ret = [i for i in items if searchValue == "" or (i.name.lower().find(searchValue.lower()) != -1)]
+            ret = [i for i in items if searchValue == "" or (i.name.lower().find(searchValue.lower()) != -1) or (i.slug.lower().find(searchValue.lower()) != -1)]
             return ret
 
-        return db.query(ItemModel).filter(ItemModel.name.ilike("%"+searchValue+"%")).filter(ItemModel.is_active == True).all()
+        return db.query(ItemModel).filter(
+            or_(ItemModel.name.ilike("%"+searchValue+"%"),
+            ItemModel.slug.ilike("%"+searchValue+"%"))
+            ).filter(ItemModel.is_active == True).all()
 
     # def update(
     #     self,

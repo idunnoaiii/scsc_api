@@ -389,7 +389,7 @@ export default {
             if (response.status == 200) {
               this.$swal({
                 icon: "success",
-                title: "Update new item successfully",
+                title: "Update item successfully",
               });
               this.load();
             }
@@ -406,7 +406,10 @@ export default {
 
         fd.append("data", item_json);
 
-        fd.append("image", this.selectedFile, this.selectedFile.name);
+
+        if (this.selectedFile) {
+          fd.append("image", this.selectedFile, this.selectedFile.name);
+        }
 
         axios.post("/api/v1/items/create", fd).then((response) => {
           if (response.status == 200) {

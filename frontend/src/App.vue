@@ -18,10 +18,10 @@
           >
             <v-icon centered dark> mdi-camera </v-icon>
           </v-btn>
-          <v-btn small color="primary  " class="white--text" to="/test">
+          <!-- <v-btn small color="primary  " class="white--text" to="/test">
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             test
-          </v-btn>
+          </v-btn> -->
           <v-btn small color="primary " class="white--text" to="/">
             <v-icon left dark> mdi-card-account-details-outline </v-icon> Point
             of Sale
@@ -30,7 +30,7 @@
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             Transaction
           </v-btn>
-          <v-menu offset-y rounded="0">
+          <v-menu offset-y rounded="0" v-if="$store.state.isAdmin">
             <template v-slot:activator="{ on, attrs }">
               <v-btn small color="primary  " dark v-bind="attrs" v-on="on">
                 <v-icon left dark> mdi-store </v-icon>Manage Store
@@ -85,7 +85,7 @@
           <v-menu offset-y rounded="0">
             <template v-slot:activator="{ on, attrs }">
               <v-btn small color="primary  " dark v-bind="attrs" v-on="on">
-                <v-icon left dark>mdi-account </v-icon>Admin
+                <v-icon left dark>mdi-account </v-icon>{{$store.state.username}}
               </v-btn>
             </template>
             <v-list color="primary  " class="white--text">
@@ -116,9 +116,9 @@
       <!-- Provides the application the proper gutter -->
       <!-- If using vue-router -->
       <v-container fluid fill-height>
-        <keep-alive>
+        <!-- <keep-alive> -->
           <router-view> </router-view>
-        </keep-alive>
+        <!-- </keep-alive> -->
       </v-container>
     </v-main>
     <Dialog v-if="$store.state.dialog">
