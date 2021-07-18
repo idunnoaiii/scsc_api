@@ -13,6 +13,8 @@ import base64
 import json
 from app.ai_utils import predict
 import shutil
+import time
+from slugify import slugify
 
 router = APIRouter()
 
@@ -68,13 +70,15 @@ def create_item_form(
         # with open("image/"+image.filename, "wb") as file:
         #     shutil.copyfileobj(image.file, file)
     
-    item_categories = item_json["categories"]
+    # item_categories = item_json["categories"]
 
-    item_json["categories"] = [{"id": v} for v in item_categories]
+    # item_json["categories"] = [{"id": v} for v in item_categories]
+
+    item_json["slug"] = slugify(item_json["name"], separator=" ")
 
     # del item_json["categories"]
-    item_create_sch = ItemCreate(**item_json)
-    created = item_repo.create(db, obj_in=item_create_sch)
+    # item_create_sch = ItemCreate(**item_json)
+    created = item_repo.create(db, obj_dict=item_json)
 
 
 @router.put("/update")
@@ -105,6 +109,8 @@ def update_item(
 
     if item_in_db is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+    
+    item_json["slug"] = slugify(item_json["name"], separator=" ")
 
     item_repo.update(db,  obj_dict=item_json)
 
@@ -123,6 +129,7 @@ async def scan_item(
     db: Session = Depends(deps.get_db),
     req: Request = None
 ):
+    start = time.time()
     img_base64 = await req.body()
     class_ids, positions = predict(img_base64[22:])
     if class_ids is None:
@@ -135,7 +142,8 @@ async def scan_item(
             if item.id in class_id_count.keys():
                 item.quantity = class_id_count[item.id]
 
-        print(items, positions)
+        end = time.time()
+        print(end - start)
         return {
             "items": items,
             "positions": positions 
