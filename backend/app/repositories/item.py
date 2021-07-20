@@ -41,8 +41,9 @@ class ItemRepo(RepoBase[ItemModel, ItemCreate, ItemUpdate]):
         obj_dict: Dict
     ) -> ItemModel:
 
-        temp_cate = obj_dict["categories"] 
-        del obj_dict["categories"] 
+        temp_cate = obj_dict["categories"] if "categories" in obj_dict else []
+        if temp_cate != []: 
+            del obj_dict["categories"] 
         obj_db = ItemModel(**obj_dict)
 
         if temp_cate != []:

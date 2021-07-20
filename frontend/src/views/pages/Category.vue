@@ -10,12 +10,6 @@
           width="90%"
           :search="search"
         >
-          <!-- <template v-slot:[`item.stock`]="{ item }">
-            <span>{{ item.stock == true ? "Yes" : "No" }}</span>
-          </template>
-          <template v-slot:[`item.quantity`]="{ item }">
-            <span>{{ item.stock == false ? "N/A" : item.quantity }}</span>
-          </template> -->
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title class="text-h4">Categories</v-toolbar-title>

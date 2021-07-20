@@ -21,7 +21,6 @@ class Item(Base):
     price = Column(Float, default=0)
     image_url = Column(String)
     quantity = Column(Integer, default=0)
-    stock = Column(Boolean, default=False)
     created_date = Column(DateTime, default=sql.func.now())
     updated_date = Column(DateTime, default=sql.func.now())
     categories = relationship("Category", secondary=association_table, back_populates="items")

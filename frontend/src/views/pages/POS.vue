@@ -178,7 +178,7 @@
           <v-row>
             <v-divider></v-divider>
           </v-row>
-          <v-row  v-show="!$store.state.scanMode">
+          <v-row  v-show="!$store.state.scanMode" style="overflow-y: scroll; max-height:726px">
             <v-col
               cols="2"
               md="3"

@@ -14,7 +14,6 @@ class ItemBase(BaseModel):
     image_url: Optional[str] = None
     quantity: Optional[int] = None
     categories: Optional[List[int]] = None
-    stock: Optional[bool] = False
 
 # Properties to receive on item creation
 class ItemCreate(ItemBase):

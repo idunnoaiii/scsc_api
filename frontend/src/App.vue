@@ -52,7 +52,7 @@
               </v-list-item>
               <v-list-item link to="/users">
                 <v-list-item-title class="white--text"
-                  >Account</v-list-item-title
+                  >User</v-list-item-title
                 >
               </v-list-item>
             </v-list>
