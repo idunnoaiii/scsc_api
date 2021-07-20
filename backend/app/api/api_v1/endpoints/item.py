@@ -11,7 +11,7 @@ from app.models import CategoryModel
 from typing import List, Optional
 import base64
 import json
-from app.ai_utils import predict
+from app.ai_utils import predict_2, predict
 import shutil
 import time
 from slugify import slugify
@@ -117,10 +117,11 @@ def update_item(
     if image is not None:
         pass
 
-
     return True
 
-    
+
+
+
 
 
 # for scanning function
@@ -131,7 +132,7 @@ async def scan_item(
 ):
     start = time.time()
     img_base64 = await req.body()
-    class_ids, positions = predict(img_base64[22:])
+    class_ids, positions = predict_2(img_base64[22:])
     if class_ids is None:
         return None
 

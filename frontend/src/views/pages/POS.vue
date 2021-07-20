@@ -2,13 +2,12 @@
   <v-layout>
     <v-col lg="4">
       <v-card outlined height="100%">
-        <v-container fill-height class="d-flex align-baseline">
-          <div>
-            <v-row class="mt-4">
+        <v-container fill-height class="d-flex ">
+            <v-row class="mt-4 align-self-start" justify="center">
               <v-data-table
                 :headers="headers"
                 :items="orderItems"
-                class="elevation-4 mx-6"
+                class="elevation-4 mx-3"
               >
                 <!-- <template v-slot:[`item.quantity`]="props">
                   <v-edit-dialog
@@ -57,10 +56,9 @@
                 </template>
               </v-data-table>
             </v-row>
-          </div>
 
           <v-row class="align-self-end my-0">
-            <v-card width="100%" class="mx-6 elevation-6">
+            <v-card width="100%" class="mx-3 elevation-6">
               <v-container fluid>
                 <v-row class="mb-4">
                   <v-col cols="6">
@@ -180,7 +178,7 @@
           <v-row>
             <v-divider></v-divider>
           </v-row>
-          <v-row class="m-5 pa-4" v-show="!$store.state.scanMode">
+          <v-row  v-show="!$store.state.scanMode">
             <v-col
               cols="2"
               md="3"

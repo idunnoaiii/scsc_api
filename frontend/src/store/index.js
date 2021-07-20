@@ -24,9 +24,10 @@ export default new Vuex.Store({
     username: null,
     scanMode: true,
     itemDialog: false,
-    capturedResponse: null,
+    capturedResponse: { items: [], positions: [] },
     capturedItemPicked: null,
     capturedItemPickedIndex: null,
+    isDrawing: false
   },
   mutations: {
     [muType.SHOW_GLOBAL_DIALOG](state, name) {
@@ -80,18 +81,34 @@ export default new Vuex.Store({
       }
     },
     SET_CAPTURED_ITEM_PICK(state, payload) {
-      state.capturedItemPicked = state.capturedResponse.items.find(x => x.id == payload.id)
+      if(state.capturedResponse.items !== null) {
+        state.capturedItemPicked = state.capturedResponse.items.find(x => x.id == payload.id)
+      }
       state.capturedItemPickedIndex = payload.index
+      if (state.capturedItemPicked == null) {
+        state.capturedResponse.positions.push([-1, ...payload.positions, 0])
+        state.capturedItemPickedIndex = state.capturedResponse.positions.length - 1
+      }
       state.updateBox = payload.update
       console.log(state.updateBox)
     },
     CHANGE_CAPTURED_ITEM_PICK(state, item) {
       console.log(state.capturedResponse.positions[state.capturedItemPickedIndex][0], item.id)
       state.capturedResponse.positions[state.capturedItemPickedIndex][0] = item.id
-      if (state.capturedResponse.items.find(x => x.id == item.id) == null)
+      if (state.capturedResponse.items == null || state.capturedResponse.items.find(x => x.id == item.id) == null)
         state.capturedResponse.items.push(item)
-      state.updateBox(item.name, item.price)
+      state.updateBox(item.name, item.price, state.capturedItemPickedIndex, item.id)
+      state.capturedItemPicked = null
+      console.log(state.capturedResponse.positions)
+    },
+    SET_DRAWING(state, status) {
+      if (status != null) {
+        state.isDrawing = status;
+        return
+      }
+      state.isDrawing = !state.isDrawing
     }
+
   },
   actions: {
 

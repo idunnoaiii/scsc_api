@@ -92,3 +92,41 @@ def predict(base64_img):
         return ret_classes, positions
     except:
         return None, None
+
+
+def predict_2(base64_img):
+    try:
+        img = base64.b64decode(base64_img); 
+        npimg = np.fromstring(img, dtype=np.uint8); 
+        image = cv2.imdecode(npimg, 1)
+
+        width = image.shape[1]
+        height = image.shape[0]
+
+        Conf_threshold = 0.4
+        NMS_threshold = 0.4
+
+        class_name = []
+        with open('classes.txt', 'r') as f:
+            class_name = [cname.strip() for cname in f.readlines()]
+
+        net = cv2.dnn.readNet('yolov4-custom_last.weights', 'yolov4-custom.cfg')
+
+        model = cv2.dnn_DetectionModel(net)
+        model.setInputParams(size=(416, 416), scale=1/255, swapRB=True)
+
+        classes, scores, boxes = model.detect(image, Conf_threshold, NMS_threshold)
+
+        ret_classes = []
+        positions = []
+
+        for (classid, score, box) in zip(classes, scores, boxes):
+            ret_classes.append(int(class_name[classid[0]]))
+            positions.append([int(class_name[classid[0]]), float((box[0]+box[2]/2)/width), float((box[1]+box[3]/2)/height), float(box[2]/width), float(box[3]/height), float(score)])
+
+
+        return ret_classes, positions
+
+    except Exception as e:
+        print(e)
+        return None, None
