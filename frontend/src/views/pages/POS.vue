@@ -66,14 +66,18 @@
                       <v-col cols="6" class=""> Total Items(s) </v-col>
                       <v-col cols="6"> : {{ this.totalOrderItem }}</v-col>
                     </v-row>
+                    <v-row>
+                      <v-col cols="6"> Subtotal </v-col>
+                      <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
+                    </v-row>
                   </v-col>
                   <v-col cols="6">
                     <v-row>
-                      <v-col cols="6"> Price </v-col>
+                      <v-col cols="6"> Subtotal </v-col>
                       <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
                     </v-row>
                     <v-row>
-                      <v-col cols="6"> Gross Price </v-col>
+                      <v-col cols="6"> Total </v-col>
                       <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
                     </v-row>
                   </v-col>

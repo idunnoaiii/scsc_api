@@ -20,7 +20,7 @@
             </v-row>
             <v-row>
               <v-col cols="3">
-                <div class="subtitle-1 text--grey">Amount</div>
+                <div class="subtitle-1 text--grey">Subtotal</div>
               </v-col>
               <v-col cols="3">
                 <v-text-field
