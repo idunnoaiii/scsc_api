@@ -33,6 +33,16 @@
           >
           <v-btn
             dark
+            class="mx-auto align-self-center d-inline-block"
+            :color="`primary ${isDrawing == true ? 'darken-3' : ''}`"
+            v-if="captured"
+            elevation-10
+            @click="$store.commit('SET_DRAWING', null)"
+          >
+            tag
+          </v-btn>
+          <v-btn
+            dark
             color="green darken-3 d-inline-block"
             class="align-self-center"
             v-if="hasResponse"
@@ -72,19 +82,25 @@ export default {
         },
       },
       canvas: null,
+      isDown: false,
+      origX: null,
+      origY: null,
+      rectangle: null,
+      show: { x: 0, y: 0 },
     };
   },
   computed: {
     ...mapState({
       capturedResponse: "capturedResponse",
+      isDrawing: "isDrawing",
     }),
   },
   methods: {
+    hasGetUserMedia: function () {
+      return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    },
     init: function () {
-      if (
-        "mediaDevices" in navigator &&
-        "getUserMedia" in navigator.mediaDevices
-      ) {
+      if (this.hasGetUserMedia()) {
         navigator.mediaDevices
           .getUserMedia(this.constraint)
           .then((stream) => {
@@ -95,7 +111,7 @@ export default {
               this.streaming = true;
             }
           })
-          .catch(()=>{
+          .catch(() => {
             this.streaming = false;
             this.$swal("No camera found");
             this.$store.commit("SET_SCAN_MODE", false);
@@ -112,7 +128,7 @@ export default {
         width: box_width,
         height: box_height,
         fill: "rgba(0,0,0,0)",
-        stroke: confidence > 0.8 ? "green" : "yellow",
+        stroke: confidence > 0.9 ? "green" : "yellow",
         strokeWidth: 3,
         originX: "center",
         originY: "center",
@@ -146,19 +162,22 @@ export default {
       if (this.canvas) this.canvas.dispose();
       this.captured = false;
       this.hasResponse = false;
-      this.$store.commit("SET_CAPTURED_RESPONSE", null);
+      this.$store.commit("SET_CAPTURED_RESPONSE", { items: [], positions: [] });
     },
 
     takeMorePicture: function () {
       // this.$store.commit("SET_ITEM_DIALOG", true);
       if (this.capturedResponse) {
         for (var pos of this.capturedResponse.positions) {
-          if (pos == null) continue;
+          if (pos == null || pos[0] == -1) continue;
           let item = this.capturedResponse.items.find((x) => x.id == pos[0]);
           console.log(item.name);
           this.addItemToOrder(item);
         }
-        this.$store.commit("SET_CAPTURED_RESPONSE", null);
+        this.$store.commit("SET_CAPTURED_RESPONSE", {
+          items: [],
+          positions: [],
+        });
       }
       if (this.canvas) this.canvas.dispose();
       this.captured = false;
@@ -205,6 +224,7 @@ export default {
               //   for (let i = 0; i < item.quantity; i++) this.addItemToOrder(item);
               // }
               // this.$store.commit("TOGGLE_SCAN_DIALOG");
+
               let counter = 0;
               for (var pos of response.data.positions) {
                 var item = response.data.items.find((x) => x.id == pos[0]);
@@ -218,14 +238,14 @@ export default {
                       pos[5]
                     ),
                     self.drawText(
-                      item.name + "\n" + item.price ,
+                      item.name + "\n" + item.price,
                       (pos[1] - pos[3] / 2) * self.videoTagWidth + 20,
                       (pos[2] - pos[4] / 2) * self.videoTagHeight + 20
                     ),
                   ],
                   {
-                    lockMovementX: true,
-                    lockMovementY: true,
+                    lockMovementX: false,
+                    lockMovementY: false,
                     lockScalingX: true,
                     lockScalingY: true,
                     lockSkewingX: true,
@@ -249,9 +269,21 @@ export default {
                   self.$store.commit("SET_CAPTURED_ITEM_PICK", {
                     id: e.target.id_,
                     index: e.target.index_,
-                    update: function (name, price) {
+                    positions: [
+                      (e.target.left + e.target.width / 2) / self.videoTagWidth,
+                      (e.target.top + e.target.height / 2) /
+                        self.videoTagHeight,
+                      e.target.width / self.videoTagWidth,
+                      e.target.height / self.videoTagHeight,
+                    ],
+                    update: function (name, price, index, id) {
                       e.target._objects[1].set({ text: `${name}\n${price}` });
                       self.canvas.requestRenderAll();
+                      if (e.target.id_ == -1) {
+                        e.target.name_ = name;
+                        e.target.id_ = id;
+                        e.target.index_ = index;
+                      }
                       console.log("Updated");
                     },
                   });
@@ -259,6 +291,78 @@ export default {
                   // e.target._objects[1].set({text: "ahihi"})
                   // self.canvas.requestRenderAll()
                 }
+              });
+
+              self.canvas.on("mouse:down", function (o) {
+                if (self.isDrawing == false) return;
+                var pointer = self.canvas.getPointer(o.e);
+                self.canvas._objects.forEach(function (obj){
+                  obj.set({selectable: false})
+                })
+                self.isDown = true;
+                self.origX = pointer.x;
+                self.origY = pointer.y;
+
+                self.rectangle = new fabric.Rect({
+                  left: self.origX,
+                  top: self.origY,
+                  fill: "transparent",
+                  stroke: "red",
+                  strokeWidth: 3,
+                });
+                self.canvas.add(self.rectangle);
+              });
+
+              self.canvas.on("mouse:move", function (o) {
+                if (self.isDrawing == false) return;
+                if (!self.isDown) return;
+
+                var pointer = self.canvas.getPointer(o.e);
+
+                self.show.x = pointer.x
+                self.show.y = pointer.y
+
+                if (self.origX > pointer.x) {
+                  self.rectangle.set({ left: Math.abs(pointer.x) });
+                }
+                if (self.origY > pointer.y) {
+                  self.rectangle.set({ top: Math.abs(pointer.y) });
+                }
+
+                self.rectangle.set({ 
+                  width: Math.abs(self.origX - pointer.x) });
+                self.rectangle.set({
+                  height: Math.abs(self.origY - pointer.y),
+                });
+                self.canvas.requestRenderAll();
+              });
+
+              self.canvas.on("mouse:up", function () {
+                if (self.isDrawing == false) return;
+                self.isDown = false;
+                self.$store.commit("SET_DRAWING", false);
+                var group = new fabric.Group([
+                  self.rectangle,
+                  new fabric.Text("", {
+                    left: self.rectangle.left + 20,
+                    top: self.rectangle.top + 20,
+                    fontSize: 25,
+                    fontFamily: "roboto",
+                    fontWeight: "bold",
+                    strokeWidth: 1,
+                    stroke: "white",
+                    fill: "blue",
+                  }),
+                ]);
+                self.canvas.remove(self.rectangle);
+                group.set("name_", "raw");
+                group.set("id_", -1);
+                group.set("index_", -1);
+                self.canvas.add(group);
+                self.canvas._objects.forEach(function (obj){
+                  obj.set({selectable: true})
+                })
+                self.canvas.requestRenderAll()
               });
             }
           })

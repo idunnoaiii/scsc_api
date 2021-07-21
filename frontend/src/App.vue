@@ -3,7 +3,7 @@
     <div>
       <v-app-bar v-if="$store.state.isAuthenticated" color="primary" app>
         <v-toolbar-title class="white--text" link to="/"
-          >SCSC Bakery</v-toolbar-title
+          >SCSC</v-toolbar-title
         >
         <v-spacer></v-spacer>
         <v-toolbar-items>
@@ -23,12 +23,12 @@
             test
           </v-btn> -->
           <v-btn small color="primary " class="white--text" to="/">
-            <v-icon left dark> mdi-card-account-details-outline </v-icon> Point
-            of Sale
+            <v-icon left dark> mdi-card-account-details-outline </v-icon> 
+            Sales
           </v-btn>
           <v-btn small color="primary  " class="white--text" to="/transaction">
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
-            Transaction
+            Sales report
           </v-btn>
           <v-menu offset-y rounded="0" v-if="$store.state.isAdmin">
             <template v-slot:activator="{ on, attrs }">
@@ -52,7 +52,7 @@
               </v-list-item>
               <v-list-item link to="/users">
                 <v-list-item-title class="white--text"
-                  >Account</v-list-item-title
+                  >User</v-list-item-title
                 >
               </v-list-item>
             </v-list>

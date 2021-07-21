@@ -10,9 +10,6 @@
           width="90%"
           :search="search"
         >
-          <template v-slot:[`item.stock`]="{ item }">
-            <span>{{ item.stock == true ? "Yes" : "No" }}</span>
-          </template>
           <template v-slot:[`item.description`]="{ item }">
             <!-- <span>{{ item.stock == true ? "Yes" : "No" }}</span> -->
             <v-img
@@ -26,7 +23,7 @@
             />
           </template>
           <template v-slot:[`item.quantity`]="{ item }">
-            <span>{{ item.stock == false ? "N/A" : item.quantity }}</span>
+            <span>{{ item.quantity }}</span>
           </template>
           <template v-slot:top>
             <v-toolbar flat>
@@ -112,22 +109,14 @@
                             <v-img :src="editedItem.image_url"></v-img>
                           </v-col>
 
-                          <v-col cols="12" sm="6" md="12">
-                            <v-switch
-                              v-model="editedItem.stock"
-                              :label="`Stock tracking: ${
-                                !!editedItem.stock ? 'Yes' : 'No'
-                              }`"
-                            ></v-switch>
-                          </v-col>
-
-                          <v-col cols="12" v-if="editedItem.stock">
+                          <v-col cols="12">
                             <v-text-field
                               v-model="editedItem.quantity"
                               label="Quantity*"
                               type="Number"
                               min="0"
-                              :rules="[required('Quantity'), minNumberValue(0)]"
+                              step="1"
+                              :rules="[required('Quantity')]"
                             ></v-text-field>
                           </v-col>
                         </v-row>
@@ -205,7 +194,6 @@ export default {
     search: "",
     dialogDelete: false,
     selectedFile: null,
-    stockTracking: false,
     categories_all: [],
     categories_range: [],
     headers: [
@@ -214,10 +202,9 @@ export default {
         align: "start",
         value: "name",
       },
-      { text: "Description", value: "description" },
+      { text: "Image", value: "description", sortable: false  },
       { text: "Price", value: "price" },
       { text: "Quantity", value: "quantity" },
-      { text: "Stock", value: "stock" },
       { text: "Action", value: "actions", sortable: false },
     ],
     items: [],
@@ -230,7 +217,6 @@ export default {
       image_url: null,
       quantity: 0,
       categories: [],
-      stock: false,
       id: 0,
       is_active: false,
     },
@@ -365,7 +351,6 @@ export default {
         price: this.editedItem.price,
         quantity: this.editedItem.quantity,
         categories: this.editedItem.categories,
-        stock: this.editedItem.stock,
       };
 
       if (this.editedIndex > -1) {

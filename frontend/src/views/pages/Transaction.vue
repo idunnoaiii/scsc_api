@@ -141,13 +141,12 @@
       <v-card outlined height="100%">
         <v-list-item three-line>
           <v-list-item-content>
-            <v-list-item-title class="text-h5 mb-1"> Orders </v-list-item-title>
+            <v-list-item-title class="text-h5 mb-1"> Order's detail </v-list-item-title>
             <v-sheet elevation="2">
               <v-data-table
                 :headers="orderItemHeaders"
                 :items="orderItems"
                 :search="search"
-                @click:row="handleClick"
               >
                 <template v-slot:[`item.created_date`]="{ item }">
                   <span>{{ item.created_date | toMoment }}</span>
@@ -237,7 +236,7 @@ export default {
       return this.orders.reduce((acc, item) => acc + item.subtotal, 0)
     },
     totalItemSold(){
-      return this.orders.reduce((acc, item)=> acc + item.order_items.length, 0)
+      return this.orders.reduce((acc, item)=> acc + item.order_items.reduce((acc1, item1) => acc1 + item1.quantity,0), 0)
     }
   },
 

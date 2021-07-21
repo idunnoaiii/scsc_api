@@ -20,11 +20,9 @@ class OrderRepo(RepoBase[Order, OrderCreate, OrderUpdate]):
 
         for item in obj_in_data["order_items"]:
             item_db = db.query(ItemModel).get(item.item_id)
-            if(item_db.stock == True):
-                item_db.quantity = item_db.quantity - item.quantity
-                if item_db.quantity <= 0:
-                    item_db.stock = False
-                    item_db.quantity = 0
+            item_db.quantity = item_db.quantity - item.quantity
+            if item_db.quantity <= 0:
+                item_db.quantity = 0
 
         db.add(order_db)
         db.commit()
