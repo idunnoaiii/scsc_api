@@ -1,3 +1,4 @@
+import json
 from typing import Any, List, Optional
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.param_functions import Path
@@ -31,6 +32,15 @@ def read_users(
     return user_repo.get_multi(db, skip=skip, limit=limit)
 
 
+@router.get("/{id}", response_model=schemas.User)
+def get_user_by_id(
+    db: Session = Depends(get_db),
+    id: int = Param(...)
+):
+    if id < 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return user_repo.get_by_userid(db, id = id)
+
 
 @router.put("/", response_model=schemas.User)
 def create(
@@ -42,6 +52,19 @@ def create(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
     return user_repo.update(db, db_obj=db_obj, obj_in=update_obj)
+
+
+@router.put("/change-password")
+def change_password(
+    db: Session = Depends(get_db),
+    data: str = Body(...)
+):
+    body = json.loads(data)
+    print(body)
+    user = user_repo.authenticate(db, username=body["username"], password=body["password"])
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Password is not correct")
+    user_repo.change_password(db, username=user.username, new_password=body["new_password"])
 
 
 # @router.post("/", response_model=schemas.UserCreate)

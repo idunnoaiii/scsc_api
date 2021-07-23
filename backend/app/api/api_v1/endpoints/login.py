@@ -31,12 +31,13 @@ def login_access_token(
     print(user)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
-    elif not user_repo.is_active(user):
+    elif not user_repo.is_active(db, user):
         raise HTTPException(status_code=400, detail="Inactive user")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    is_admin = user_repo.is_admin(db, user)
     return {
         "access_token": security.create_access_token(
-            json.dumps({"id":user.id,"is_admin":user.is_admin,"username":user.username}), expires_delta=access_token_expires
+            json.dumps({"id":user.id,"is_admin":is_admin,"username":user.username}), expires_delta=access_token_expires
         ),
         "token_type": "bearer",
     }

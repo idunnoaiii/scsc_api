@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.security import get_password_hash, verify_password
 from app.repositories.base import RepoBase
 from app.models.user import User
+from app.models import RoleModel
 from app.schemas.user import UserCreate, UserUpdate
 
 
@@ -13,6 +14,9 @@ class UserRepo(RepoBase[User, UserCreate, UserUpdate]):
     def get_by_username(self, db: Session, *, username: str) -> Optional[User]:
         return db.query(User).filter(User.username == username).first()
 
+    def get_by_userid(self, db: Session, *, id: int) -> Optional[User]:
+        return db.query(User).filter(User.id == id).first()
+
 
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
 
@@ -20,7 +24,7 @@ class UserRepo(RepoBase[User, UserCreate, UserUpdate]):
             username=obj_in.username,
             hashed_password=get_password_hash(obj_in.password),
             full_name=obj_in.full_name,
-            is_admin=obj_in.is_admin,
+            roleid=obj_in.roleid,
         )
         db.add(db_obj)
         db.commit()
@@ -51,12 +55,21 @@ class UserRepo(RepoBase[User, UserCreate, UserUpdate]):
         return user
 
 
-    def is_active(self, user: User) -> bool:
-        return user.is_active == True
+    def change_password(self, db: Session, *, username: str, new_password: str) -> None:
+        user = self.get_by_username(db, username = username)
+        new_password_hashed = get_password_hash(new_password)
+        user.hashed_password = new_password_hashed
+        db.commit()
 
 
-    def is_admin(self, user: User) -> bool:
-        return user.is_admin
+    def is_active(self, db: Session, user: User) -> bool:
+        db_obj = db.query(User).filter(User.id == user.id).first()
+        return db_obj.is_active == True
+
+
+    def is_admin(self, db: Session, user: User) -> bool:
+        db_role = db.query(RoleModel).filter(RoleModel.id == user.role_id).first()
+        return db_role.name == "admin"
 
 
 user = UserRepo(User)

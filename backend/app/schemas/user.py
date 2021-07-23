@@ -18,7 +18,10 @@ class TokenPayload(BaseModel):
 class UserBase(BaseModel):
     full_name: Optional[str] = None
     username: Optional[str] = None
-    is_admin: Optional[bool] = True
+    role_id: Optional[int] = 0
+    address: Optional[str] = None
+    contact: Optional[str] = None
+    gender: Optional[bool] = False
 
 
 class UserCreate(UserBase):

@@ -58,9 +58,9 @@ def get_current_active_user(
 
 
 def get_current_active_admin(
-    current_user: models.UserModel = Depends(get_current_active_user),
+     db: Session = Depends(get_db), current_user: models.UserModel = Depends(get_current_active_user),
 ) -> models.UserModel:
-    if not user_repo.is_admin(current_user):
+    if not user_repo.is_admin(db, current_user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="The user doesn't have enough privileges"
         )
