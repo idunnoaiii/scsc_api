@@ -2,12 +2,23 @@
   <v-app id="app-body">
     <div>
       <v-app-bar v-if="$store.state.isAuthenticated" color="primary" app>
-        <v-toolbar-title class="white--text" link to="/"
-          >SCSC</v-toolbar-title
-        >
+        <v-toolbar-title class="white--text" link to="/">SCSC</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
           <v-btn
+            small
+            width="80px"
+            color="primary"
+            dark
+            @click="
+              $store.commit('SET_TOAST', {
+                toastMsg: 'ahihi',
+                toastColor: 'orange',
+              })
+            "
+          >
+            TEST </v-btn
+          ><v-btn
             small
             width="80px"
             :color="`primary ${
@@ -23,7 +34,7 @@
             test
           </v-btn> -->
           <v-btn small color="primary " class="white--text" to="/">
-            <v-icon left dark> mdi-card-account-details-outline </v-icon> 
+            <v-icon left dark> mdi-card-account-details-outline </v-icon>
             Sales
           </v-btn>
           <v-btn small color="primary  " class="white--text" to="/transaction">
@@ -51,9 +62,7 @@
                 >
               </v-list-item>
               <v-list-item link to="/users">
-                <v-list-item-title class="white--text"
-                  >User</v-list-item-title
-                >
+                <v-list-item-title class="white--text">User</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -85,17 +94,24 @@
           <v-menu offset-y rounded="0">
             <template v-slot:activator="{ on, attrs }">
               <v-btn small color="primary  " dark v-bind="attrs" v-on="on">
-                <v-icon left dark>mdi-account </v-icon>{{$store.state.username}}
+                <v-icon left dark>mdi-account </v-icon
+                >{{ $store.state.username }}
               </v-btn>
             </template>
             <v-list color="primary  " class="white--text">
-              <v-list-item link to="/inventory">
+              <v-list-item
+                link
+                @click="$store.commit('SET_USER_PROFILE', null)"
+              >
                 <v-list-item-title class="white--text"
                   >Profile</v-list-item-title
                 >
               </v-list-item>
-              <v-list-item link @click="logout">
-                <v-list-item-title class="white--text"
+              <v-list-item
+                link
+                @click="$store.commit('SET_CHANGE_PASSWORD', null)"
+              >
+                <v-list-item-title class="white--text" @click="logout"
                   >Logout</v-list-item-title
                 >
               </v-list-item>
@@ -107,8 +123,13 @@
           </v-btn> -->
         </v-toolbar-items>
       </v-app-bar>
-      <v-navigation-drawer v-model="$store.state.itemDialog" width="33%" absolute temporary>
-        <ItemBoard/>
+      <v-navigation-drawer
+        v-model="$store.state.itemDialog"
+        width="33%"
+        absolute
+        temporary
+      >
+        <ItemBoard />
       </v-navigation-drawer>
     </div>
     <!-- Sizes your content based upon application components -->
@@ -117,7 +138,7 @@
       <!-- If using vue-router -->
       <v-container fluid fill-height>
         <!-- <keep-alive> -->
-          <router-view> </router-view>
+        <router-view> </router-view>
         <!-- </keep-alive> -->
       </v-container>
     </v-main>
@@ -128,6 +149,24 @@
     </Dialog>
 
     <ScanDialog v-if="$store.state.scanDialog"></ScanDialog>
+    <UserProfile v-if="$store.state.userProfile"></UserProfile>
+    <v-snackbar
+      timeout="3000"
+      v-model="$store.state.toast"
+      :color="$store.state.toastColor"
+      absolute
+      top
+      right
+      app
+      min-height="70"
+      text
+      outlined
+      style="z-index:999"
+      prominent
+      transition="slide-x-reverse-transition"
+    >
+      {{ $store.state.toastMsg }}
+    </v-snackbar>
   </v-app>
 </template>
 
@@ -136,6 +175,7 @@
 import Dialog from "./components/Dialog.vue";
 import ScanDialog from "./components/ScanDialog.vue";
 import ItemBoard from "./components/ItemBoard.vue";
+import UserProfile from "./components/UserProfile.vue";
 import User from "./views/pages/User.vue";
 import POS from "./views/pages/POS.vue";
 import Login from "./views/pages/Login.vue";
@@ -152,7 +192,8 @@ export default {
     POS,
     Login,
     AddCustomer,
-    ItemBoard
+    ItemBoard,
+    UserProfile,
   },
   data: () => ({
     isLogined: true,
@@ -166,6 +207,7 @@ export default {
     },
     initialize() {},
     logout() {
+      console.log("logout");
       localStorage.removeItem("token");
       this.$store.commit("SET_LOGIN_TOKEN", "");
       this.$store.commit("SET_AUTH_STATUS", false);

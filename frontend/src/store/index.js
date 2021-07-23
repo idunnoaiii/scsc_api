@@ -22,12 +22,18 @@ export default new Vuex.Store({
     token: '',
     isAdmin: false,
     username: null,
+    userid: 0,
     scanMode: true,
     itemDialog: false,
     capturedResponse: { items: [], positions: [] },
     capturedItemPicked: null,
     capturedItemPickedIndex: null,
-    isDrawing: false
+    isDrawing: false,
+    userProfile: false,
+    changePassword: false,
+    toast: false,
+    toastMsg: "",
+    toastColor: ""
   },
   mutations: {
     [muType.SHOW_GLOBAL_DIALOG](state, name) {
@@ -48,6 +54,8 @@ export default new Vuex.Store({
     },
     SET_USERNAME(state, username) {
       state.username = username
+    }, SET_USERID(state, userid) {
+      state.userid = userid
     },
     SET_PAYDIALOG(state, status) {
       state.payDialog = status
@@ -63,6 +71,7 @@ export default new Vuex.Store({
       let sub = JSON.parse(jwtObj.sub)
       state.isAdmin = sub.is_admin;
       state.username = sub.username;
+      state.userid = sub.id;
     },
     TOGGLE_SCAN_MODE(state) {
       state.scanMode = !state.scanMode;
@@ -81,7 +90,7 @@ export default new Vuex.Store({
       }
     },
     SET_CAPTURED_ITEM_PICK(state, payload) {
-      if(state.capturedResponse.items !== null) {
+      if (state.capturedResponse.items !== null) {
         state.capturedItemPicked = state.capturedResponse.items.find(x => x.id == payload.id)
       }
       state.capturedItemPickedIndex = payload.index
@@ -107,6 +116,25 @@ export default new Vuex.Store({
         return
       }
       state.isDrawing = !state.isDrawing
+    },
+    SET_USER_PROFILE(state, status) {
+      if (status != null) {
+        state.userProfile = status;
+      }
+      state.userProfile = !state.userProfile
+    },
+    SET_CHANGE_PASSWORD(state, status) {
+      if (status != null) {
+        state.changePassword = status;
+        console.log(state.changePassword)
+      }
+      state.changePassword = !state.changePassword
+    },
+    SET_TOAST(state, payload) {
+      state.toast = true
+      state.toastMsg = payload.toastMsg
+      state.toastColor = payload.toastColor
+      console.log(state.toast, "TOAS")
     }
 
   },

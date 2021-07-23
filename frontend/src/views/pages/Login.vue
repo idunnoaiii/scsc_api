@@ -117,6 +117,7 @@ export default {
             this.$store.commit("SET_AUTH_STATUS", true);
             this.$store.commit("SET_ROLE", sub.is_admin);
             this.$store.commit("SET_USERNAME", sub.username);
+            this.$store.commit("SET_USERID", sub.id);
             this.$router.replace("/");
           }
         })
