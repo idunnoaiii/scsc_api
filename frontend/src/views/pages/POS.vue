@@ -2,61 +2,96 @@
   <v-layout>
     <v-col lg="4">
       <v-card outlined height="100%">
-        <v-container fill-height class="d-flex ">
-            <v-row class="mt-4 align-self-start" justify="center">
-              <v-data-table
-                :headers="headers"
-                :items="orderItems"
-                class="elevation-4 mx-3"
-              >
-                <!-- <template v-slot:[`item.quantity`]="props">
-                  <v-edit-dialog
-                    :return-value.sync="props.item.quantity"
-                    @cancel="cancel"
-                    @open="open"
-                    @close="close"
-                  >
-                    {{ props.item.quantity }}
-                    <template v-slot:input>
-                      <v-text-field
-                        v-model="props.item.quantity"
-                        label="Edit"
-                        single-line
-                        counter
-                        type="number"
-                        step="1"
-                      ></v-text-field>
-                    </template>
-                  </v-edit-dialog>
-                </template> -->
-                <template v-slot:[`item.actions`]="{ item }">
-                  <v-icon
-                    small
-                    color="green darken-1"
-                    class="mr-2"
-                    @click="increaseQuantity(item.id)"
-                  >
-                    mdi-arrow-up-drop-circle-outline
-                  </v-icon>
-                  <v-icon
-                    small
-                    color="orange darken-1"
-                    class="mr-2"
-                    @click="decreaseQuantity(item.id)"
-                  >
-                    mdi-arrow-down-drop-circle-outline
-                  </v-icon>
-                  <v-icon
-                    small
-                    color="red darken-1"
-                    @click="deleteItem(item.id)"
-                  >
-                    mdi-delete
-                  </v-icon>
-                </template>
-              </v-data-table>
-            </v-row>
+        <v-container fill-height class="d-flex">
+          <v-row class="mt-1 align-self-start" justify="center">
+            <v-row class="mx-3 mb-2 elevation-0 justify-center">
+              <!-- <v-col cols="4">
+                  <span class="text-h5" style="color: grey">Order: #123</span>
+                </v-col>
+                <v-divider class="mx-4" inset vertical></v-divider> -->
 
+              <!-- <v-col cols="10">
+                <v-chip-group
+                  mandatory
+                  active-class="primary"
+                  v-model="currentTab"
+                >
+                  <v-chip
+                    v-for="hold in listOnHold"
+                    :key="hold.value"
+                    :value="hold.value"
+                    close
+                    @click:close="removeOnHold(hold.value)"
+                  >
+                    {{ hold.text }}
+                  </v-chip>
+                </v-chip-group>
+              </v-col>
+              <v-col cols="2">
+                <v-btn
+                  fab
+                  @click="addOnHold"
+                  :disabled="listOnHold.length == 20"
+                  color="green"
+                  dark
+                >
+                  +
+                </v-btn>
+              </v-col> -->
+              <v-col cols="12" class="text-h5">
+                Order #{{this.currentOrderCode}}
+              </v-col>
+            </v-row>
+            <v-data-table
+              :headers="headers"
+              :items="orderItems"
+              class="elevation-4 mx-3"
+            >
+              <template v-slot:[`item.quantity`]="props">
+                <v-edit-dialog>
+                  {{ props.item.quantity }}
+                  <template v-slot:input>
+                    <v-text-field
+                      v-model="props.item.quantity"
+                      @change="
+                        updateItemQuantity({
+                          quantity: props.item.quantity,
+                          itemId: props.item.id,
+                        })
+                      "
+                      label="Edit"
+                      single-line
+                      counter
+                      min="1"
+                      type="number"
+                      step="1"
+                    ></v-text-field>
+                  </template>
+                </v-edit-dialog>
+              </template>
+              <template v-slot:[`item.actions`]="{ item }">
+                <v-icon
+                  small
+                  color="green darken-1"
+                  class="mr-2"
+                  @click="increaseQuantity(item.id)"
+                >
+                  mdi-arrow-up-drop-circle-outline
+                </v-icon>
+                <v-icon
+                  small
+                  color="orange darken-1"
+                  class="mr-2"
+                  @click="decreaseQuantity(item.id)"
+                >
+                  mdi-arrow-down-drop-circle-outline
+                </v-icon>
+                <v-icon small color="red darken-1" @click="deleteItem(item.id)">
+                  mdi-delete
+                </v-icon>
+              </template>
+            </v-data-table>
+          </v-row>
           <v-row class="align-self-end my-0">
             <v-card width="100%" class="mx-3 elevation-6">
               <v-container fluid>
@@ -68,17 +103,23 @@
                     </v-row>
                     <v-row>
                       <v-col cols="6"> Subtotal </v-col>
-                      <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
+                      <v-col cols="6">
+                        : {{ this.totalPrice | currency }} VND</v-col
+                      >
                     </v-row>
                   </v-col>
                   <v-col cols="6">
                     <v-row>
                       <v-col cols="6"> Subtotal </v-col>
-                      <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
+                      <v-col cols="6">
+                        : {{ this.totalPrice | currency }} VND</v-col
+                      >
                     </v-row>
                     <v-row>
                       <v-col cols="6"> Total </v-col>
-                      <v-col cols="6"> : {{ this.totalPrice }} VND</v-col>
+                      <v-col cols="6">
+                        : {{ this.totalPrice | currency }} VND</v-col
+                      >
                     </v-row>
                   </v-col>
                 </v-row>
@@ -139,29 +180,34 @@
       <v-card class="" height="100%" outlined tile>
         <v-container class="d-flex align-content-lg-start" fluid fill-height>
           <v-row class="pa-1 align-center">
-            <v-col cols="4">
-              <v-text-field
-                solo
-                label="Search"
+            <v-col cols="3">
+              <v-autocomplete
+                :items="customers"
+                @blur="blurCustomer"
+                v-model="customerValue"
+                auto-select-first
                 clearable
-                width="200px"
+                deletable-chips
                 hide-details
-                :value="searchCriteria.searchValue"
-                @input="inputSearchDelay"
-              ></v-text-field>
+                label="Customer"
+                outlined
+                dense
+              ></v-autocomplete>
             </v-col>
-            <v-col cols="1">
+            <!-- <v-col cols="2">
               <v-btn
-                elevation="4"
-                big
-                class="rounded-5 ml-2 white--text"
-                @click="clearSearch"
+                fab
+                elevation-2
+                medium
+                class="rounded-5"
                 color="primary"
+                @click="$store.commit('SHOW_GLOBAL_DIALOG', 'AddCustomer')"
               >
-                Clear
+                <v-icon left dark class="mx-0"> mdi-plus </v-icon>
               </v-btn>
-            </v-col>
-            <v-col cols="7">
+            </v-col> -->
+
+            <v-col cols="4">
               <v-sheet tile class="py-4 px-1">
                 <v-chip-group
                   multiple
@@ -178,11 +224,36 @@
                 </v-chip-group>
               </v-sheet>
             </v-col>
+            <v-col cols="4">
+              <v-text-field
+                outlined
+                label="Search item by name"
+                clearable
+                width="200px"
+                hide-details
+                :value="searchCriteria.searchValue"
+                @input="inputSearchDelay"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="1">
+              <v-btn
+                elevation="4"
+                big
+                class="rounded-5 white--text"
+                @click="clearSearch"
+                color="primary"
+              >
+                Clear
+              </v-btn>
+            </v-col>
           </v-row>
           <v-row>
             <v-divider></v-divider>
           </v-row>
-          <v-row  v-show="!$store.state.scanMode" style="overflow-y: scroll; max-height:726px">
+          <v-row
+            v-show="!$store.state.scanMode"
+            style="overflow-y: scroll; max-height: 726px"
+          >
             <v-col
               cols="2"
               md="3"
@@ -209,7 +280,7 @@
                     <v-list-item-title
                       class="mb-2 primary--text text--darken-2 font-weight-bold"
                     >
-                      {{ item.price }} VND
+                      {{ item.price | currency }} VND
                     </v-list-item-title>
                     <v-list-item-subtitle class="text-truncate d-block">
                       {{ item.name }}
@@ -219,6 +290,11 @@
               </v-card>
             </v-col>
           </v-row>
+          <!-- <v-row>
+            <div class="justify-center">
+              <v-pagination v-model="page" :length="6"></v-pagination>
+            </div>
+          </v-row> -->
           <v-row class="pa-1 align-center" v-show="$store.state.scanMode">
             <Scanning />
           </v-row>
@@ -281,7 +357,6 @@ export default {
       ],
       items: [],
       categories: [],
-
       grossPrice: 0,
       tax: 10,
       defaultItem: {},
@@ -303,6 +378,7 @@ export default {
         value: item.id,
       }));
     });
+    this.getCustomer();
   },
   methods: {
     // deleteItem(item) {
@@ -323,6 +399,7 @@ export default {
     //   this.editedIndex = this.orderItems.indexOf(item);
     //   this.orderItems.splice(this.editedIndex, 1);
     // },
+
     deleteItemConfirm() {
       this.closeDelete();
     },
@@ -374,39 +451,61 @@ export default {
       setBillDialog: "SET_BILL_DIALOG",
       increaseQuantity: "INCREASE_ITEM_QUANTITY",
       decreaseQuantity: "DECREASE_ITEM_QUANTITY",
+      updateItemQuantity: "UPDATE_ITEM_QUANTITY",
       deleteItem: "DELETE_ITEM_ORDER",
+      addOnHold: "ADD_ON_HOLD",
+      removeOnHold: "REMOVE_ON_HOLD",
+      blurCustomer: "BLUR_CUSTOMER",
     }),
     ...mapActions("POS", {
       checkout: "checkout",
+      getCustomer: "getCustomer",
+      updateCurrentTab: "updateCurrentTab",
+      changeCustomerValue: "changeCustomerValue",
     }),
   },
   computed: {
     ...mapState("POS", {
       orderItems: "orderItems",
       showBillDialog: "showBillDialog",
-      checkoutStatus: "checkoutStatus",
+      customers: "customers",
+      listOnHold: "listOnHold",
+      currentOrderCode: "currentOrderCode"
     }),
     ...mapGetters("POS", {
       totalOrderItem: "totalOrderItem",
       totalPrice: "totalPrice",
     }),
+    currentTab: {
+      get() {
+        return this.$store.state.POS.currentTab;
+      },
+      set(value) {
+        return this.updateCurrentTab(value);
+      },
+    },
+    customerValue: {
+      get() {
+        return this.$store.state.POS.customerValue;
+      },
+      set(value) {
+        this.changeCustomerValue(value);
+      },
+    },
   },
 
   watch: {
-    checkoutStatus: function (newValue) {
-      if (newValue == true) {
-        this.$swal.fire({
-          icon: "success",
-          title: "Checkout successfully",
-        });
-        this.showPayDialog = false;
-      }
-    },
     searchCriteria: {
       handler: function (newValue) {
         if (newValue) this.handlerSearch();
       },
       deep: true,
+    },
+  },
+
+  filters: {
+    currency(value) {
+      return value.toLocaleString();
     },
   },
 };

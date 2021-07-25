@@ -12,8 +12,24 @@ const state = () => ({
 	},
 	checkoutStatus: null,
 	showBillDialog: false,
-	customers: [],
+	customers: [
+		{ text: "Walk-in customer", value: 0 }
+	],
 	customerValue: 0,
+	tabs: [
+		{
+			orderItem: [],
+			customer: null,
+		}
+	],
+	listOnHold: [
+		{
+			value: 1,
+			text: "Order 1",
+		},
+	],
+	currentTab: 1,
+	currentOrderCode: "",
 })
 
 const getters = {
@@ -23,17 +39,17 @@ const getters = {
 	totalPrice(state) {
 		return state.orderItems.reduce((acc, item) => acc + (item.quantity * item.price), 0)
 	},
-	discount(state){
+	discount(state) {
 		return state.discount;
 	}
 }
 
 const actions = {
-	checkout({ commit, state, getters }, payload) {
+	checkout({ commit, state, getters, rootState }, payload) {
 
 		let orderDetail = {
-			code: new Date().getTime(),
-			user_id: 1,
+			code: state.currentOrderCode,
+			user_id: rootState.userid,
 			status: true,
 			tax: 0,
 			subtotal: getters.totalPrice - payload.discountValue,
@@ -61,8 +77,13 @@ const actions = {
 		axios
 			.post("/api/v1/orders/", orderDetail)
 			.then(() => {
-				commit('SET_CHECKOUT_STATUS', true)
 				commit('CLEAR_ORDER_ITEM')
+				commit('SET_PAYDIALOG', false, { root: true })
+				commit('SET_TOAST', {
+					toastMsg: "Checkout successfully",
+					toastColor: "success"
+				}, { root: true })
+				commit('SET_ORDER_CODE')
 			})
 			.catch((err) => {
 				console.log(err);
@@ -76,21 +97,28 @@ const actions = {
 			.then((response) => {
 				if (response.data) {
 					const customers = response.data.map((item) => ({
-						text: `${item.phone} - ${item.name}`,
-						value: item.phone,
+						text: `${item.name} - ${item.contact}`,
+						value: item.id,
 					}));
-					customers.unshift({ text: "Walk in customer", value: -1 });
 					commit('SET_CUSTOMERS', customers)
 				}
 
 			});
 	},
 
-	calculateDiscount({getters, commit}) {
+	calculateDiscount({ getters, commit }) {
 		axios.get(`/api/v1/discounts/calculate/${getters.totalPrice}`)
 			.then(response => {
 				commit("SET_DISCOUNT", response.data)
 			})
+	},
+
+	updateCurrentTab({ commit }, payload) {
+		commit('SET_CURRENT_TAB', payload)
+	},
+
+	changeCustomerValue({ commit }, payload) {
+		commit('SET_SELECTED_CUSTOMER', payload)
 	}
 
 }
@@ -114,6 +142,11 @@ const mutations = {
 
 	SET_CHECKOUT_STATUS(state, status) {
 		state.checkoutStatus = status;
+	},
+
+	SET_ORDER_CODE(state){
+		console.log("SET_ORDER_CODE")
+		state.currentOrderCode = new Date().getTime()
 	},
 
 	INCREASE_ITEM_QUANTITY(state, id) {
@@ -140,6 +173,9 @@ const mutations = {
 		state.showBillDialog = status;
 	},
 
+	SET_CURRENT_TAB(state, payload) {
+		state.currentTab = payload;
+	},
 
 	CLEAR_CHECKOUT_DATA(state) {
 		state.orderItems = [];
@@ -150,11 +186,49 @@ const mutations = {
 	},
 
 	SET_CUSTOMERS(state, payload) {
-		state.customers = payload
+		state.customers.push(...payload);
+		console.log(state.customers)
 	},
 
 	SET_DISCOUNT(state, payload) {
 		state.discount = payload
+	},
+
+	UPDATE_ITEM_QUANTITY(state, payload) {
+		console.log("UPDATE_ITEM_QUANTITY", payload)
+		state.orderItems.find(x => x.id == payload.itemId).quantity = parseInt(payload.quantity);
+	},
+
+	SET_SELECTED_CUSTOMER(state, payload) {
+		state.customerValue = payload
+	},
+
+	REMOVE_ON_HOLD(state, payload) {
+		if (state.listOnHold.length == 1) return;
+		state.listOnHold = state.listOnHold.reduce((acc, item) => {
+			if (item.value != payload) {
+				acc.push(item);
+			}
+			return acc;
+		}, []);
+	},
+
+	ADD_ON_HOLD(state) {
+		let len = state.listOnHold.length;
+		if (len == 20) return;
+		let max = state.listOnHold.reduce((acc, item) => {
+			if (item.value > acc) {
+				acc = item.value;
+				return acc;
+			}
+		}, 0);
+		state.listOnHold.push({ value: max + 1, text: `Order ${max + 1}` });
+		state.currentTab = max + 1
+	},
+
+	BLUR_CUSTOMER(state) {
+		if (state.customerValue == null)
+			state.customerValue = state.customers[0]
 	}
 
 }

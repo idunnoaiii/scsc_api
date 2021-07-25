@@ -4,6 +4,7 @@
       <v-card outlined height="100%">
         <v-container class="mt-5" flat>
           <v-row>
+            <span class="text-h4 ml-3"> Sales Report </span>
             <v-spacer></v-spacer>
             <v-md-date-range-picker
               opens="right"
@@ -16,15 +17,15 @@
 
         <v-container fluid width="100%" class="mt-5">
           <v-row>
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="3">
               <v-hover v-slot="{ hover }" open-delay="200">
                 <v-card color="cyan darken-1" :elevation="hover ? 16 : 2">
                   <v-row>
                     <v-col cols="12" sm="8">
                       <v-list-item three-line>
                         <v-list-item-content>
-                          <v-list-item-title class="text-h4 md-1 white--text">
-                            ${{revenue}}
+                          <v-list-item-title class="text-h5 md-1 white--text">
+                            ${{ revenue | currency }}
                           </v-list-item-title>
                           <v-list-item-subtitle class="white--text">
                             Revenue
@@ -46,7 +47,7 @@
                 </v-card>
               </v-hover>
             </v-col>
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="3">
               <v-hover v-slot="{ hover }" open-delay="200">
                 <v-card color="pink darken-1" :elevation="hover ? 16 : 2">
                   <v-row>
@@ -76,7 +77,7 @@
                 </v-card>
               </v-hover>
             </v-col>
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="3">
               <v-hover v-slot="{ hover }" open-delay="200">
                 <v-card color="orange darken-1" :elevation="hover ? 16 : 2">
                   <v-row>
@@ -84,7 +85,7 @@
                       <v-list-item three-line>
                         <v-list-item-content>
                           <v-list-item-title class="text-h4 mb-1 white--text">
-                            {{totalItemSold}}
+                            {{ totalItemSold }}
                           </v-list-item-title>
                           <v-list-item-subtitle class="white--text">
                             Item sold
@@ -130,6 +131,9 @@
                   <template v-slot:[`item.created_date`]="{ item }">
                     <span>{{ item.created_date | toMoment }}</span>
                   </template>
+                  <template v-slot:[`item.paid`]="{ item }">
+                    <span>{{ item.paid | currency }}</span>
+                  </template>
                 </v-data-table>
               </v-sheet>
             </v-col>
@@ -139,22 +143,109 @@
     </v-col>
     <v-col cols="4" md="4">
       <v-card outlined height="100%">
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-h5 mb-1"> Order's detail </v-list-item-title>
-            <v-sheet elevation="2">
-              <v-data-table
-                :headers="orderItemHeaders"
-                :items="orderItems"
-                :search="search"
-              >
-                <template v-slot:[`item.created_date`]="{ item }">
-                  <span>{{ item.created_date | toMoment }}</span>
-                </template>
-              </v-data-table>
-            </v-sheet>
-          </v-list-item-content>
-        </v-list-item>
+        <v-container  flat>
+          <v-card>
+            <v-container flat>
+              <v-row>
+                <span class="ma-3 text-h5"> Order Detail </span>
+              </v-row>
+              <v-row>
+                <v-col cols="6">
+                  <v-text-field
+                    label="Cashier"
+                    readonly
+                    dense
+                    hide-details
+                    :value="cashier"
+                  >
+                  </v-text-field>
+                </v-col>
+                <v-col cols="6">
+                  <v-text-field
+                    label="Date"
+                    readonly
+                    dense
+                    hide-details
+                    :value="date | toMoment"
+                  >
+                  </v-text-field>
+                </v-col>
+                <v-col cols="4">
+                  <v-text-field
+                    label="Subtotal"
+                    readonly
+                    outlined
+                    dense
+                    hide-details
+                    :value="subtotal | currency"
+                  >
+                  </v-text-field>
+                </v-col>
+                <v-col cols="4">
+                  <v-text-field
+                    label="Discount"
+                    readonly
+                    outlined
+                    dense
+                    hide-details
+                    :value="discount | currency"
+                  >
+                  </v-text-field>
+                </v-col>
+                <v-col cols="4">
+                  <v-text-field
+                    label="Total"
+                    outlined
+                    dense
+                    hide-details
+                    color="green"
+                    :value="total | currency"
+                    background-color="green lighten-5"
+                  >
+                  </v-text-field>
+                </v-col>
+                <v-col cols="4">
+                  <v-text-field
+                    label="Paid"
+                    readonly
+                    outlined
+                    dense
+                    hide-details
+                    :value="paid | currency"
+                  >
+                  </v-text-field>
+                </v-col>
+                <v-col cols="4">
+                  <v-text-field
+                    label="Change"
+                    readonly
+                    outlined
+                    dense
+                    hide-details
+                    :value="change | currency"
+                  >
+                  </v-text-field>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card>
+        </v-container>
+        <v-container>
+          <v-list-item three-line>
+            <v-list-item-content>
+              <v-sheet elevation="2">
+                <v-data-table :headers="orderItemHeaders" :items="orderItems">
+                  <template v-slot:[`item.created_date`]="{ item }">
+                    <span>{{ item.created_date | toMoment }}</span>
+                  </template>
+                   <template v-slot:[`item.total`]="{ item }">
+                    <span>{{ (item.price * item.quantity) | currency }}</span>
+                  </template>
+                </v-data-table>
+              </v-sheet>
+            </v-list-item-content>
+          </v-list-item>
+        </v-container>
       </v-card>
     </v-col>
   </v-layout>
@@ -170,6 +261,13 @@ export default {
     return {
       dateRange: [],
       search: "",
+      cashier: "",
+      date: "",
+      subtotal: "",
+      total: "",
+      paid: "",
+      change: "",
+      discount: "",
       orderHeaders: [
         {
           text: "Code",
@@ -179,8 +277,6 @@ export default {
         },
         { text: "Date", value: "created_date" },
         { text: "Total", value: "subtotal" },
-        { text: "Paid", value: "paid" },
-        { text: "Change", value: "change" },
         { text: "Discount", value: "discount" },
         { text: "Cashier", value: "user.username" },
       ],
@@ -188,6 +284,7 @@ export default {
         { text: "Name", value: "item_name" },
         { text: "Quantity", value: "quantity" },
         { text: "Price", value: "price" },
+        { text: "Total", value: "total" },
       ],
       orders: [
         {
@@ -199,9 +296,7 @@ export default {
           subtotal: 165000,
           paid: 500000,
           change: 499877,
-          order_items: [
-           
-          ],
+          order_items: [],
         },
       ],
       orderItems: [],
@@ -219,31 +314,54 @@ export default {
     },
     handleClick(row) {
       this.orderItems = row.order_items;
+      this.cashier = row.user.username;
+      this.date = row.created_date;
+      this.total = row.subtotal;
+      this.discount = row.discount;
+      this.subtotal = row.total;
+      this.paid = row.paid;
+      this.change = row.change;
     },
     pickDateRange(value) {
-      let startDate = value[0].add(-(new Date().getTimezoneOffset())/60, "hour").toISOString();
-      let endDate = value[1].endOf("day").add(-(new Date().getTimezoneOffset())/60, "hour").toISOString()
-      console.log(startDate, endDate)
-      axios.get(`/api/v1/orders/filter?startDate=${startDate}&endDate=${endDate}`)
-      .then((response) => {
-        this.orders = response.data;
-      })
+      let startDate = value[0]
+        .add(-new Date().getTimezoneOffset() / 60, "hour")
+        .toISOString();
+      let endDate = value[1]
+        .endOf("day")
+        .add(-new Date().getTimezoneOffset() / 60, "hour")
+        .toISOString();
+      console.log(startDate, endDate);
+      axios
+        .get(`/api/v1/orders/filter?startDate=${startDate}&endDate=${endDate}`)
+        .then((response) => {
+          this.orders = response.data;
+        });
     },
   },
 
   computed: {
-    revenue(){
-      return this.orders.reduce((acc, item) => acc + item.subtotal, 0)
+    revenue() {
+      return this.orders.reduce((acc, item) => acc + item.subtotal, 0);
     },
-    totalItemSold(){
-      return this.orders.reduce((acc, item)=> acc + item.order_items.reduce((acc1, item1) => acc1 + item1.quantity,0), 0)
-    }
+    totalItemSold() {
+      return this.orders.reduce(
+        (acc, item) =>
+          acc +
+          item.order_items.reduce((acc1, item1) => acc1 + item1.quantity, 0),
+        0
+      );
+    },
   },
 
   filters: {
     toMoment: function (date) {
-      return moment(date).add(-(new Date().getTimezoneOffset()/60), "hour").format("MM/DD/YYYY, h:mm a");
+      return moment(date)
+        .add(-(new Date().getTimezoneOffset() / 60), "hour")
+        .format("MM/DD/YYYY, h:mm a");
       // return moment(date).format("MM/DD/YYYY, h:mm a");
+    },
+    currency: function (value) {
+      return value && value.toLocaleString() || 0;
     },
   },
 };

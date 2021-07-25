@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="$store.state.payDialog" persistent max-width="640px">
+    <v-dialog v-model="$store.state.payDialog" persistent max-width="680px">
       <v-card>
         <v-toolbar color="primary">
           <v-card-title>
@@ -13,7 +13,7 @@
               <v-col cols="12" sm="6" md="6">
                 <v-text-field
                   label="Cashier"
-                  value="Clerk"
+                  :value="$store.state.username"
                   readonly
                 ></v-text-field>
               </v-col>
@@ -129,7 +129,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions, mapState } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "PayDialog",
@@ -147,14 +147,7 @@ export default {
     addToMonney(number) {
       this.paymentAmount = Number(this.paymentAmount) + number * 1000;
     },
-
-    blurCustomer() {
-      if (!this.customerValue) {
-        this.customerValue = this.customers[0];
-      }
-    },
     ...mapActions("POS", {
-      getCustomer: "getCustomer",
       calculateDiscount: "calculateDiscount",
     }),
   },
@@ -170,23 +163,21 @@ export default {
       totalPrice: "totalPrice",
       discount: "discount",
     }),
-    ...mapState("POS", {
-      customers: "customers",
-    }),
 
     getPriceAfterDiscount: function () {
       return this.totalPrice - this.getDiscountValue;
     },
 
     getDiscountValue: function () {
-      if (this.discount.type == 0){
-        return Math.round((this.totalPrice * this.discount.value) / 100000)*1000;
+      if (this.discount.type == 0) {
+        return (
+          Math.round((this.totalPrice * this.discount.value) / 100000) * 1000
+        );
       }
       return this.discount.value;
     },
   },
   created() {
-    this.getCustomer();
     this.calculateDiscount();
   },
 };

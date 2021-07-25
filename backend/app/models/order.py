@@ -10,7 +10,7 @@ from app.models.user import User
 
 class Order(Base):
     __tablename__ = "orders"
-    code = Column(BIGINT)
+    code = Column(String)
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     subtotal = Column(Integer, default=0)
