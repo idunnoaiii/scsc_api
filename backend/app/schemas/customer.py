@@ -7,7 +7,7 @@ from sqlalchemy import DateTime, Float, sql
 
 class CustomerBase(BaseModel):
     name: Optional[str] = None
-    phone: Optional[str] = None
+    contact: Optional[str] = None
     email: Optional[str] = None
     address: Optional[str] = None
 

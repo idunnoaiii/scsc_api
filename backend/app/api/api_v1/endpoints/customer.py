@@ -1,13 +1,13 @@
 from typing import List
 from fastapi import APIRouter, Body, Depends, HTTPException, status, Path
 from sqlalchemy.orm import Session
-from app.schemas import Customer, CustomerCreate, CustomerUpdate
+from app.schemas import Customer, CustomerCreate, CustomerUpdate, CustomerInDBBase
 from app.api.deps import get_db
 from app.repositories import customer_repo
 
 router = APIRouter()
 
-@router.get("/", response_model=List[Customer])
+@router.get("/", response_model=List[CustomerInDBBase])
 def read_customer(
     db: Session = Depends(get_db)
 ):

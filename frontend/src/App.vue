@@ -5,7 +5,7 @@
         <v-toolbar-title class="white--text" link to="/">SCSC</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn
+          <!-- <v-btn
             small
             width="80px"
             color="primary"
@@ -17,8 +17,8 @@
               })
             "
           >
-            TEST </v-btn
-          ><v-btn
+            TEST </v-btn> -->
+          <v-btn
             small
             width="80px"
             :color="`primary ${
@@ -27,7 +27,8 @@
             dark
             @click="toggleScanningMode"
           >
-            <v-icon centered dark> mdi-camera </v-icon>
+            <v-icon left dark> mdi-camera </v-icon>
+            Scan
           </v-btn>
           <!-- <v-btn small color="primary  " class="white--text" to="/test">
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
@@ -35,7 +36,7 @@
           </v-btn> -->
           <v-btn small color="primary " class="white--text" to="/">
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
-            Sales
+            Checkout
           </v-btn>
           <v-btn small color="primary  " class="white--text" to="/transaction">
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
@@ -159,9 +160,8 @@
       right
       app
       min-height="70"
-      text
-      outlined
-      style="z-index:999"
+      dark
+      style="z-index: 999"
       prominent
       transition="slide-x-reverse-transition"
     >
@@ -182,6 +182,7 @@ import Login from "./views/pages/Login.vue";
 import * as muType from "./store/mutation-type";
 import axios from "./axios";
 import AddCustomer from "./components/AddCustomer.vue";
+import { mapMutations } from "vuex";
 
 export default {
   name: "App",
@@ -216,10 +217,17 @@ export default {
     toggleScanningMode() {
       this.$store.commit("TOGGLE_SCAN_MODE");
     },
+    ...mapMutations("POS", {
+      setOrderCode: "SET_ORDER_CODE",
+    }),
   },
   beforeCreate: function () {
     this.$store.commit("INITIALIZE_STORE");
     axios.defaults.headers.common["Authorization"] = this.$store.state.token;
+  },
+
+  mounted() {
+    this.setOrderCode();
   },
 };
 </script>
