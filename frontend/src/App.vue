@@ -1,6 +1,6 @@
 <template>
   <v-app id="app-body">
-    <div>
+    <div id ="vue-nav-bar">
       <v-app-bar v-if="$store.state.isAuthenticated" color="primary" app>
         <v-toolbar-title class="white--text" link to="/">SCSC</v-toolbar-title>
         <v-spacer></v-spacer>
@@ -179,6 +179,7 @@ import UserProfile from "./components/UserProfile.vue";
 import User from "./views/pages/User.vue";
 import POS from "./views/pages/POS.vue";
 import Login from "./views/pages/Login.vue";
+import PrintInvoice from "./views/pages/PrintInvoice.vue";
 import * as muType from "./store/mutation-type";
 import axios from "./axios";
 import AddCustomer from "./components/AddCustomer.vue";
@@ -195,6 +196,7 @@ export default {
     AddCustomer,
     ItemBoard,
     UserProfile,
+    PrintInvoice
   },
   data: () => ({
     isLogined: true,
