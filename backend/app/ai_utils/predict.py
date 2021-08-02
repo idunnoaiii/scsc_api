@@ -103,8 +103,8 @@ def predict_2(base64_img):
         width = image.shape[1]
         height = image.shape[0]
 
-        Conf_threshold = 0.4
-        NMS_threshold = 0.4
+        Conf_threshold = 0.5
+        NMS_threshold = 0.5
 
         class_name = []
         with open('classes.txt', 'r') as f:
@@ -128,5 +128,4 @@ def predict_2(base64_img):
         return ret_classes, positions
 
     except Exception as e:
-        print(e)
         return None, None
