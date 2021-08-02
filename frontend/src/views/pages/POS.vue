@@ -39,7 +39,7 @@
                 </v-btn>
               </v-col> -->
               <v-col cols="12" class="text-h5">
-                Order #{{this.currentOrderCode}}
+                Order #{{ this.currentOrderCode }}
               </v-col>
             </v-row>
             <v-data-table
@@ -98,28 +98,47 @@
                 <v-row class="mb-4">
                   <v-col cols="6">
                     <v-row>
-                      <v-col cols="6" class=""> Total Items(s) </v-col>
-                      <v-col cols="6"> : {{ this.totalOrderItem }}</v-col>
+                      <v-col cols="12">
+                        <v-text-field
+                          label="Number of items"
+                          readonly
+                          outlined
+                          dense
+                          hide-details
+                          :value="totalOrderItem"
+                        >
+                        </v-text-field>
+                      </v-col>
                     </v-row>
-                    <v-row>
-                      <v-col cols="6"> Subtotal </v-col>
-                      <v-col cols="6">
-                        : {{ this.totalPrice | currency }} VND</v-col
-                      >
-                    </v-row>
+                   
                   </v-col>
                   <v-col cols="6">
                     <v-row>
-                      <v-col cols="6"> Subtotal </v-col>
-                      <v-col cols="6">
-                        : {{ this.totalPrice | currency }} VND</v-col
-                      >
+                       <v-col cols="12" >
+                        <v-text-field
+                          label="Subtotal"
+                          readonly
+                          outlined
+                          dense
+                          hide-details
+                          :value="this.totalPrice | currency"
+                        >
+                        </v-text-field>
+                      </v-col>
                     </v-row>
                     <v-row>
-                      <v-col cols="6"> Total </v-col>
-                      <v-col cols="6">
-                        : {{ this.totalPrice | currency }} VND</v-col
-                      >
+                        <v-col cols="12">
+                        <v-text-field
+                          label="Total"
+                          readonly
+                          outlined
+                          dense
+                          hide-details
+                          background-color="green lighten-5"
+                          :value="this.totalPrice | currency"
+                        >
+                        </v-text-field>
+                      </v-col>
                     </v-row>
                   </v-col>
                 </v-row>
@@ -167,7 +186,7 @@
                     <v-icon left dark class="mx-0" color="white">
                       mdi-cash
                     </v-icon>
-                    <span class="hidden-sm-and-down ml-3">Pay</span>
+                    <span class="hidden-sm-and-down ml-3">Submit</span>
                   </v-btn>
                 </v-row>
               </v-container>
@@ -253,6 +272,7 @@
           <v-row
             v-show="!$store.state.scanMode"
             style="overflow-y: scroll; max-height: 726px"
+
           >
             <v-col
               cols="2"
@@ -282,7 +302,7 @@
                     >
                       {{ item.price | currency }} VND
                     </v-list-item-title>
-                    <v-list-item-subtitle class="text-truncate d-block">
+                    <v-list-item-subtitle class="text-truncate d-block green--text text--darken-4">
                       {{ item.name }}
                     </v-list-item-subtitle>
                   </v-list-item-content>
@@ -470,7 +490,7 @@ export default {
       showBillDialog: "showBillDialog",
       customers: "customers",
       listOnHold: "listOnHold",
-      currentOrderCode: "currentOrderCode"
+      currentOrderCode: "currentOrderCode",
     }),
     ...mapGetters("POS", {
       totalOrderItem: "totalOrderItem",
