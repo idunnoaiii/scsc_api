@@ -102,6 +102,13 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
+            color="red darken-1"
+            class="white--text"
+            @click="printInvoice()"
+          >
+            Print
+          </v-btn>
+          <v-btn
             color="primary darken-1"
             class="white--text"
             @click="$store.commit('SET_PAYDIALOG', false)"
@@ -125,6 +132,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <iframe id="iframe-print" src="/PrintInvoice" frameborder="0" width=100px height="100px">
+    </iframe>
   </v-row>
 </template>
 
@@ -150,6 +159,16 @@ export default {
     ...mapActions("POS", {
       calculateDiscount: "calculateDiscount",
     }),
+    printInvoice() {
+      // var doc = document.getElementById('iframe-print').contentWindow.document;
+      // doc.open();
+      // doc.write('Test');
+      // doc.close();
+
+      var iframe = document.getElementById('iframe-print');
+      iframe.focus();
+      iframe.contentWindow.print();
+    }
   },
   computed: {
     canPurchase: function () {
