@@ -37,6 +37,7 @@
               </v-row>
             </v-container>
           </v-form>
+          <small>*indicates required field</small>
         </v-card-text>
         <v-divider class="mb-4"></v-divider>
         <v-card-actions>
@@ -45,6 +46,7 @@
             color="primary darken-1"
             class="white--text"
             @click="$store.commit('SET_CHANGE_PASSWORD', null)"
+            text
           >
             Close
           </v-btn>
@@ -90,7 +92,6 @@ export default {
       if (!this.$refs.form.validate()) {
         return;
       }
-      console.log("VO");
       axios
         .put(
           "api/v1/users/change-password",
@@ -103,7 +104,7 @@ export default {
         .then((res) => {
           if (res.status == 200) {
             this.$store.commit("SET_TOAST", {
-              toastMsg: "Change password successfully",
+              toastMsg: "Password updated!",
               toastColor: "success",
             });
             this.$store.commit("SET_CHANGE_PASSWORD", null);

@@ -1,7 +1,7 @@
 <template>
   <v-layout>
     <v-row justify="center">
-      <v-col cols="8">
+      <v-col cols="10">
         <v-data-table
           :headers="headers"
           :items="discounts"
@@ -63,6 +63,8 @@
                               label="Threshold*"
                               type="number"
                               step="1000"
+                              min="0"
+                              :rules="[required('Threshold'), greaterThan(0)]"
                             ></v-text-field>
                           </v-col>
 
@@ -78,7 +80,9 @@
                               v-model="editedItem.value"
                               label="Value*"
                               type="number"
+                              min="0"
                               :step="editedItem.type == 1 ? 1000 : 0.1"
+                              :rules="[required('value'), greaterThan(0)]"
                             ></v-text-field>
                           </v-col>
                           <v-col cols="12" md="12">
@@ -101,6 +105,7 @@
                       color="blue darken-1"
                       class="white--text"
                       @click="close"
+                      text
                     >
                       Cancel
                     </v-btn>
@@ -126,6 +131,7 @@
                       color="blue darken-1"
                       class="white--text"
                       @click="closeDelete"
+                      text
                       >Cancel</v-btn
                     >
                     <v-btn
@@ -202,12 +208,15 @@ export default {
       },
     ],
     roleSelected: false,
-    // required(inputName) {
-    //   return (v) => (v && v.length > 0) || `${inputName} is required.`;
-    // },
+    required(inputName) {
+      return (v) => (v && v.toString().length > 0) || `${inputName} is required.`;
+    },
     // noSpace() {
     //   return (v) => (v || "").indexOf(" ") < 0 || "No spaces are allowed";
     // },
+    greaterThan(value){
+      return (v) => (v && Number(v) >= value) || `Must greater than ${value}!`
+    }
   }),
 
   computed: {
@@ -263,9 +272,9 @@ export default {
         .delete(`/api/v1/users/${this.editedItem.id}`)
         .then((response) => {
           if (response.status == 200) {
-            this.$swal.fire({
-              icon: "success",
-              title: "Delete user successfully",
+             this.$store.commit("SET_TOAST", {
+              toastMsg: "Discount deleted!",
+              toastColor: "green",
             });
             this.load();
           }
@@ -315,9 +324,9 @@ export default {
           .put("/api/v1/discounts/", item)
           .then(() => {
             this.load();
-            this.$swal.fire({
-              icon: "success",
-              title: "Add new user successfully",
+             this.$store.commit("SET_TOAST", {
+              toastMsg: "Discount updated!",
+              toastColor: "green",
             });
           })
           .catch((err) => {
@@ -329,9 +338,9 @@ export default {
           .post("/api/v1/discounts/", item)
           .then(() => {
             this.load();
-            this.$swal.fire({
-              icon: "success",
-              title: "Add new user successfully",
+             this.$store.commit("SET_TOAST", {
+              toastMsg: "Discount added!",
+              toastColor: "green",
             });
           })
           .catch((err) => {

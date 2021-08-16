@@ -25,6 +25,7 @@ export default new Vuex.Store({
     userid: 0,
     scanMode: true,
     itemDialog: false,
+    addCustomerDialog: false,
     capturedResponse: { items: [], positions: [] },
     capturedItemPicked: null,
     capturedItemPickedIndex: null,
@@ -82,6 +83,15 @@ export default new Vuex.Store({
     SET_CAPTURED_RESPONSE(state, data) {
       state.capturedResponse = data
     },
+
+    SET_ADD_CUSTOMER(state, status){
+      if(status !== null){
+        state.addCustomerDialog = status;
+        return;
+      }
+      state.addCustomerDialog = !state.addCustomerDialog;
+    },
+
     REMOVE_CAPTURED_ITEM(state, index) {
       console.log("REMOVE_CAPTURED_ITEM")
       if (state.capturedResponse && state.capturedResponse.positions) {
@@ -127,6 +137,7 @@ export default new Vuex.Store({
       if (status != null) {
         state.changePassword = status;
         console.log(state.changePassword)
+        return
       }
       state.changePassword = !state.changePassword
     },

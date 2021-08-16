@@ -23,7 +23,7 @@ def create(
 
 
 @router.put("/", response_model=Customer)
-def create(
+def update(
     db: Session = Depends(get_db),
     update_obj: CustomerUpdate = Body(...)
 ):
@@ -34,7 +34,7 @@ def create(
     return customer_repo.update(db, db_obj=db_obj, obj_in=update_obj)
 
 
-@router.delete("/")
+@router.delete("/{id}")
 def delete(
     db: Session = Depends(get_db),
     id: int = Path(...)

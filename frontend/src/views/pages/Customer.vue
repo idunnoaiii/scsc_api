@@ -4,18 +4,15 @@
       <v-col cols="10">
         <v-data-table
           :headers="headers"
-          :items="users"
+          :items="customers"
           sort-by="calories"
           class="elevation-1"
           width="90%"
           :search="search"
         >
-          <template v-slot:[`item.is_admin`]="{ item }">
-            <span>{{ item.is_admin == true ? "Admin" : "Cashier" }}</span>
-          </template>
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title class="text-h4"> Users</v-toolbar-title>
+              <v-toolbar-title class="text-h4"> Customer</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-text-field
                 v-model="search"
@@ -47,44 +44,23 @@
                         <v-row>
                           <v-col cols="12" sm="6" md="12">
                             <v-text-field
-                              v-model="editedItem.full_name"
+                              v-model="editedItem.contact"
+                              label="Contact*"
+                              :rules="[required('Username'), isPhone()]"
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="12">
+                            <v-text-field
+                              v-model="editedItem.name"
                               label="Name"
                             ></v-text-field>
                           </v-col>
                           <v-col cols="12" sm="6" md="12">
                             <v-text-field
-                              v-model="editedItem.username"
-                              label="Username*"
-                              :rules="[required('Username'), noSpace()]"
+                              v-model="editedItem.address"
+                              label="Address"
                             ></v-text-field>
                           </v-col>
-                          <v-col cols="12" md="12" v-if="editedIndex === -1">
-                            <v-text-field
-                              v-model="password"
-                              label="Password*"
-                              type="Password"
-                              :rules="[required('Password')]"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col cols="12" md="12">
-                            <v-select
-                              :items="roles"
-                              v-model="editedItem.is_admin"
-                              label="Role"
-                              :rules="[
-                                (v) =>
-                                  (v != null && v != undefined) ||
-                                  'Roles is required.',
-                              ]"
-                            ></v-select>
-                          </v-col>
-
-                          <!-- <v-col cols="12" sm="6" md="12">
-                          <v-text-field
-                            v-model="editedItem.role"
-                            label="Role"
-                          ></v-text-field>
-                        </v-col> -->
                         </v-row>
                       </v-container>
                     </v-form>
@@ -123,6 +99,7 @@
                       color="blue darken-1"
                       class="white--text"
                       @click="closeDelete"
+                      text
                       >Cancel</v-btn
                     >
                     <v-btn
@@ -157,41 +134,30 @@ export default {
   data: () => ({
     valid: true,
     dialog: false,
-    password: "",
     search: "",
     dialogDelete: false,
     headers: [
+      { text: "Contact", value: "contact" },
       {
-        text: "Full Name",
+        text: "Customer Name",
         align: "start",
-        value: "full_name",
+        value: "name",
       },
-      { text: "Username", value: "username" },
-      { text: "Role", value: "is_admin", sortable: false },
+      { text: "address", value: "address" },
       { text: "Action", value: "actions", sortable: false },
     ],
-    users: [],
+    customers: [],
     editedIndex: -1,
     editedItem: {
-      full_name: "",
-      username: "",
-      is_admin: false,
+      name: "",
+      contact: "",
+      address: "",
     },
     defaultItem: {
-      full_name: "",
-      username: "",
-      is_admin: false,
+      name: "",
+      contact: "",
+      address: "",
     },
-    roles: [
-      {
-        text: "admin",
-        value: true,
-      },
-      {
-        text: "cashier",
-        value: false,
-      },
-    ],
     roleSelected: false,
     required(inputName) {
       return (v) => (v && v.length > 0) || `${inputName} is required.`;
@@ -199,11 +165,15 @@ export default {
     noSpace() {
       return (v) => (v || "").indexOf(" ") < 0 || "No spaces are allowed";
     },
+    isPhone() {
+      let re = /(0[3|5|7|8|9])+([0-9]{8})\b/;
+      return (v) => (v && re.test(v)) || `Not a valid phone number.`;
+    },
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "New User" : "Edit User";
+      return this.editedIndex === -1 ? "New Customer" : "Edit Customer";
     },
   },
 
@@ -226,9 +196,9 @@ export default {
   methods: {
     load() {
       axios
-        .get("api/v1/users/?skip=0&limit=100")
+        .get("api/v1/customers")
         .then((response) => {
-          this.users = response.data;
+          this.customers = response.data;
         })
         .catch((err) => {
           console.log(err);
@@ -236,26 +206,25 @@ export default {
     },
 
     editItem(item) {
-      this.editedIndex = this.users.indexOf(item);
+      this.editedIndex = this.customers.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
-      this.password = "";
     },
 
     deleteItem(item) {
-      this.editedIndex = this.users.indexOf(item);
+      this.editedIndex = this.customers.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
     },
 
     deleteItemConfirm() {
-      // this.users.splice(this.editedIndex, 1);
+      // this.customers.splice(this.editedIndex, 1);
       axios
-        .delete(`/api/v1/users/${this.editedItem.id}`)
+        .delete(`api/v1/customers/${this.editedItem.id}`)
         .then((response) => {
           if (response.status == 200) {
-            this.$store.commit("SET_TOAST", {
-              toastMsg: "User deleted!",
+             this.$store.commit("SET_TOAST", {
+              toastMsg: "Customer deleted!",
               toastColor: "green",
             });
             this.load();
@@ -290,20 +259,21 @@ export default {
         return;
       }
 
-      const userObj = {
-        full_name: this.editedItem.full_name,
-        is_admin: this.editedItem.is_admin,
+      const customerObj = {
+        contact: this.editedItem.contact,
+        name: this.editedItem.name,
+        address: this.editedItem.address
       };
 
       if (this.editedIndex > -1) {
         //update
-        userObj.id = this.editedItem.id;
+        customerObj.id = this.editedItem.id;
         axios
-          .put("/api/v1/users/", userObj)
+          .put("/api/v1/customers/", customerObj)
           .then(() => {
             this.load();
-            this.$store.commit("SET_TOAST", {
-              toastMsg: "Item updated!",
+             this.$store.commit("SET_TOAST", {
+              toastMsg: "Customer updated!",
               toastColor: "green",
             });
           })
@@ -313,15 +283,13 @@ export default {
       } else {
         //add
 
-        userObj.password = this.password;
-        userObj.username = this.editedItem.username;
 
         axios
-          .post("/api/v1/users/", userObj)
+          .post("/api/v1/customers/", customerObj)
           .then(() => {
             this.load();
-            this.$store.commit("SET_TOAST", {
-              toastMsg: "User added!",
+             this.$store.commit("SET_TOAST", {
+              toastMsg: "Customer added!",
               toastColor: "green",
             });
           })

@@ -74,6 +74,7 @@
             color="primary darken-1"
             class="white--text"
             @click="$store.commit('SET_USER_PROFILE', null)"
+            text
           >
             Close
           </v-btn>
@@ -129,7 +130,10 @@ export default {
         .put("api/v1/users/", this.userProfile)
         .then((res) => {
           if (res.status == 200) {
-            alert("OK");
+             this.$store.commit("SET_TOAST", {
+              toastMsg: "User profile updated!",
+              toastColor: "green",
+            });
           }
         })
         .catch((err) => {

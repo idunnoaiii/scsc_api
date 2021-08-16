@@ -11,7 +11,7 @@
         <v-btn color="blue darken-1" text @click="$emit('close-delete')"
           >Cancel</v-btn
         >
-        <v-btn color="blue darken-1" text @click="$emit('delete-item-confirm')"
+        <v-btn color="blue darken-1"  @click="$emit('delete-item-confirm')"
           >OK</v-btn
         >
         <v-spacer></v-spacer>

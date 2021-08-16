@@ -1,19 +1,30 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="$store.state.payDialog" persistent max-width="680px">
+    <v-dialog v-model="$store.state.payDialog"  max-width="780px">
       <v-card>
-        <v-toolbar color="primary">
+        <v-toolbar>
           <v-card-title>
-            <span class="text-h5 white--text">Payment</span>
+            <span class="text-h5">Payment</span>
           </v-card-title>
         </v-toolbar>
         <v-card-text>
-          <v-container>
+          <v-container mt-4>
             <v-row>
               <v-col cols="12" sm="6" md="6">
                 <v-text-field
                   label="Cashier"
                   :value="$store.state.username"
+                  dense
+                  outlined
+                  readonly
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="6">
+                <v-text-field
+                  label="Customer"
+                  :value="getCustomerCheckout.text"
+                  dense
+                  outlined
                   readonly
                 ></v-text-field>
               </v-col>
@@ -25,7 +36,7 @@
               <v-col cols="3">
                 <v-text-field
                   placeholder="Placeholder"
-                  :value="totalPrice"
+                  :value="totalPrice | currency"
                   readonly
                   solo
                 ></v-text-field
@@ -39,7 +50,7 @@
               </v-col>
               <v-col cols="3" v-if="discount.value != 0">
                 <v-text-field
-                  :value="getDiscountValue"
+                  :value="getDiscountValue | currency"
                   readonly
                   solo
                 ></v-text-field
@@ -52,7 +63,7 @@
               <v-col cols="9">
                 <v-text-field
                   placeholder="Placeholder"
-                  :value="getPriceAfterDiscount"
+                  :value="getPriceAfterDiscount | currency"
                   readonly
                   solo
                 ></v-text-field
@@ -90,7 +101,7 @@
               <v-col cols="9">
                 <v-text-field
                   placeholder="Placeholder"
-                  :value="change"
+                  :value="change | currency"
                   readonly
                   solo
                 ></v-text-field
@@ -102,8 +113,9 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            color="red darken-1"
+            color="green darken-1"
             class="white--text"
+            text
             @click="printInvoice()"
           >
             Print
@@ -111,6 +123,7 @@
           <v-btn
             color="primary darken-1"
             class="white--text"
+            text
             @click="$store.commit('SET_PAYDIALOG', false)"
           >
             Cancel
@@ -132,7 +145,13 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <iframe id="iframe-print" src="/PrintInvoice" frameborder="0" width=100px height="100px">
+    <iframe
+      id="iframe-print"
+      src="/PrintInvoice"
+      frameborder="0"
+      width="100px"
+      height="100px"
+    >
     </iframe>
   </v-row>
 </template>
@@ -165,10 +184,10 @@ export default {
       // doc.write('Test');
       // doc.close();
 
-      var iframe = document.getElementById('iframe-print');
+      var iframe = document.getElementById("iframe-print");
       iframe.focus();
       iframe.contentWindow.print();
-    }
+    },
   },
   computed: {
     canPurchase: function () {
@@ -181,6 +200,7 @@ export default {
     ...mapGetters("POS", {
       totalPrice: "totalPrice",
       discount: "discount",
+      getCustomerCheckout: "getCustomerCheckout",
     }),
 
     getPriceAfterDiscount: function () {
@@ -198,6 +218,12 @@ export default {
   },
   created() {
     this.calculateDiscount();
+  },
+
+  filters: {
+    currency(value) {
+      return value.toLocaleString();
+    },
   },
 };
 </script>

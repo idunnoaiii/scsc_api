@@ -9,6 +9,7 @@ import Category from '../views/pages/Category'
 import Discount from '../views/pages/Discount'
 import Testlayout from '../views/pages/Testlayout'
 import PrintInvoice from '../views/pages/PrintInvoice'
+import Customer from '../views/pages/Customer'
 
 
 Vue.use(VueRouter)
@@ -59,10 +60,18 @@ const routes = [
       requireLogin: true
     }
   },
-    {
+  {
     path: '/discount',
     name: 'Discount',
     component: Discount,
+    meta: {
+      requireLogin: true
+    }
+  },
+  {
+    path: '/customer',
+    name: 'Customer',
+    component: Customer,
     meta: {
       requireLogin: true
     }
@@ -81,8 +90,8 @@ const routes = [
     // component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   },
   {
-    path:'/printInvoice',
-    name:'InvoicePrint',
+    path: '/printInvoice',
+    name: 'InvoicePrint',
     component: PrintInvoice
   }
 ]

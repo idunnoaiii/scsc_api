@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-
+# from fastapi_utils.tasks import repeat_every
 from app.api.api_v1.api import api_router
 from app.core.config import settings
 
@@ -25,3 +25,11 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 @app.get("/")
 def root():
     return {"message": "hello"}
+
+
+
+# @app.on_event("startup")
+# @repeat_every(seconds=5)  # 1 hour
+# def remove_expired_tokens_task() -> None:
+#     print("hello 500 anh em")
+

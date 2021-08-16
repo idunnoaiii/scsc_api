@@ -241,7 +241,7 @@ export default {
       deleteItem: "DELETE_ITEM_ORDER",
     }),
     ...mapMutations({
-        changeCapturedItemPick: "CHANGE_CAPTURED_ITEM_PICK"
+      changeCapturedItemPick: "CHANGE_CAPTURED_ITEM_PICK",
     }),
     ...mapActions("POS", {
       checkout: "checkout",
@@ -267,9 +267,9 @@ export default {
   watch: {
     checkoutStatus: function (newValue) {
       if (newValue == true) {
-        this.$swal.fire({
-          icon: "success",
-          title: "Checkout successfully",
+        this.$store.commit("SET_TOAST", {
+          toastMsg: "Order saved!",
+          toastColor: "green",
         });
         this.showPayDialog = false;
       }
