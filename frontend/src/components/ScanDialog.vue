@@ -90,7 +90,7 @@ export default {
             this.streaming = false;
           });
       } else {
-        this.$swal("ccc");
+        console.log("Error setup camera")
       }
     },
 

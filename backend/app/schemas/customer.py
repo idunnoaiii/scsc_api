@@ -8,8 +8,8 @@ from sqlalchemy import DateTime, Float, sql
 class CustomerBase(BaseModel):
     name: Optional[str] = None
     contact: Optional[str] = None
-    email: Optional[str] = None
     address: Optional[str] = None
+    
 
 
 class CustomerCreate(CustomerBase):
@@ -17,6 +17,7 @@ class CustomerCreate(CustomerBase):
 
 
 class CustomerUpdate(CustomerBase):
+    id: int
     pass
 
 
@@ -27,7 +28,7 @@ class CustomerInDBBase(CustomerBase):
 
 
 class Customer(CustomerBase):
-
+    id: int
     class Config: 
         orm_mode = True
 

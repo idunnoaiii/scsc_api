@@ -161,7 +161,7 @@
                     @click="clearOrderItem"
                   >
                     <v-icon left dark class="mx-0" color="white"
-                      >> mdi-cancel
+                      > mdi-cancel
                     </v-icon>
                     <span class="hidden-sm-and-down ml-3">Clear</span>
                   </v-btn>
@@ -213,18 +213,18 @@
                 dense
               ></v-autocomplete>
             </v-col>
-            <!-- <v-col cols="2">
+            <v-col cols="1">
               <v-btn
                 fab
                 elevation-2
-                medium
+                small
                 class="rounded-5"
                 color="primary"
-                @click="$store.commit('SHOW_GLOBAL_DIALOG', 'AddCustomer')"
+                @click="$store.commit('SET_ADD_CUSTOMER', true)"
               >
                 <v-icon left dark class="mx-0"> mdi-plus </v-icon>
               </v-btn>
-            </v-col> -->
+            </v-col>
 
             <v-col cols="4">
               <v-sheet tile class="py-4 px-1">
@@ -243,7 +243,7 @@
                 </v-chip-group>
               </v-sheet>
             </v-col>
-            <v-col cols="4">
+            <v-col cols="3">
               <v-text-field
                 outlined
                 label="Search item by name"
@@ -342,6 +342,7 @@
     <PayDialog v-on:confirm-payment="checkout" v-if="$store.state.payDialog">
     </PayDialog>
     <BillDialog v-bind:show="this.showBillDialog"> </BillDialog>
+    <AddCustomer v-bind:show="$store.state.addCustomerDialog"/>
   </v-layout>
 </template>
 
@@ -350,6 +351,7 @@ import axios from "../../axios";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import PayDialog from "../../components/POS/PayDialog.vue";
 import BillDialog from "../../components/BillDialog.vue";
+import AddCustomer from "../../components/AddCustomer.vue";
 import Scanning from "../../components/Scanning.vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import _ from "lodash";
@@ -360,6 +362,7 @@ export default {
     PayDialog,
     BillDialog,
     Scanning,
+    AddCustomer
   },
   data() {
     return {
@@ -550,7 +553,4 @@ export default {
   width: 100%;
 }
 
-.swal2-popup.swal2-modal.swal2-icon-warning.swal2-show {
-  font-family: "Roboto", sans-serif;
-}
 </style>

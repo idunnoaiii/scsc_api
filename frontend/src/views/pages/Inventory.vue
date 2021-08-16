@@ -1,7 +1,7 @@
 <template>
   <v-layout>
     <v-row justify="center">
-      <v-col cols="8">
+      <v-col cols="10">
         <v-data-table
           :headers="headers"
           :items="items"
@@ -21,9 +21,6 @@
               max-height="50px"
               max-width="50px"
             />
-          </template>
-          <template v-slot:[`item.quantity`]="{ item }">
-            <span>{{ item.quantity }}</span>
           </template>
           <template v-slot:top>
             <v-toolbar flat>
@@ -108,17 +105,6 @@
                           <v-col cols="6">
                             <v-img :src="editedItem.image_url"></v-img>
                           </v-col>
-
-                          <v-col cols="12">
-                            <v-text-field
-                              v-model="editedItem.quantity"
-                              label="Quantity*"
-                              type="Number"
-                              min="0"
-                              step="1"
-                              :rules="[required('Quantity')]"
-                            ></v-text-field>
-                          </v-col>
                         </v-row>
                       </v-container>
                     </v-form>
@@ -131,6 +117,7 @@
                       color="blue darken-1"
                       class="white--text"
                       @click="close"
+                      text
                     >
                       Cancel
                     </v-btn>
@@ -156,6 +143,7 @@
                       color="blue darken-1"
                       class="white--text"
                       @click="closeDelete"
+                      text
                       >Cancel</v-btn
                     >
                     <v-btn
@@ -204,7 +192,6 @@ export default {
       },
       { text: "Image", value: "description", sortable: false  },
       { text: "Price", value: "price" },
-      { text: "Quantity", value: "quantity" },
       { text: "Action", value: "actions", sortable: false },
     ],
     items: [],
@@ -309,9 +296,9 @@ export default {
         .delete(`/api/v1/items/${this.editedItem.id}`)
         .then((response) => {
           if (response.status == 200) {
-            this.$swal.fire({
-              icon: "success",
-              title: "Delete item successfully",
+             this.$store.commit("SET_TOAST", {
+              toastMsg: "Item deleted!",
+              toastColor: "green",
             });
             this.load();
           }
@@ -372,10 +359,10 @@ export default {
           .put("/api/v1/items/update", fd)
           .then((response) => {
             if (response.status == 200) {
-              this.$swal({
-                icon: "success",
-                title: "Update item successfully",
-              });
+               this.$store.commit("SET_TOAST", {
+              toastMsg: "Item updated!",
+              toastColor: "green",
+            });
               this.load();
             }
           })
@@ -398,9 +385,9 @@ export default {
 
         axios.post("/api/v1/items/create", fd).then((response) => {
           if (response.status == 200) {
-            this.$swal({
-              icon: "success",
-              title: "Add new item successfully",
+             this.$store.commit("SET_TOAST", {
+              toastMsg: "Item added!",
+              toastColor: "green",
             });
             this.load();
           }

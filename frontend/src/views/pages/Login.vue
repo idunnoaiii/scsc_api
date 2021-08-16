@@ -1,5 +1,5 @@
 <template >
-  <v-container class="fill-height" fluid>
+  <v-container id="login" class="fill-height" fluid>
     <v-row align="center" justify="center">
       <v-col cols="12" md="6">
         <v-card class="elevation-12 rounded-xl">
@@ -58,13 +58,16 @@
       </v-col>
     </v-row>
     <v-snackbar
-      :timeout="2000"
+      timeout="2000"
       v-model="snackbar"
       :color="snackbarColor"
       absolute
-      right
       top
-      text
+      right
+      app
+      min-height="70"
+      dark
+      style="z-index: 999"
       prominent
       transition="slide-x-reverse-transition"
     >
@@ -139,6 +142,6 @@ export default {
 
 <style scoped>
 #login {
-  background: #a3b4c525;
+ background: linear-gradient(0deg, #2578af, #6DD5FA, #FFFFFF);
 }
 </style>

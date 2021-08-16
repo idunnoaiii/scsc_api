@@ -113,7 +113,11 @@ export default {
           })
           .catch(() => {
             this.streaming = false;
-            this.$swal("No camera found");
+            //noti no camera found
+            this.$store.commit("SET_TOAST", {
+              toastMsg: "No camera found!",
+              toastColor: "red",
+            });
             this.$store.commit("SET_SCAN_MODE", false);
           });
       } else {
@@ -296,9 +300,9 @@ export default {
               self.canvas.on("mouse:down", function (o) {
                 if (self.isDrawing == false) return;
                 var pointer = self.canvas.getPointer(o.e);
-                self.canvas._objects.forEach(function (obj){
-                  obj.set({selectable: false})
-                })
+                self.canvas._objects.forEach(function (obj) {
+                  obj.set({ selectable: false });
+                });
                 self.isDown = true;
                 self.origX = pointer.x;
                 self.origY = pointer.y;
@@ -319,8 +323,8 @@ export default {
 
                 var pointer = self.canvas.getPointer(o.e);
 
-                self.show.x = pointer.x
-                self.show.y = pointer.y
+                self.show.x = pointer.x;
+                self.show.y = pointer.y;
 
                 if (self.origX > pointer.x) {
                   self.rectangle.set({ left: Math.abs(pointer.x) });
@@ -329,8 +333,9 @@ export default {
                   self.rectangle.set({ top: Math.abs(pointer.y) });
                 }
 
-                self.rectangle.set({ 
-                  width: Math.abs(self.origX - pointer.x) });
+                self.rectangle.set({
+                  width: Math.abs(self.origX - pointer.x),
+                });
                 self.rectangle.set({
                   height: Math.abs(self.origY - pointer.y),
                 });
@@ -359,10 +364,10 @@ export default {
                 group.set("id_", -1);
                 group.set("index_", -1);
                 self.canvas.add(group);
-                self.canvas._objects.forEach(function (obj){
-                  obj.set({selectable: true})
-                })
-                self.canvas.requestRenderAll()
+                self.canvas._objects.forEach(function (obj) {
+                  obj.set({ selectable: true });
+                });
+                self.canvas.requestRenderAll();
               });
             }
           })

@@ -2,7 +2,7 @@ import axios from '../../axios'
 
 const state = () => ({
 	orderItems: [],
-	customer_checkout: 0,
+	customer_checkout: null,
 	totalItem: 0,
 	totalPay: 0,
 	discount: {
@@ -41,11 +41,16 @@ const getters = {
 	},
 	discount(state) {
 		return state.discount;
+	},
+	getCustomerCheckout(state) {
+		return state.customers.filter(c => c.value == state.customerValue)[0];
 	}
 }
 
 const actions = {
 	checkout({ commit, state, getters, rootState }, payload) {
+
+
 
 		let orderDetail = {
 			code: state.currentOrderCode,
@@ -66,6 +71,10 @@ const actions = {
 				},
 			],
 		};
+
+		if (state.customerValue > 0) {
+			orderDetail.customer_id = state.customerValue
+		}
 
 		orderDetail.order_items = state.orderItems.map((item) => ({
 			item_id: item.id,
@@ -88,6 +97,9 @@ const actions = {
 			.catch((err) => {
 				console.log(err);
 				commit('SET_CHECKOUT_STATUS', false)
+			})
+			.finally(() => {
+				commit('SET_SELECTED_CUSTOMER', 0)
 			});
 
 	},
@@ -118,7 +130,23 @@ const actions = {
 	},
 
 	changeCustomerValue({ commit }, payload) {
+		console.log(payload);
 		commit('SET_SELECTED_CUSTOMER', payload)
+	},
+
+	addCusomterInPOS({ commit }, payload) {
+		axios.get("/api/v1/customers")
+			.then((response) => {
+				if (response.data) {
+					const customers = response.data.map((item) => ({
+						text: `${item.name} - ${item.contact}`,
+						value: item.id,
+					}));
+					commit('SET_CUSTOMERS', customers)
+					commit('SET_SELECTED_CUSTOMER', payload)
+				}
+
+			});
 	}
 
 }
@@ -144,7 +172,7 @@ const mutations = {
 		state.checkoutStatus = status;
 	},
 
-	SET_ORDER_CODE(state){
+	SET_ORDER_CODE(state) {
 		console.log("SET_ORDER_CODE")
 		state.currentOrderCode = new Date().getTime()
 	},

@@ -1,6 +1,6 @@
 <template>
   <v-app id="app-body">
-    <div>
+    <div id ="vue-nav-bar">
       <v-app-bar v-if="$store.state.isAuthenticated" color="primary" app>
         <v-toolbar-title class="white--text" link to="/">SCSC</v-toolbar-title>
         <v-spacer></v-spacer>
@@ -64,6 +64,9 @@
               </v-list-item>
               <v-list-item link to="/users">
                 <v-list-item-title class="white--text">User</v-list-item-title>
+              </v-list-item>
+              <v-list-item link to="/customer">
+                <v-list-item-title class="white--text">Customer</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -152,7 +155,7 @@
     <ScanDialog v-if="$store.state.scanDialog"></ScanDialog>
     <UserProfile v-if="$store.state.userProfile"></UserProfile>
     <v-snackbar
-      timeout="3000"
+      timeout="2000"
       v-model="$store.state.toast"
       :color="$store.state.toastColor"
       absolute
@@ -179,9 +182,9 @@ import UserProfile from "./components/UserProfile.vue";
 import User from "./views/pages/User.vue";
 import POS from "./views/pages/POS.vue";
 import Login from "./views/pages/Login.vue";
+import PrintInvoice from "./views/pages/PrintInvoice.vue";
 import * as muType from "./store/mutation-type";
 import axios from "./axios";
-import AddCustomer from "./components/AddCustomer.vue";
 import { mapMutations } from "vuex";
 
 export default {
@@ -192,9 +195,9 @@ export default {
     User,
     POS,
     Login,
-    AddCustomer,
     ItemBoard,
     UserProfile,
+    PrintInvoice
   },
   data: () => ({
     isLogined: true,
@@ -236,7 +239,7 @@ export default {
 <style lang="scss" scoped>
 body {
   background: linear-gradient(40deg, #77008cde, #041158ec);
-  font-family: "Roboto", sans-serif;
+  font-family: "Lato", sans-serif;
 }
 
 #app-body {
