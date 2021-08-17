@@ -66,6 +66,7 @@ export default {
   data: function () {
     return {
       player: null,
+      currentCaptureData: null,
       streaming: false,
       captured: false,
       hasResponse: false,
@@ -171,13 +172,31 @@ export default {
 
     takeMorePicture: function () {
       // this.$store.commit("SET_ITEM_DIALOG", true);
+      let listPositionsToUpload = [];
       if (this.capturedResponse) {
         for (var pos of this.capturedResponse.positions) {
           if (pos == null || pos[0] == -1) continue;
           let item = this.capturedResponse.items.find((x) => x.id == pos[0]);
-          console.log(item.name);
+          listPositionsToUpload.push(pos);
           this.addItemToOrder(item);
         }
+
+        //check if image change compare with the first time
+        if (this.$store.state.positions_updated == true) {
+          axios
+            .post(
+              "/api/v1/items/upload-image/",
+              JSON.stringify({
+                image: this.currentCaptureData,
+                positions: listPositionsToUpload,
+              })
+            )
+            .catch((err) => {
+              console.error(err);
+            });
+        }
+        this.$store.commit('RESET_POSITION_UPDATED_FLAG');
+
         this.$store.commit("SET_CAPTURED_RESPONSE", {
           items: [],
           positions: [],
@@ -190,6 +209,10 @@ export default {
 
     takePicture: function () {
       var self = this;
+
+      //reset positions_updated to false -> not upload to firebase
+      this.$store.commit('RESET_POSITION_UPDATED_FLAG');
+      
       var canvas = document.querySelector("canvas");
       if (canvas && this.streaming === true) {
         this.videoTagWidth = document.querySelector("video").offsetWidth;
@@ -209,6 +232,7 @@ export default {
         );
 
         const data = canvas.toDataURL("image/png");
+        this.currentCaptureData = data;
 
         self.captured = true;
 

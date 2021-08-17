@@ -34,7 +34,8 @@ export default new Vuex.Store({
     changePassword: false,
     toast: false,
     toastMsg: "",
-    toastColor: ""
+    toastColor: "",
+    positions_updated: false,
   },
   mutations: {
     [muType.SHOW_GLOBAL_DIALOG](state, name) {
@@ -97,6 +98,7 @@ export default new Vuex.Store({
       if (state.capturedResponse && state.capturedResponse.positions) {
         state.capturedResponse.positions[index] = null
         console.log(state.capturedResponse.positions)
+        state.positions_updated = true;
       }
     },
     SET_CAPTURED_ITEM_PICK(state, payload) {
@@ -107,6 +109,7 @@ export default new Vuex.Store({
       if (state.capturedItemPicked == null) {
         state.capturedResponse.positions.push([-1, ...payload.positions, 0])
         state.capturedItemPickedIndex = state.capturedResponse.positions.length - 1
+        state.positions_updated = true;
       }
       state.updateBox = payload.update
       console.log(state.updateBox)
@@ -118,6 +121,7 @@ export default new Vuex.Store({
         state.capturedResponse.items.push(item)
       state.updateBox(item.name, item.price, state.capturedItemPickedIndex, item.id)
       state.capturedItemPicked = null
+      state.positions_updated = true;
       console.log(state.capturedResponse.positions)
     },
     SET_DRAWING(state, status) {
@@ -146,6 +150,9 @@ export default new Vuex.Store({
       state.toastMsg = payload.toastMsg
       state.toastColor = payload.toastColor
       console.log(state.toast, "TOAS")
+    },
+    RESET_POSITION_UPDATED_FLAG(state){
+      state.positions_updated = false;
     }
 
   },

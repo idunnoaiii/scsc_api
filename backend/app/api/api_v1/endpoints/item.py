@@ -15,6 +15,7 @@ from app.ai_utils import predict_2, predict
 import shutil
 import time
 from slugify import slugify
+import io
 
 router = APIRouter()
 
@@ -151,6 +152,50 @@ async def scan_item(
         }
 
     return None
+
+
+@router.post("/upload-image/")
+async def upload_image(
+    bucket = Depends(deps.get_firebase_bucket),
+    body: str = Body(None)
+
+):
+
+    req_body = json.loads(body)
+
+    if req_body["image"] == "" and req_body["positions"] == "":
+        return
+    
+    positions = req_body["positions"]
+    image = base64.b64decode(req_body["image"][22:]); 
+
+    file_name = int(time.time()*1000)
+
+    # with open(f'upload/{file_name}.txt', 'w') as file:
+    #     for v in positions:
+    #         file.write(f"{v[0]} {v[1]} {v[2]} {v[3]} {v[4]}\n")
+
+    # with open(f'upload/{file_name}.txt', 'rb') as file:
+    #     blob = bucket.blob(f"data_train/{file_name}.txt")
+    #     blob.upload_from_file(file, content_type="text/plain")
+    #     blob.make_public()
+    #     print(blob.public_url)
+    text_position = ""
+    for v in positions:
+        text_position = text_position.join(f"{v[0]} {v[1]} {v[2]} {v[3]} {v[4]}\n")
+
+    print(text_position)
+
+    blob_text = bucket.blob(f"data_train/{file_name}.txt")
+    blob_text.upload_from_file(io.StringIO(text_position), content_type="text/plain")
+    blob_text.make_public()
+    print(blob_text.public_url)
+    
+    blob_image = bucket.blob(f"data_train/{file_name}.png")
+    blob_image.upload_from_file(io.BytesIO(image), content_type="image/png")
+    blob_image.make_public()
+    print(blob_image.public_url)
+
 
 
 #test the upload image

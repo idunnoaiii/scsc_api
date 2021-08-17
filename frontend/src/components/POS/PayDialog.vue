@@ -1,12 +1,10 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="$store.state.payDialog"  max-width="780px">
+    <v-dialog v-model="$store.state.payDialog" max-width="780px">
       <v-card>
-        <v-toolbar>
-          <v-card-title>
-            <span class="text-h5">Payment</span>
-          </v-card-title>
-        </v-toolbar>
+        <v-card-title color="primary white--text">
+          <span class="text-h5">Payment</span>
+        </v-card-title>
         <v-card-text>
           <v-container mt-4>
             <v-row>
