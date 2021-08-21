@@ -1,6 +1,6 @@
 <template>
   <v-app id="app-body">
-    <div id ="vue-nav-bar">
+    <div id="vue-nav-bar">
       <v-app-bar v-if="$store.state.isAuthenticated" color="primary" app>
         <v-toolbar-title class="white--text" link to="/">SCSC</v-toolbar-title>
         <v-spacer></v-spacer>
@@ -26,6 +26,7 @@
             }`"
             dark
             @click="toggleScanningMode"
+            v-if="!$store.state.isAdmin"
           >
             <v-icon left dark> mdi-camera </v-icon>
             Scan
@@ -34,11 +35,23 @@
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             test
           </v-btn> -->
-          <v-btn small color="primary " class="white--text" to="/">
+          <v-btn
+            small
+            color="primary "
+            class="white--text"
+            to="/pos"
+            v-if="!$store.state.isAdmin"
+          >
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             Checkout
           </v-btn>
-          <v-btn small color="primary  " class="white--text" to="/transaction">
+          <v-btn
+            small
+            color="primary  "
+            class="white--text"
+            to="/transaction"
+            v-if="$store.state.isAdmin"
+          >
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             Sales report
           </v-btn>
@@ -66,7 +79,9 @@
                 <v-list-item-title class="white--text">User</v-list-item-title>
               </v-list-item>
               <v-list-item link to="/customer">
-                <v-list-item-title class="white--text">Customer</v-list-item-title>
+                <v-list-item-title class="white--text"
+                  >Customer</v-list-item-title
+                >
               </v-list-item>
             </v-list>
           </v-menu>
@@ -197,7 +212,7 @@ export default {
     Login,
     ItemBoard,
     UserProfile,
-    PrintInvoice
+    PrintInvoice,
   },
   data: () => ({
     isLogined: true,
@@ -215,7 +230,7 @@ export default {
       localStorage.removeItem("token");
       this.$store.commit("SET_LOGIN_TOKEN", "");
       this.$store.commit("SET_AUTH_STATUS", false);
-      this.$router.replace("/login");
+      this.$router.push("/login");
     },
     toggleScanningMode() {
       this.$store.commit("TOGGLE_SCAN_MODE");
@@ -225,8 +240,11 @@ export default {
     }),
   },
   beforeCreate: function () {
-    this.$store.commit("INITIALIZE_STORE");
-    axios.defaults.headers.common["Authorization"] = this.$store.state.token;
+    const token = localStorage.getItem("token");
+    if (token) {
+      this.$store.commit("INITIALIZE_STORE");
+      axios.defaults.headers.common["Authorization"] = this.$store.state.token;
+    }
   },
 
   mounted() {

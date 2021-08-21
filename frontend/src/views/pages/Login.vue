@@ -79,7 +79,7 @@
 <script>
 import { setLocalToken } from "../../utils";
 import axios from "../../axios";
-import {parseJwt} from "../../utils"
+import { parseJwt } from "../../utils";
 
 export default {
   name: "Login",
@@ -115,13 +115,17 @@ export default {
           if (token) {
             setLocalToken(token);
             let jwtObj = parseJwt(token);
-            let sub = JSON.parse(jwtObj.sub)
+            let sub = JSON.parse(jwtObj.sub);
             this.$store.commit("SET_LOGIN_TOKEN", token);
             this.$store.commit("SET_AUTH_STATUS", true);
             this.$store.commit("SET_ROLE", sub.is_admin);
             this.$store.commit("SET_USERNAME", sub.username);
             this.$store.commit("SET_USERID", sub.id);
-            this.$router.replace("/");
+            if (sub.is_admin) {
+              this.$router.replace("/transaction");
+            } else {
+              this.$router.replace("/pos");
+            }
           }
         })
         .catch(() => {
@@ -131,17 +135,17 @@ export default {
         });
     },
   },
-  beforeCreate() {
-    if (localStorage.getItem("token")) {
-      this.$router.replace("/");
-    }
-  },
+  // beforeCreate() {
+  //   if (localStorage.getItem("token")) {
+  //     this.$router.replace("/");
+  //   }
+  // },
 };
 </script>
 
 
 <style scoped>
 #login {
- background: linear-gradient(0deg, #2578af, #6DD5FA, #FFFFFF);
+  background: linear-gradient(0deg, #2578af, #6dd5fa, #ffffff);
 }
 </style>

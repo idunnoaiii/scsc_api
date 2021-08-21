@@ -21,7 +21,7 @@ const routes = [
     component: Login
   },
   {
-    path: '/',
+    path: '/pos',
     name: 'POS',
     component: POS,
     meta: {
