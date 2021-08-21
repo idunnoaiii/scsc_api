@@ -72,4 +72,8 @@ class UserRepo(RepoBase[User, UserCreate, UserUpdate]):
         return db_role.name == "admin"
 
 
+    def get_roles(self, db: Session):
+        return db.query(RoleModel).all()
+
+
 user = UserRepo(User)

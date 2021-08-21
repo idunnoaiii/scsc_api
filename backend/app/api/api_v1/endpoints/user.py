@@ -31,6 +31,11 @@ def read_users(
     # return users
     return user_repo.get_multi(db, skip=skip, limit=limit)
 
+@router.get("/roles")
+def read_roles(
+    db: Session = Depends(get_db)
+):
+    return user_repo.get_roles(db)
 
 @router.get("/{id}", response_model=schemas.User)
 def get_user_by_id(

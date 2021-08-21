@@ -97,7 +97,7 @@
 
                           <v-col cols="6">
                             <v-file-input
-                              accept="image/*"
+                              accept="image/png"
                               label="Image"
                               @change="onFileSelected"
                             ></v-file-input>
@@ -133,7 +133,7 @@
                 </v-card>
               </v-dialog>
               <v-dialog v-model="dialogDelete" max-width="500px">
-                <v-card>
+                <!-- <v-card>
                   <v-card-title class="text-h5"
                     >Are you sure you want to delete this item?</v-card-title
                   >
@@ -153,6 +153,23 @@
                       >OK</v-btn
                     >
                     <v-spacer></v-spacer>
+                  </v-card-actions>
+                </v-card> -->
+                <v-card>
+                  <v-card-title class="text-h5"> Warning! </v-card-title>
+                  <v-card-text>You want to delete this item?</v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary darken-1" text @click="closeDelete">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      color="red darken-1"
+                      class="white--text"
+                      @click="deleteItemConfirm"
+                    >
+                      OK
+                    </v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -190,7 +207,7 @@ export default {
         align: "start",
         value: "name",
       },
-      { text: "Image", value: "description", sortable: false  },
+      { text: "Image", value: "description", sortable: false },
       { text: "Price", value: "price" },
       { text: "Action", value: "actions", sortable: false },
     ],
@@ -296,7 +313,7 @@ export default {
         .delete(`/api/v1/items/${this.editedItem.id}`)
         .then((response) => {
           if (response.status == 200) {
-             this.$store.commit("SET_TOAST", {
+            this.$store.commit("SET_TOAST", {
               toastMsg: "Item deleted!",
               toastColor: "green",
             });
@@ -359,10 +376,10 @@ export default {
           .put("/api/v1/items/update", fd)
           .then((response) => {
             if (response.status == 200) {
-               this.$store.commit("SET_TOAST", {
-              toastMsg: "Item updated!",
-              toastColor: "green",
-            });
+              this.$store.commit("SET_TOAST", {
+                toastMsg: "Item updated!",
+                toastColor: "green",
+              });
               this.load();
             }
           })
@@ -378,14 +395,13 @@ export default {
 
         fd.append("data", item_json);
 
-
         if (this.selectedFile) {
           fd.append("image", this.selectedFile, this.selectedFile.name);
         }
 
         axios.post("/api/v1/items/create", fd).then((response) => {
           if (response.status == 200) {
-             this.$store.commit("SET_TOAST", {
+            this.$store.commit("SET_TOAST", {
               toastMsg: "Item added!",
               toastColor: "green",
             });

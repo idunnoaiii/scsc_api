@@ -5,6 +5,7 @@ import store from './store'
 import vuetify from './plugins/vuetify'
 import VueSweetalert2 from 'vue-sweetalert2'
 import VMdDateRangePicker from "v-md-date-range-picker";
+import VueHtmlToPaper from 'vue-html-to-paper';
 
 
 import 'sweetalert2/dist/sweetalert2.min.css';
@@ -18,6 +19,8 @@ Vue.use(VueSweetalert2, {
   confirmButtonColor: '#41b882',
   cancelButtonColor: '#ff7674',
 })
+
+Vue.use(VueHtmlToPaper);
 
 new Vue({
   router,
