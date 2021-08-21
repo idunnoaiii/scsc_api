@@ -24,7 +24,7 @@
             dark
             class="mx-auto align-self-center"
             color="primary darken-3 d-inline-block"
-            v-if="!captured"
+            v-if="!captured "
             fab
             elevation-10
             @click="takePicture"
@@ -35,7 +35,7 @@
             dark
             class="mx-auto align-self-center d-inline-block"
             :color="`primary ${isDrawing == true ? 'darken-3' : ''}`"
-            v-if="captured"
+            v-if="captured && hasResponse"
             elevation-10
             @click="$store.commit('SET_DRAWING', null)"
           >

@@ -10,12 +10,12 @@
           width="90%"
           :search="search"
         >
-          <template v-slot:[`item.is_admin`]="{ item }">
-            <span>{{ item.is_admin == true ? "Admin" : "Cashier" }}</span>
+          <template v-slot:[`item.role_value`]="{ item }">
+            <span>{{ getRoleName(item.role_id) }}</span>
           </template>
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title class="text-h4"> Users</v-toolbar-title>
+              <v-toolbar-title class="text-h4"> Users </v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-text-field
                 v-model="search"
@@ -54,6 +54,7 @@
                           <v-col cols="12" sm="6" md="12">
                             <v-text-field
                               v-model="editedItem.username"
+                              :disabled="editedIndex !== -1"
                               label="Username*"
                               :rules="[required('Username'), noSpace()]"
                             ></v-text-field>
@@ -69,11 +70,11 @@
                           <v-col cols="12" md="12">
                             <v-select
                               :items="roles"
-                              v-model="editedItem.is_admin"
-                              label="Role"
+                              v-model="editedItem.role_id"
+                              label="Role*"
                               :rules="[
                                 (v) =>
-                                  (v != null && v != undefined) ||
+                                  (v != null && v != undefined && v != 0) ||
                                   'Roles is required.',
                               ]"
                             ></v-select>
@@ -114,24 +115,20 @@
               </v-dialog>
               <v-dialog v-model="dialogDelete" max-width="500px">
                 <v-card>
-                  <v-card-title class="text-h5"
-                    >Are you sure you want to delete this user?</v-card-title
-                  >
+                  <v-card-title class="text-h5"> Warning! </v-card-title>
+                  <v-card-text>You want to delete this user?</v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn
-                      color="blue darken-1"
-                      class="white--text"
-                      @click="closeDelete"
-                      >Cancel</v-btn
-                    >
+                    <v-btn color="primary darken-1" text @click="closeDelete">
+                      Cancel
+                    </v-btn>
                     <v-btn
                       color="red darken-1"
                       class="white--text"
                       @click="deleteItemConfirm"
-                      >OK</v-btn
                     >
-                    <v-spacer></v-spacer>
+                      OK
+                    </v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -167,7 +164,7 @@ export default {
         value: "full_name",
       },
       { text: "Username", value: "username" },
-      { text: "Role", value: "is_admin", sortable: false },
+      { text: "Role", value: "role_value", sortable: false },
       { text: "Action", value: "actions", sortable: false },
     ],
     users: [],
@@ -175,24 +172,24 @@ export default {
     editedItem: {
       full_name: "",
       username: "",
-      is_admin: false,
+      role_id: 0,
     },
     defaultItem: {
       full_name: "",
       username: "",
-      is_admin: false,
+      role_id: 0,
     },
     roles: [
       {
-        text: "admin",
-        value: true,
+        text: "",
+        value: 0,
       },
       {
-        text: "cashier",
-        value: false,
+        text: "Cashier",
+        value: 0,
       },
     ],
-    roleSelected: false,
+    roleSelected: 0,
     required(inputName) {
       return (v) => (v && v.length > 0) || `${inputName} is required.`;
     },
@@ -229,10 +226,38 @@ export default {
         .get("api/v1/users/?skip=0&limit=100")
         .then((response) => {
           this.users = response.data;
+          for (let u of this.users) {
+            u.is_admin = u.role_id == 1;
+          }
+          console.log(this.users);
         })
         .catch((err) => {
           console.log(err);
         });
+      axios
+        .get("api/v1/users/roles")
+        .then((response) => {
+          if (response.status == 200) {
+            this.roles = response.data.map((r) => ({
+              value: r.id,
+              text: r.name,
+            }));
+            console.log(this.roles);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+
+    getRoleName(id) {
+      let v = this.roles?.reduce((acc, cur) => {
+          if(cur.value == id){
+            acc = cur.text;
+          }
+          return acc;
+        }, "");
+      return v;
     },
 
     editItem(item) {
@@ -292,7 +317,7 @@ export default {
 
       const userObj = {
         full_name: this.editedItem.full_name,
-        is_admin: this.editedItem.is_admin,
+        role_id: this.editedItem.role_id,
       };
 
       if (this.editedIndex > -1) {
@@ -315,6 +340,7 @@ export default {
 
         userObj.password = this.password;
         userObj.username = this.editedItem.username;
+        userObj.role_id = this.editedItem.role_id;
 
         axios
           .post("/api/v1/users/", userObj)

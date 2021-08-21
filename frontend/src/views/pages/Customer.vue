@@ -89,7 +89,7 @@
                 </v-card>
               </v-dialog>
               <v-dialog v-model="dialogDelete" max-width="500px">
-                <v-card>
+                <!-- <v-card>
                   <v-card-title class="text-h5"
                     >Are you sure you want to delete this user?</v-card-title
                   >
@@ -109,6 +109,23 @@
                       >OK</v-btn
                     >
                     <v-spacer></v-spacer>
+                  </v-card-actions>
+                </v-card> -->
+                <v-card>
+                  <v-card-title class="text-h5"> Warning! </v-card-title>
+                  <v-card-text>You want to delete this customer?</v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary darken-1" text @click="closeDelete">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      color="red darken-1"
+                      class="white--text"
+                      @click="deleteItemConfirm"
+                    >
+                      OK
+                    </v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -223,7 +240,7 @@ export default {
         .delete(`api/v1/customers/${this.editedItem.id}`)
         .then((response) => {
           if (response.status == 200) {
-             this.$store.commit("SET_TOAST", {
+            this.$store.commit("SET_TOAST", {
               toastMsg: "Customer deleted!",
               toastColor: "green",
             });
@@ -262,7 +279,7 @@ export default {
       const customerObj = {
         contact: this.editedItem.contact,
         name: this.editedItem.name,
-        address: this.editedItem.address
+        address: this.editedItem.address,
       };
 
       if (this.editedIndex > -1) {
@@ -272,7 +289,7 @@ export default {
           .put("/api/v1/customers/", customerObj)
           .then(() => {
             this.load();
-             this.$store.commit("SET_TOAST", {
+            this.$store.commit("SET_TOAST", {
               toastMsg: "Customer updated!",
               toastColor: "green",
             });
@@ -283,12 +300,11 @@ export default {
       } else {
         //add
 
-
         axios
           .post("/api/v1/customers/", customerObj)
           .then(() => {
             this.load();
-             this.$store.commit("SET_TOAST", {
+            this.$store.commit("SET_TOAST", {
               toastMsg: "Customer added!",
               toastColor: "green",
             });
