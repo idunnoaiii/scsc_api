@@ -182,7 +182,7 @@ async def upload_image(
     #     print(blob.public_url)
     text_position = ""
     for v in positions:
-        text_position = text_position.join(f"{v[0]} {v[1]} {v[2]} {v[3]} {v[4]}\n")
+        text_position = text_position  + f"{v[0]} {v[1]} {v[2]} {v[3]} {v[4]}\n"
 
     print(text_position)
 

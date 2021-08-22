@@ -305,6 +305,7 @@ export default {
                       e.target.height / self.videoTagHeight,
                     ],
                     update: function (name, price, index, id) {
+                      e.target.id_ = id;
                       e.target._objects[1].set({ text: `${name}\n${price}` });
                       self.canvas.requestRenderAll();
                       if (e.target.id_ == -1) {
