@@ -198,6 +198,7 @@ import User from "./views/pages/User.vue";
 import POS from "./views/pages/POS.vue";
 import Login from "./views/pages/Login.vue";
 import PrintInvoice from "./views/pages/PrintInvoice.vue";
+import Checkout from "./views/pages/Checkout.vue"
 import * as muType from "./store/mutation-type";
 import axios from "./axios";
 import { mapMutations } from "vuex";
@@ -213,6 +214,7 @@ export default {
     ItemBoard,
     UserProfile,
     PrintInvoice,
+    Checkout
   },
   data: () => ({
     isLogined: true,

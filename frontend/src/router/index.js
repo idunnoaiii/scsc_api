@@ -10,11 +10,17 @@ import Discount from '../views/pages/Discount'
 import Testlayout from '../views/pages/Testlayout'
 import PrintInvoice from '../views/pages/PrintInvoice'
 import Customer from '../views/pages/Customer'
+import Checkout from '../views/pages/Checkout'
 
 
 Vue.use(VueRouter)
 
 const routes = [
+  {
+    path: '/',
+    name: 'checkout',
+    component: Checkout,
+  },
   {
     path: '/login',
     name: 'Login',
