@@ -14,11 +14,23 @@
             autoplay="true"
             playsinline="true"
           ></video>
+          <!-- <video
+            ref="video1"
+            class="feed"
+            id="video"
+            autoplay="true"
+            playsinline="true"
+          ></video> -->
+          <v-card width="50%" class="d-inline-block">
+          <QrcodeStream @decode="onDecode" ></QrcodeStream>
+          </v-card>
           <canvas class="feed d-none" id="canvas"></canvas>
         </v-card>
-        <h1>{{classes}}</h1>
+        <h1>{{ classes }}</h1>
         <button id="start" @click="start">Start</button>
-        <button id="toggle" @click="stop">stop</button>
+        <button id="toggle" @click="stopMedia">
+          {{ toggle }}
+        </button>
       </v-card>
     </v-col>
     <v-col lg="4">
@@ -78,20 +90,26 @@
 </template>
 
 <script>
+
+import { QrcodeStream } from 'vue-qrcode-reader'
+
 var pc = null;
 var dc = null;
 
 export default {
 
-  data: function(){
+  components: {
+    QrcodeStream
+  },
+
+  data: function () {
     return {
       toggle: false,
-      classes: []
-    }
+      classes: [],
+    };
   },
 
   methods: {
-    
     createPeerConnection: function () {
       // var config = {
       //   iceServers : [{urls: ['stun:stun.l.google.com:19302']}]
@@ -104,37 +122,38 @@ export default {
       pc = new RTCPeerConnection();
 
       // register some listeners to help debugging
-      pc.addEventListener(
-        "icegatheringstatechange",
-        function () {
-          console.log("icegatheringstatechange -> ", pc.iceGatheringState);
-        },
-        false
-      );
-      console.log("icegatheringstatechange -> ", pc.iceGatheringState);
+      // pc.addEventListener(
+      //   "icegatheringstatechange",
+      //   function () {
+      //     console.log("icegatheringstatechange -> ", pc.iceGatheringState);
+      //   },
+      //   false
+      // );
+      // console.log("icegatheringstatechange -> ", pc.iceGatheringState);
 
-      pc.addEventListener(
-        "iceconnectionstatechange",
-        function () {
-          console.log("iceconnectionstatechange -> ", pc.iceConnectionState);
-        },
-        false
-      );
-      console.log("iceconnectionstatechange -> ", pc.iceConnectionState);
+      // pc.addEventListener(
+      //   "iceconnectionstatechange",
+      //   function () {
+      //     console.log("iceconnectionstatechange -> ", pc.iceConnectionState);
+      //   },
+      //   false
+      // );
+      // console.log("iceconnectionstatechange -> ", pc.iceConnectionState);
 
-      pc.addEventListener(
-        "signalingstatechange",
-        function () {
-          console.log("signalingstatechange -> ", pc.signalingState);
-        },
-        false
-      );
-      console.log("signalingstatechange -> ", pc.signalingState);
+      // pc.addEventListener(
+      //   "signalingstatechange",
+      //   function () {
+      //     console.log("signalingstatechange -> ", pc.signalingState);
+      //   },
+      //   false
+      // );
+      // console.log("signalingstatechange -> ", pc.signalingState);
 
       // connect audio / video
+      let self = this;
       pc.addEventListener("track", function (evt) {
         if (evt.track.kind == "video")
-          document.getElementById("video").srcObject = evt.streams[0];
+          self.$refs.video.srcObject = evt.streams[0];
       });
 
       return pc;
@@ -196,18 +215,20 @@ export default {
     },
 
     start: function () {
+      let self = this;
+
       pc = this.createPeerConnection();
 
       var parameters = { ordered: true };
 
       dc = pc.createDataChannel("chat", parameters);
-  
-      dc.onopen= function () {
-        dc.send("ping")
-      }
 
+      dc.onopen = function () {
+        dc.send("ping");
+      };
       dc.onmessage = function (evt) {
-          console.log("channel -> ", " RTT " + evt.data + " ms");
+        console.log("channel -> ", JSON.parse(evt.data));
+        self.classes = JSON.parse(evt.data)["classes"];
       };
 
       // pc.ondatachannel = function (evt) {
@@ -217,21 +238,20 @@ export default {
       //   }
       // }
 
-      let self = this;
-
       navigator.mediaDevices
         .getUserMedia({
           video: {
             width: 1280,
             height: 720,
-            frameRate: 4,
+            frameRate: 2,
           },
         })
         .then(
           function (stream) {
+            self.$refs.stream = stream;
             stream.getTracks().forEach(function (track) {
               pc.addTrack(track, stream);
-              console.log(self.toggle)
+              console.log(self.toggle);
             });
             return self.negotiate();
           },
@@ -266,10 +286,64 @@ export default {
         pc.close();
       }, 500);
     },
+
+    onDecode(decodeString){
+      window.location.href = decodeString;
+    },
+
+    stopMedia: function () {
+      if (this.$refs.stream && this.toggle == true) {
+        this.$refs.stream.getTracks().forEach((track) => {
+          track.stop();
+        });
+        this.toggle = false;
+      } else {
+        navigator.mediaDevices
+          .getUserMedia({
+            video: {
+              width: 1280,
+              height: 720,
+              frameRate: 2,
+            },
+          })
+          .then(
+            function (stream) {
+            
+              stream.getTracks().forEach(function (track) {
+                pc.addTrack(track, stream);
+                console.log(self.toggle);
+              });
+              return self.negotiate();
+            },
+            function (err) {
+              alert("Could not acquire media: " + err);
+            }
+          );
+        this.toggle = true;
+      }
+    },
   },
+
+  
 
   created() {
     // this.$refs.video
+    // this.start();
+    
+    const self = this;
+    navigator.mediaDevices.enumerateDevices()
+    .then(listDevices => {
+      console.log(listDevices)
+      const videoDeviceId = listDevices.filter(x => (x.kind == 'videoinput')).map(x => x.deviceId);
+      console.log(videoDeviceId)
+      navigator.mediaDevices.getUserMedia({video:{deviceId: videoDeviceId[1]}}).then(stream => {
+        self.$refs.video.srcObject = stream
+      }).catch(console.log)
+      // navigator.mediaDevices.getUserMedia({video:{deviceId: videoDeviceId[1]}}).then(stream => {
+      //   self.$refs.video1.srcObject = stream
+      // }).catch(console.log)
+    })
+
   },
 };
 </script>
@@ -280,7 +354,7 @@ export default {
   width: 100vw;
 
   .feed {
-    width: 100%;
+    width: 50%;
     height: auto;
     margin: 0 auto;
     background: transparent;

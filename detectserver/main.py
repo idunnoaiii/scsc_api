@@ -1,10 +1,7 @@
 import asyncio
 from logging import log
 import os
-import cv2
 import json
-import multiprocessing
-
 from av import VideoFrame
 
 #from imageai.Detection import VideoObjectDetection
@@ -21,20 +18,11 @@ from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 
 from src.schemas import Offer
-
 from model import yolov5
 
-ROOT = os.path.dirname(__file__)
+# ROOT = os.path.dirname(__file__)
 
 app = FastAPI()
-
-
-origins = [
-    "http://localhost.tiangolo.com",
-    "https://localhost.tiangolo.com",
-    "http://localhost",
-    "http://localhost:8080",
-]
 
 app.add_middleware(
     CORSMiddleware,
@@ -44,8 +32,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+# app.mount("/static", StaticFiles(directory="static"), name="static")
+# templates = Jinja2Templates(directory="templates")
 
 
 class VideoTransformTrack(MediaStreamTrack):
@@ -71,10 +59,8 @@ class VideoTransformTrack(MediaStreamTrack):
         #     print(self.channel.label)
         #     self.channel.send("HELLO FROM SERVER")
         # rebuild a VideoFrame, preserving timing information
-        print("CLASSSSSSSSSSSSSSSSSSS", classes)
-        print("PROCESSSSSSSSSSSSSSSSSS", multiprocessing.current_process())
         if self.channel is not None and self.channel != []:
-            self.channel[0].send(json.dumps({"classes": classes}))
+            self.channel[0].send(json.dumps({"classes": classes, "chanel": id(self.channel)}))
         new_frame = VideoFrame.from_ndarray(img, format="bgr24")
         new_frame.pts = frame.pts
         new_frame.time_base = frame.time_base
@@ -85,7 +71,6 @@ class VideoTransformTrack(MediaStreamTrack):
 @app.post("/offer_cv")
 async def offer(params: Offer):
 
-
     offer = RTCSessionDescription(sdp=params.sdp, type=params.type)
 
     pc = RTCPeerConnection()
@@ -95,6 +80,7 @@ async def offer(params: Offer):
     relay = MediaRelay()
 
     ch = []
+    
 
     @pc.on('datachannel')
     def on_datachannel(channel):
@@ -137,7 +123,6 @@ async def offer(params: Offer):
 
 
 pcs = set()
-args = ''
 
 
 @app.on_event("shutdown")
