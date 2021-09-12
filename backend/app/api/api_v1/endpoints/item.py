@@ -6,7 +6,7 @@ from sqlalchemy.sql.expression import true
 from starlette.datastructures import FormData
 from app.api import deps
 from app.repositories import item_repo
-from app.schemas import Item, ItemCreate, User
+from app.schemas import Item, ItemCreate, User, ItemCheckoutModel
 from app.models import CategoryModel
 from typing import List, Optional
 import base64
@@ -152,6 +152,28 @@ async def scan_item(
         }
 
     return None
+
+
+@router.post("/fetch/", response_model= List[ItemCheckoutModel])
+async def fetch_items(
+    db: Session = Depends(deps.get_db),
+    class_ids: List[int] = Body(None)
+):
+    start = time.time()
+    if class_ids is None or class_ids == []:
+        return None
+
+    class_id_count = {i:class_ids.count(i) for i in class_ids}
+    items = item_repo.fetch_by_ids(db, listId=class_ids)
+    for item in items:
+        if item.id in class_id_count.keys():
+            item.quantity = class_id_count[item.id]
+
+    end = time.time()
+    print(end - start)
+    return items
+
+
 
 
 @router.post("/upload-image/")

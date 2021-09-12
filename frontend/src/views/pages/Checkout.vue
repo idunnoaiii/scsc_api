@@ -3,9 +3,24 @@
     <v-col lg="8">
       <v-card
         outline
-        class="d-flex flex-column justify-space-around"
+        class="d-flex flex-column justify-md-space-between"
         height="100%"
       >
+        <v-card color="primary" flat tile>
+          <v-toolbar dark color="primary">
+            <v-toolbar-title>SCSC</v-toolbar-title>
+
+            <v-spacer></v-spacer>
+
+            <v-btn icon>
+              <v-icon>mdi-magnify</v-icon>
+            </v-btn>
+
+            <v-btn icon>
+              <v-icon>mdi-account </v-icon>
+            </v-btn>
+          </v-toolbar>
+        </v-card>
         <v-card class="camera">
           <video
             ref="video"
@@ -14,98 +29,146 @@
             autoplay="true"
             playsinline="true"
           ></video>
-          <!-- <video
-            ref="video1"
-            class="feed"
-            id="video"
-            autoplay="true"
-            playsinline="true"
-          ></video> -->
-          <v-card width="50%" class="d-inline-block">
-          <QrcodeStream @decode="onDecode" ></QrcodeStream>
-          </v-card>
           <canvas class="feed d-none" id="canvas"></canvas>
         </v-card>
-        <h1>{{ classes }}</h1>
-        <button id="start" @click="start">Start</button>
-        <button id="toggle" @click="stopMedia">
-          {{ toggle }}
-        </button>
+        <!-- <h1>{{ classes }}</h1> -->
+        <div class="d-flex justify-lg-space-around pa-6">
+          <v-btn x-large dark id="toggle" color="orange" @click="stopMedia">
+            <v-icon  dark class="mx-0" color="white"> mdi-cancel </v-icon>
+            EXIT
+          </v-btn>
+          <v-btn x-large dark color="green" id="start" @click="fetchItems"
+            >            <v-icon  dark class="mx-0" color="white"> mdi-cash </v-icon>CHECKOUT</v-btn
+          >
+        </div>
       </v-card>
     </v-col>
     <v-col lg="4">
-      <v-card outline height="100%">
-        <v-data-table
-          :headers="headers"
-          :items="orderItems"
-          class="elevation-4"
+      <v-card outline height="100%" tile class="d-flex flex-column">
+        <v-card-title
+          style="background-color: #1976d2"
+          class="white--text"
+          height="48px"
         >
-          <template v-slot:[`item.quantity`]="props">
-            <v-edit-dialog>
-              {{ props.item.quantity }}
-              <template v-slot:input>
-                <v-text-field
-                  v-model="props.item.quantity"
-                  @change="
-                    updateItemQuantity({
-                      quantity: props.item.quantity,
-                      itemId: props.item.id,
-                    })
-                  "
-                  label="Edit"
-                  single-line
-                  counter
-                  min="1"
-                  type="number"
-                  step="1"
-                ></v-text-field>
-              </template>
-            </v-edit-dialog>
-          </template>
-          <template v-slot:[`item.actions`]="{ item }">
-            <v-icon
-              small
-              color="green darken-1"
-              class="mr-2"
-              @click="increaseQuantity(item.id)"
-            >
-              mdi-arrow-up-drop-circle-outline
-            </v-icon>
-            <v-icon
-              small
-              color="orange darken-1"
-              class="mr-2"
-              @click="decreaseQuantity(item.id)"
-            >
-              mdi-arrow-down-drop-circle-outline
-            </v-icon>
-            <v-icon small color="red darken-1" @click="deleteItem(item.id)">
-              mdi-delete
-            </v-icon>
-          </template>
-        </v-data-table>
+          <div class="text-h5">Invoice details</div>
+        </v-card-title>
+        <v-card-text
+          style="max-height: calc(100% - 200px);height: calc(100% - 200px);}"
+        >
+          <v-simple-table fixed-header style="height: calc(100% - 120px)">
+            <template v-slot:default>
+              <thead>
+                <tr>
+                  <th class="text-left">Name</th>
+                  <th class="text-left">Price</th>
+                  <th class="text-left">Quantity</th>
+                  <th class="text-left">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in orderItems" :key="item.name">
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.price }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>{{ item.price * item.quantity }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-card-text>
+        <v-card-actions class="d-flex-row justify-lg-space-between">
+          <div class="text-h4 d-inline-flex px-4">Total Price:</div>
+          <div class="text-h4 d-inline-flex px-4">{{ totalPrice }}</div>
+        </v-card-actions>
       </v-card>
     </v-col>
+    <v-dialog
+      v-model="scanScreen"
+      fullscreen
+      hide-overlay
+      transition="dialog-bottom-transition"
+      persistent
+    >
+      <v-card>
+        <v-container id="login" fluid>
+          <v-row align="center" justify="center">
+            <v-col cols="12" md="10">
+              <v-card
+                class="elevation-12 rounded-xl"
+                style="background-color: rgb(25 118 210 / 81%)"
+              >
+                <v-card-title class="justify-center">
+                  <div class="text-center my-10">
+                    <div class="text-h3 white--text">SCSC Welcome</div>
+                    <!-- <div class="text-h6">Scan QRCode to Login</div> -->
+                  </div>
+                </v-card-title>
+                <v-card-text>
+                  <v-container fluid mb-16>
+                    <v-row align="center" class="my-16">
+                      <v-col cols="7" class="d-sm-none d-md-block">
+                        <v-img src="@/assets/svg/undraw_Hamburger.svg"></v-img>
+                      </v-col>
+                      <v-col cols="5">
+                        <div id="qr_code" tile>
+                          <QrcodeStream
+                            v-show="!loadingQR"
+                            @decode="onDecode"
+                            @init="onInit"
+                            :camera="camera"
+                          >
+                            <div id="qr_placeholder">
+                              <img src="@/assets/qr.png" />
+                            </div>
+                          </QrcodeStream>
+                          <v-progress-circular
+                            v-if="loadingQR"
+                            :size="70"
+                            :width="7"
+                            color="primary"
+                            indeterminate
+                          ></v-progress-circular>
+                        </div>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card>
+    </v-dialog>
   </v-layout>
 </template>
 
 <script>
-
-import { QrcodeStream } from 'vue-qrcode-reader'
+import { QrcodeStream } from "vue-qrcode-reader";
+import axios from "../../axios";
+import _ from "lodash";
 
 var pc = null;
 var dc = null;
 
 export default {
-
   components: {
-    QrcodeStream
+    QrcodeStream,
   },
 
   data: function () {
     return {
       toggle: false,
       classes: [],
+      scanScreen: false,
+      camera: "off",
+      loadingQR: true,
+      orderItems: [],
+      totalPrice: 0,
+      user: {
+        id: 0,
+        username: "",
+        balance: 0,
+      },
     };
   },
 
@@ -226,9 +289,17 @@ export default {
       dc.onopen = function () {
         dc.send("ping");
       };
+
       dc.onmessage = function (evt) {
-        console.log("channel -> ", JSON.parse(evt.data));
-        self.classes = JSON.parse(evt.data)["classes"];
+        const data = JSON.parse(evt.data)["classes"].sort();
+        if (self.classes.length != data.length) {
+          console.log(1);
+          self.classes = data;
+        }
+        if (self.classes.some((val, index) => val !== data[index])) {
+          console.log(2);
+          self.classes = data;
+        }
       };
 
       // pc.ondatachannel = function (evt) {
@@ -251,7 +322,6 @@ export default {
             self.$refs.stream = stream;
             stream.getTracks().forEach(function (track) {
               pc.addTrack(track, stream);
-              console.log(self.toggle);
             });
             return self.negotiate();
           },
@@ -287,63 +357,100 @@ export default {
       }, 500);
     },
 
-    onDecode(decodeString){
-      window.location.href = decodeString;
+    stopMedia: function () {
+      const self = this;
+      if (this.$refs.stream) {
+        self.toggle = !self.toggle;
+        self.$refs.stream.getTracks().forEach((track) => {
+          track.enabled = self.toggle;
+        });
+      }
     },
 
-    stopMedia: function () {
-      if (this.$refs.stream && this.toggle == true) {
-        this.$refs.stream.getTracks().forEach((track) => {
-          track.stop();
-        });
-        this.toggle = false;
-      } else {
-        navigator.mediaDevices
-          .getUserMedia({
-            video: {
-              width: 1280,
-              height: 720,
-              frameRate: 2,
-            },
-          })
-          .then(
-            function (stream) {
-            
-              stream.getTracks().forEach(function (track) {
-                pc.addTrack(track, stream);
-                console.log(self.toggle);
-              });
-              return self.negotiate();
-            },
-            function (err) {
-              alert("Could not acquire media: " + err);
-            }
-          );
-        this.toggle = true;
+    getUserMedia: function (config) {
+      return navigator.mediaDevices.getUserMedia(config);
+    },
+
+    getListVideoDevices: function () {
+      return this.getListDevices().then((listDevices) => {
+        return listDevices
+          .filter((dev) => dev.kind == "videoinput")
+          .map((dev) => dev.deviceId);
+      });
+    },
+
+    getListDevices: function () {
+      return navigator.mediaDevices.enumerateDevices();
+    },
+
+    onDecode(decodeString) {
+      // window.location.href = decodeString;
+      console.log(decodeString);
+      this.scanScreen = false;
+    },
+
+    async onInit(promise) {
+      this.loadingQR = true;
+      try {
+        const { capabilities } = await promise;
+        this.loadingQR = false;
+        this.camera = "auto";
+        console.log(capabilities);
+      } catch (e) {
+        console.log(e);
       }
+    },
+
+    fetchItems(ids) {
+      axios
+        .post("/api/v1/items/fetch/", ids)
+        .then((response) => {
+          if (response) {
+            this.orderItems = response.data;
+            this.totalPrice = response.data.reduce(
+              (acc, item) => acc + item.price * item.quantity,
+              0
+            );
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     },
   },
 
-  
-
   created() {
     // this.$refs.video
-    // this.start();
-    
-    const self = this;
-    navigator.mediaDevices.enumerateDevices()
-    .then(listDevices => {
-      console.log(listDevices)
-      const videoDeviceId = listDevices.filter(x => (x.kind == 'videoinput')).map(x => x.deviceId);
-      console.log(videoDeviceId)
-      navigator.mediaDevices.getUserMedia({video:{deviceId: videoDeviceId[1]}}).then(stream => {
-        self.$refs.video.srcObject = stream
-      }).catch(console.log)
-      // navigator.mediaDevices.getUserMedia({video:{deviceId: videoDeviceId[1]}}).then(stream => {
-      //   self.$refs.video1.srcObject = stream
-      // }).catch(console.log)
-    })
+    this.start();
 
+    // const self = this;
+    // self.getListVideoDevices().then((videoDeviceIds) => {
+    //   self
+    //     .getUserMedia({
+    //       video: {
+    //         deviceId: videoDeviceIds[1],
+    //         width: 1280,
+    //         height: 720,
+    //         frameRate: 2,
+    //       },
+    //     })
+    //     .then((stream) => {
+    //       self.$refs.stream = stream;
+    //       self.$refs.video.srcObject = stream;
+    //     })
+    //     .catch(console.log);
+    //   // navigator.mediaDevices.getUserMedia({video:{deviceId: videoDeviceId[1]}}).then(stream => {
+    //   //   self.$refs.video1.srcObject = stream
+    //   // }).catch(console.log)
+    // });
+  },
+
+  watch: {
+    classes: _.debounce(function (newValue) {
+      console.log(this.classes, newValue);
+      //call api to get list items
+      this.fetchItems(newValue);
+    }, 500),
   },
 };
 </script>
@@ -354,10 +461,29 @@ export default {
   width: 100vw;
 
   .feed {
-    width: 50%;
+    width: 100%;
     height: auto;
     margin: 0 auto;
     background: transparent;
   }
+}
+
+#login {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#qr_code {
+  height: 300px;
+  width: 300px;
+  margin: auto;
+  border: 5px solid black;
+  padding: 5px;
+}
+
+#qr_placeholder img {
+  width: 100%;
+  padding: 15px;
 }
 </style>

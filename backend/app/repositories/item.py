@@ -113,6 +113,12 @@ class ItemRepo(RepoBase[ItemModel, ItemCreate, ItemUpdate]):
             ItemModel.slug.ilike("%"+searchValue+"%"))
             ).filter(ItemModel.is_active == True).all()
 
+
+    def fetch_by_ids(
+        self, db: Session, *, listId: List[int]
+    ):
+        return db.query(ItemModel).filter(self.model.id.in_(listId)).all()
+
     # def update(
     #     self,
     #     db: Session,
