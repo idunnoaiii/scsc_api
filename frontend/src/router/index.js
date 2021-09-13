@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Login from '../views/pages/Login.vue'
-import POS from '../views/pages/POS.vue'
+// import POS from '../views/pages/POS.vue'
 import User from '../views/pages/User'
 import Inventory from '../views/pages/Inventory'
 import Transaction from '../views/pages/Transaction'
@@ -26,14 +26,14 @@ const routes = [
     name: 'Login',
     component: Login
   },
-  {
-    path: '/pos',
-    name: 'POS',
-    component: POS,
-    meta: {
-      requireLogin: true
-    }
-  },
+  // {
+  //   path: '/pos',
+  //   name: 'POS',
+  //   component: POS,
+  //   meta: {
+  //     requireLogin: true
+  //   }
+  // },
   {
     path: '/users',
     name: 'User',

@@ -7,7 +7,7 @@ from av import VideoFrame
 #from imageai.Detection import VideoObjectDetection
 
 from aiortc import MediaStreamTrack, RTCPeerConnection, RTCSessionDescription, RTCDataChannel
-from aiortc.contrib.media import MediaPlayer, MediaRelay, MediaBlackhole
+from aiortc.contrib.media import MediaPlayer, MediaRelay
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -47,20 +47,16 @@ class VideoTransformTrack(MediaStreamTrack):
         super().__init__()
         self.track = track
         self.channel = channel
-        self.counters = 0
 
     async def recv(self):
         frame = await self.track.recv()
-        # perform edge detection
         img = frame.to_ndarray(format="bgr24")
         # img = cv2.cvtColor(cv2.Canny(img, 100, 200), cv2.COLOR_GRAY2BGR)
         img, classes = yolov5(img)
-        # if self.channel.readyState == 'open':
-        #     print(self.channel.label)
-        #     self.channel.send("HELLO FROM SERVER")
+
         # rebuild a VideoFrame, preserving timing information
         if self.channel is not None and self.channel != []:
-            self.channel[0].send(json.dumps({"classes": classes, "chanel": id(self.channel)}))
+            self.channel[0].send(json.dumps({"classes": classes}))
         new_frame = VideoFrame.from_ndarray(img, format="bgr24")
         new_frame.pts = frame.pts
         new_frame.time_base = frame.time_base

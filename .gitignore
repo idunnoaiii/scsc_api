@@ -134,3 +134,11 @@ __pycache__/
 
 
 yolov3.backup
+
+classes.txt
+yolov4-custom_last.weights
+yolov4-custom.cfg
+item.sql
+certification.json
+yarn.lock
+package-lock.json

@@ -35,7 +35,7 @@
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             test
           </v-btn> -->
-          <v-btn
+          <!-- <v-btn
             small
             color="primary "
             class="white--text"
@@ -44,7 +44,7 @@
           >
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             Checkout
-          </v-btn>
+          </v-btn> -->
           <v-btn
             small
             color="primary  "
@@ -78,11 +78,11 @@
               <v-list-item link to="/users">
                 <v-list-item-title class="white--text">User</v-list-item-title>
               </v-list-item>
-              <v-list-item link to="/customer">
+              <!-- <v-list-item link to="/customer">
                 <v-list-item-title class="white--text"
                   >Customer</v-list-item-title
                 >
-              </v-list-item>
+              </v-list-item> -->
             </v-list>
           </v-menu>
 

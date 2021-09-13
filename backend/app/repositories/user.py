@@ -75,5 +75,13 @@ class UserRepo(RepoBase[User, UserCreate, UserUpdate]):
     def get_roles(self, db: Session):
         return db.query(RoleModel).all()
 
+    def login_qr(self, db: Session, username: str):
+        return db.query(User).filter(User.username == username).first()
+
+    def subtract_balance(self, db: Session, *, user_id: int, amount: int):
+        user = db.query(User).filter(User.id == user_id).first()
+        user.balance -= amount
+        db.commit()
+
 
 user = UserRepo(User)

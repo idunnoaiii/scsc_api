@@ -12,10 +12,7 @@
 
             <v-spacer></v-spacer>
 
-            <v-btn icon>
-              <v-icon>mdi-magnify</v-icon>
-            </v-btn>
-
+            <span class="text-h5">{{ user.full_name }}</span>
             <v-btn icon>
               <v-icon>mdi-account </v-icon>
             </v-btn>
@@ -34,12 +31,17 @@
         <!-- <h1>{{ classes }}</h1> -->
         <div class="d-flex justify-lg-space-around pa-6">
           <v-btn x-large dark id="toggle" color="orange" @click="stopMedia">
-            <v-icon  dark class="mx-0" color="white"> mdi-cancel </v-icon>
+            <v-icon dark class="mx-0" color="white"> mdi-cancel </v-icon>
             EXIT
           </v-btn>
-          <v-btn x-large dark color="green" id="start" @click="fetchItems"
-            >            <v-icon  dark class="mx-0" color="white"> mdi-cash </v-icon>CHECKOUT</v-btn
-          >
+          <v-btn x-large dark color="green" id="start" @click="checkout">
+            <v-icon dark class="mx-0" color="white"> mdi-cash </v-icon>
+            CHECKOUT
+          </v-btn>
+          <v-btn x-large dark color="green" @click="login_chuoi">
+            <v-icon dark class="mx-0" color="white"> mdi-cash </v-icon>
+            LOGIN
+          </v-btn>
         </div>
       </v-card>
     </v-col>
@@ -50,7 +52,7 @@
           class="white--text"
           height="48px"
         >
-          <div class="text-h5">Invoice details</div>
+          <div class="text-h5">Details</div>
         </v-card-title>
         <v-card-text
           style="max-height: calc(100% - 200px);height: calc(100% - 200px);}"
@@ -76,9 +78,13 @@
             </template>
           </v-simple-table>
         </v-card-text>
-        <v-card-actions class="d-flex-row justify-lg-space-between">
-          <div class="text-h4 d-inline-flex px-4">Total Price:</div>
-          <div class="text-h4 d-inline-flex px-4">{{ totalPrice }}</div>
+        <v-card-actions class="d-flex-row">
+          <div class="text-h5 d-inline-flex px-5">Total Price:</div>
+          <div class="text-h5 d-inline-flex px-5">{{ totalPrice }}</div>
+        </v-card-actions>
+        <v-card-actions class="d-flex-row">
+          <div class="text-h5 d-inline-flex px-5">Balance:</div>
+          <div class="text-h5 d-inline-flex px-5">{{ user.balance }}</div>
         </v-card-actions>
       </v-card>
     </v-col>
@@ -128,6 +134,16 @@
                             color="primary"
                             indeterminate
                           ></v-progress-circular>
+                          <v-btn
+                            x-large
+                            dark
+                            color="green"
+                            @click="login_chuoi"
+                          >
+                            <v-icon dark class="mx-0" color="white">
+                              mdi-cash </v-icon
+                            >LOGIN
+                          </v-btn>
                         </div>
                       </v-col>
                     </v-row>
@@ -162,12 +178,33 @@ export default {
       scanScreen: false,
       camera: "off",
       loadingQR: true,
-      orderItems: [],
-      totalPrice: 0,
+      orderItems: [
+        {
+          id: 1,
+          name: "Bánh chuối tròn",
+          price: 20000,
+          quantity: 2,
+        },
+        {
+          id: 2,
+          name: "Bông lan trứng muối",
+          price: 24000,
+          quantity: 1,
+        },
+        {
+          id: 3,
+          name: "Bánh Thỏi vàng",
+          price: 14000,
+          quantity: 1,
+        },
+      ],
+      orderItemsConfirm: [],
+      totalPrice: 20000,
       user: {
         id: 0,
+        full_name: "",
         username: "",
-        balance: 0,
+        balance: "",
       },
     };
   },
@@ -312,9 +349,9 @@ export default {
       navigator.mediaDevices
         .getUserMedia({
           video: {
-            width: 1280,
-            height: 720,
-            frameRate: 2,
+            width: { min: 1280, idea: 1920 },
+            height: { min: 720, idea: 1080 },
+            frameRate: 5,
           },
         })
         .then(
@@ -384,9 +421,20 @@ export default {
     },
 
     onDecode(decodeString) {
-      // window.location.href = decodeString;
-      console.log(decodeString);
+      window.location.href = decodeString;
       this.scanScreen = false;
+    },
+
+    login_chuoi() {
+      return axios
+        .post("/api/v1/users/qr_login", "user1")
+        .then((response) => {
+          this.user = response.data;
+          this.scanScreen = false;
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     },
 
     async onInit(promise) {
@@ -399,6 +447,10 @@ export default {
       } catch (e) {
         console.log(e);
       }
+    },
+
+    qrLogin: function (code) {
+      return axios.post("/api/v1/users/qr_login", code);
     },
 
     fetchItems(ids) {
@@ -417,7 +469,51 @@ export default {
           console.log(e);
         });
     },
+
+    checkout() {
+      if (this.classes == []) return;
+      let orderItemsConfirm = Object.assign(this.orderItems)
+
+      let orderDetail = {
+        code: new Date().getTime(),
+        user_id: this.user.id,
+        total: this.totalPrice,
+        order_items: [
+          {
+            item_id: 0,
+            price: 0,
+            quantity: 0,
+            item_name: "string",
+          },
+        ],
+      };
+
+      orderDetail.order_items = orderItemsConfirm.map((item) => ({
+        item_id: item.id,
+        price: item.price,
+        quantity: item.quantity,
+        item_name: item.name,
+      }));
+
+      axios
+        .post("/api/v1/orders/", orderDetail)
+        .then((response) => {
+          if(response.status == 200){
+            this.cleanCheckout()
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => {});
+    },
+
+    cleanCheckout(){
+      this.orderItems = []
+      this.login_chuoi()
+    }
   },
+
 
   created() {
     // this.$refs.video

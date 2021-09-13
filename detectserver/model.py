@@ -5,11 +5,11 @@ import logging
 import time
 import glob
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.DEBUG)
+# logger = logging.getLogger(__name__)
 
 
-logger.info("============================LOAD")
+# logger.info("============================LOAD")
 
 CONFIDENCE_THRESHOLD = 0.5
 NMS_THRESHOLD = 0.5
@@ -64,5 +64,5 @@ def yolov5(image):
         return image, ret_classes
 
     except Exception as e:
-        logger.exception(e)
+        # logger.exception(e)
         return None, None

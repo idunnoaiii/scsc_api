@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql.sqltypes import Integer
 from app.api.deps import get_db
 
-from app.repositories import order_repo
+from app.repositories import order_repo, user_repo
 from app.schemas import Order, OrderCreate
 
 import datetime
@@ -30,7 +30,9 @@ def create(
     db: Session = Depends(get_db),
     create_obj: Order = Body(...)
 ):
-    return order_repo.create_v2(db, obj_in=create_obj)
+    res = order_repo.create_v2(db, obj_in=create_obj)
+    if res.id > 0:
+        user_repo.subtract_balance(db, user_id = res.user_id, amount = create_obj.total)
 
 
 @router.patch("/{order_code}")
