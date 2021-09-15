@@ -5,7 +5,22 @@ from sqlalchemy import DateTime, Float, sql
 from sqlalchemy.sql.schema import Column
 from app.schemas.category import CategoryId
 
+class ItemToCache(BaseModel):
+    id: int
+    name: str
+    price: float
+
+
 # Shared properties
+class ItemCheckoutModel(BaseModel):
+    id: int
+    name: Optional[str]
+    price: Optional[float]
+    quantity: Optional[int]
+
+    class Config:
+        orm_mode = True
+
 class ItemBase(BaseModel):
     name: Optional[str] = None
     slug: Optional[str] = None

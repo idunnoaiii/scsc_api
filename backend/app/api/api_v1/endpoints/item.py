@@ -16,8 +16,12 @@ import shutil
 import time
 from slugify import slugify
 import io
+import redis
+from app.api.deps import redis_connect
 
 router = APIRouter()
+
+redis_client = redis_connect()
 
 @router.get("/all", response_model=List[Item])
 def read_item(
@@ -159,19 +163,35 @@ async def fetch_items(
     db: Session = Depends(deps.get_db),
     class_ids: List[int] = Body(None)
 ):
-    start = time.time()
-    if class_ids is None or class_ids == []:
-        return None
+    try:
+        start = time.time()
+        if class_ids is None or class_ids == []:
+            return None
 
-    class_id_count = {i:class_ids.count(i) for i in class_ids}
-    items = item_repo.fetch_by_ids(db, listId=class_ids)
-    for item in items:
-        if item.id in class_id_count.keys():
-            item.quantity = class_id_count[item.id]
+        class_id_count = {i:class_ids.count(i) for i in class_ids}
 
-    end = time.time()
-    print(end - start)
-    return items
+        if redis_client.ping() == True:
+            print('hit')
+            values = redis_client.execute_command("JSON.MGET", *list(set(class_ids)), '.')
+            items = [json.loads(val) for val in values if val is not None]
+            for item in items:
+                if item["id"] in class_id_count.keys():
+                    item["quantity"] = class_id_count[item["id"]]
+            end = time.time()
+            print(end - start)
+            return items
+        else:
+            items = item_repo.fetch_by_ids(db, listId=class_ids)
+            for item in items:
+                if item.id in class_id_count.keys():
+                    item.quantity = class_id_count[item.id]
+
+            end = time.time()
+            print(end - start)
+            return items
+    except Exception as e:
+        return []
+
 
 
 
@@ -256,3 +276,11 @@ def search_item(
 ):
     return item_repo.search(db, searchValue= searchValue,categories= categories_selected)
     
+
+@router.get("/redis/{key}")
+def test_redis(
+    redis: redis.client.Redis = Depends(deps.redis_connect),
+    key: str = Path(...)
+):
+    val = redis_client.execute_command("JSON.GET", key, '.')
+    return json.loads(val)

@@ -8,11 +8,11 @@
       >
         <v-card color="primary" flat tile>
           <v-toolbar dark color="primary">
-            <v-toolbar-title>SCSC</v-toolbar-title>
+            <v-toolbar-title class="text-h4">SCSC</v-toolbar-title>
 
             <v-spacer></v-spacer>
 
-            <span class="text-h5">{{ user.full_name }}</span>
+            <span class="text-h6">{{ user.full_name }}</span>
             <v-btn icon>
               <v-icon>mdi-account </v-icon>
             </v-btn>
@@ -30,7 +30,7 @@
         </v-card>
         <!-- <h1>{{ classes }}</h1> -->
         <div class="d-flex justify-lg-space-around pa-6">
-          <v-btn x-large dark id="toggle" color="orange" @click="stopMedia">
+          <v-btn x-large dark id="toggle" color="orange" @click="exit">
             <v-icon dark class="mx-0" color="white"> mdi-cancel </v-icon>
             EXIT
           </v-btn>
@@ -174,6 +174,7 @@ export default {
   data: function () {
     return {
       toggle: false,
+      postCheckout: true,
       classes: [],
       scanScreen: false,
       camera: "off",
@@ -472,7 +473,7 @@ export default {
 
     checkout() {
       if (this.classes == []) return;
-      let orderItemsConfirm = Object.assign(this.orderItems)
+      let orderItemsConfirm = Object.assign(this.orderItems);
 
       let orderDetail = {
         code: new Date().getTime(),
@@ -498,8 +499,8 @@ export default {
       axios
         .post("/api/v1/orders/", orderDetail)
         .then((response) => {
-          if(response.status == 200){
-            this.cleanCheckout()
+          if (response.status == 200) {
+            this.cleanCheckout();
           }
         })
         .catch((err) => {
@@ -508,37 +509,43 @@ export default {
         .finally(() => {});
     },
 
-    cleanCheckout(){
-      this.orderItems = []
-      this.login_chuoi()
-    }
+    exit() {
+      this.scanScreen = true;
+      this.orderItems = [];
+      this.user = {
+        id: 0,
+        full_name: "",
+        username: "",
+        balance: "",
+      };
+    },
+
+    cleanCheckout() {
+      this.$swal
+        .fire({
+          title: "Checkout successed!",
+          icon: "success",
+          timer: 1500,
+        })
+        .then((result) => {
+          if (result.dismiss === this.$swal.DismissReason.timer) {
+            this.scanScreen = true;
+            this.orderItems = [];
+            this.user = {
+              id: 0,
+              full_name: "",
+              username: "",
+              balance: "",
+            };
+          }
+        });
+    },
+
+  
   },
 
-
   created() {
-    // this.$refs.video
     this.start();
-
-    // const self = this;
-    // self.getListVideoDevices().then((videoDeviceIds) => {
-    //   self
-    //     .getUserMedia({
-    //       video: {
-    //         deviceId: videoDeviceIds[1],
-    //         width: 1280,
-    //         height: 720,
-    //         frameRate: 2,
-    //       },
-    //     })
-    //     .then((stream) => {
-    //       self.$refs.stream = stream;
-    //       self.$refs.video.srcObject = stream;
-    //     })
-    //     .catch(console.log);
-    //   // navigator.mediaDevices.getUserMedia({video:{deviceId: videoDeviceId[1]}}).then(stream => {
-    //   //   self.$refs.video1.srcObject = stream
-    //   // }).catch(console.log)
-    // });
   },
 
   watch: {

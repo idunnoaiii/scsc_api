@@ -15,6 +15,8 @@ from app.db.session import SessionLocal
 import firebase_admin
 from firebase_admin import storage
 from firebase_admin import credentials
+from app.core.config import settings
+import redis
 
 def get_db() -> Generator:
     try:
@@ -75,3 +77,24 @@ def get_firebase_bucket():
         })
     bucket = storage.bucket()
     return bucket 
+
+
+
+def redis_connect() -> redis.client.Redis:
+    try:
+        client = redis.Redis(
+            # host="redis-10572.c292.ap-southeast-1-1.ec2.cloud.redislabs.com",
+            # port=10572,
+            # password=settings.REDIS_PASSWORD,
+            host='localhost',
+            port=6379,
+            db=0,
+        )
+        ping = client.ping()
+        if ping is True:
+            return client
+    except redis.AuthenticationError:
+        print("AuthenticationError")
+
+
+

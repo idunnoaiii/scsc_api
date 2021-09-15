@@ -45,19 +45,20 @@ def yolov5(image):
         start_time = time.time()
         classes, scores, boxes = model.detect(image, CONFIDENCE_THRESHOLD, NMS_THRESHOLD)
         end_time = time.time()
-        print("DETECT TIME", end_time-start_time)
+        # print("DETECT TIME", end_time-start_time)
 
         ret_classes = []
 
         for (classid, score, box) in zip(classes, scores, boxes):
-            ret_classes.append(int(class_names[classid[0]]))
+            ret_classes.append(int(classid[0]+1))
             (x, y) = (box[0], box[1])
             (w, h) = (box[2], box[3])
             color = COLORS[int(classid) % len(COLORS)]
-            label = "%s : %f" % (class_names[classid[0]], score)
+            label = "%s" % (class_names[classid[0]])
             cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            cv2.putText(image, label, (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-        # fps_label = "FPS: %.2f" % (1 / (end_time - start_time))
+            cv2.putText(image, label, (box[0]+4, box[1] + 14), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+        fps_label = "FPS: %.2f" % (1 / (end_time - start_time))
+        print(fps_label)
         cv2.putText(image, "", (0, 25),
             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 

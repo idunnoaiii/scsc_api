@@ -3,6 +3,7 @@ from logging import log
 import os
 import json
 from av import VideoFrame
+import redis
 
 #from imageai.Detection import VideoObjectDetection
 
@@ -55,7 +56,7 @@ class VideoTransformTrack(MediaStreamTrack):
         img, classes = yolov5(img)
 
         # rebuild a VideoFrame, preserving timing information
-        if self.channel is not None and self.channel != []:
+        if self.channel is not None and self.channel != [] and classes is not None:
             self.channel[0].send(json.dumps({"classes": classes}))
         new_frame = VideoFrame.from_ndarray(img, format="bgr24")
         new_frame.pts = frame.pts
@@ -112,13 +113,26 @@ async def offer(params: Offer):
 
     # send answer
     answer = await pc.createAnswer()
-    # await pc.setRemoteDescription(offer)
     await pc.setLocalDescription(answer)
-
     return {"sdp": pc.localDescription.sdp, "type": pc.localDescription.type}
 
 
 pcs = set()
+
+
+@app.on_event("startup")
+async def on_start():
+    # redis_client = redis.Redis(host='redis-10572.c292.ap-southeast-1-1.ec2.cloud.redislabs.com', port=10572, db=0, password='U8TgyN1jfInisvHn1P3d7LEYaKqZM5cg')
+    redis_client = redis.Redis(host='localhost', port=6379, db=0)
+    if redis_client.ping() == True:
+        keys = [int(k) for k in redis_client.scan_iter()]
+        keys.sort()
+        vals = redis_client.execute_command('JSON.MGET', *keys, '.')
+        items = [json.loads(val) for val in vals]
+        with open('yolo/classes.txt', 'w') as file:
+            for item in items:
+                file.writelines(f"{item['name']}: {item['price']}\n")
+
 
 
 @app.on_event("shutdown")

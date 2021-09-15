@@ -21,6 +21,13 @@ services:
   #     - "8000:8000"
   #   depends_on:
   #     - db
+  
+  redis:
+    image: redislabs/rejson:latest
+    ports:
+      - "6379:6379"
+    volumes: 
+      - database_redis:/var/lib/redislabs/data
 
   pgadmin:
     container_name: pgadmin
@@ -37,5 +44,6 @@ volumes:
   database_postgres:
     external: true
 
+  database_redis:
+    external: true
 
-volumes: 
