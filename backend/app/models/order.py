@@ -4,22 +4,17 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import BIGINT, BigInteger, Boolean, DateTime
 from app.db.base_class import Base
 from app.models.item import Item
-from app.models.customer import Customer
 from app.models.user import User
 
 
 class Order(Base):
     __tablename__ = "orders"
     code = Column(String)
-    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     subtotal = Column(Integer, default=0)
     total = Column(Integer, default=0)
     discount = Column(Integer, default=0)
-    paid = Column(Integer, default=0)
-    change = Column(Integer, default=0)
     order_items = relationship("OrderItem", back_populates="order")
-    cutomer = relationship("Customer", primaryjoin="Customer.id == Order.customer_id")
     user = relationship("User", primaryjoin="User.id == Order.user_id")
     created_date = Column(DateTime, default=sql.func.now())
     updated_date = Column(DateTime, default=sql.func.now())    

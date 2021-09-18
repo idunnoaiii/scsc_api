@@ -22,6 +22,7 @@ class User(Base):
     address = Column(String)
     contact = Column(String)
     gender =  Column(Boolean, default=False)
+    balance = Column(Integer, default=0)
     created_date = Column(DateTime, default=sql.func.now())
     updated_date = Column(DateTime, default=sql.func.now())
 

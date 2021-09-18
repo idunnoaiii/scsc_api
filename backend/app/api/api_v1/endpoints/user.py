@@ -8,6 +8,7 @@ from sqlalchemy.engine.base import Connection
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.schemas import user as schemas
+from app.schemas import UserLogin
 from app.models import user as UserModel
 from app.repositories import user_repo
 from app.db.session import engine
@@ -99,3 +100,8 @@ def delete_user(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     user_repo.in_active(db, id=id)
     return True
+
+
+@router.post("/qr_login", response_model=UserLogin)
+def login_qr(db: Session = Depends(get_db), username: str =Body(...)):
+    return user_repo.login_qr(db, username=username)

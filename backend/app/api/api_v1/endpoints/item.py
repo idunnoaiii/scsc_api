@@ -6,7 +6,7 @@ from sqlalchemy.sql.expression import true
 from starlette.datastructures import FormData
 from app.api import deps
 from app.repositories import item_repo
-from app.schemas import Item, ItemCreate, User
+from app.schemas import Item, ItemCreate, User, ItemCheckoutModel
 from app.models import CategoryModel
 from typing import List, Optional
 import base64
@@ -16,8 +16,12 @@ import shutil
 import time
 from slugify import slugify
 import io
+import redis
+from app.api.deps import redis_connect
 
 router = APIRouter()
+
+redis_client = redis_connect()
 
 @router.get("/all", response_model=List[Item])
 def read_item(
@@ -154,6 +158,44 @@ async def scan_item(
     return None
 
 
+@router.post("/fetch/", response_model= List[ItemCheckoutModel])
+async def fetch_items(
+    db: Session = Depends(deps.get_db),
+    class_ids: List[int] = Body(None)
+):
+    try:
+        start = time.time()
+        if class_ids is None or class_ids == []:
+            return None
+
+        class_id_count = {i:class_ids.count(i) for i in class_ids}
+
+        if redis_client.ping() == True:
+            print('hit')
+            values = redis_client.execute_command("JSON.MGET", *list(set(class_ids)), '.')
+            items = [json.loads(val) for val in values if val is not None]
+            for item in items:
+                if item["id"] in class_id_count.keys():
+                    item["quantity"] = class_id_count[item["id"]]
+            end = time.time()
+            print(end - start)
+            return items
+        else:
+            items = item_repo.fetch_by_ids(db, listId=class_ids)
+            for item in items:
+                if item.id in class_id_count.keys():
+                    item.quantity = class_id_count[item.id]
+
+            end = time.time()
+            print(end - start)
+            return items
+    except Exception as e:
+        return []
+
+
+
+
+
 @router.post("/upload-image/")
 async def upload_image(
     bucket = Depends(deps.get_firebase_bucket),
@@ -234,3 +276,11 @@ def search_item(
 ):
     return item_repo.search(db, searchValue= searchValue,categories= categories_selected)
     
+
+@router.get("/redis/{key}")
+def test_redis(
+    redis: redis.client.Redis = Depends(deps.redis_connect),
+    key: str = Path(...)
+):
+    val = redis_client.execute_command("JSON.GET", key, '.')
+    return json.loads(val)

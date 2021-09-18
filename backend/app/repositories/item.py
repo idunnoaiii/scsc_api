@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.repositories.base import RepoBase
 from app.models import ItemModel, CategoryModel
-from app.schemas import ItemCreate, ItemUpdate
+from app.schemas import ItemCreate, ItemUpdate, ItemToCache
 
 
 class ItemRepo(RepoBase[ItemModel, ItemCreate, ItemUpdate]): 
@@ -113,6 +113,12 @@ class ItemRepo(RepoBase[ItemModel, ItemCreate, ItemUpdate]):
             ItemModel.slug.ilike("%"+searchValue+"%"))
             ).filter(ItemModel.is_active == True).all()
 
+
+    def fetch_by_ids(
+        self, db: Session, *, listId: List[int]
+    ):
+        return db.query(ItemModel).filter(self.model.id.in_(listId)).all()
+
     # def update(
     #     self,
     #     db: Session,
@@ -133,5 +139,7 @@ class ItemRepo(RepoBase[ItemModel, ItemCreate, ItemUpdate]):
     #     db.refresh(db_obj)
     #     return db_obj 
 
+    def get_item_to_cache(self, db: Session) -> List[ItemToCache]:
+        return db.query(ItemModel).filter(self.model.is_active == True).all()
 
 item = ItemRepo(ItemModel)

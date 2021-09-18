@@ -35,7 +35,7 @@
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             test
           </v-btn> -->
-          <v-btn
+          <!-- <v-btn
             small
             color="primary "
             class="white--text"
@@ -44,7 +44,7 @@
           >
             <v-icon left dark> mdi-card-account-details-outline </v-icon>
             Checkout
-          </v-btn>
+          </v-btn> -->
           <v-btn
             small
             color="primary  "
@@ -78,11 +78,11 @@
               <v-list-item link to="/users">
                 <v-list-item-title class="white--text">User</v-list-item-title>
               </v-list-item>
-              <v-list-item link to="/customer">
+              <!-- <v-list-item link to="/customer">
                 <v-list-item-title class="white--text"
                   >Customer</v-list-item-title
                 >
-              </v-list-item>
+              </v-list-item> -->
             </v-list>
           </v-menu>
 
@@ -198,6 +198,7 @@ import User from "./views/pages/User.vue";
 import POS from "./views/pages/POS.vue";
 import Login from "./views/pages/Login.vue";
 import PrintInvoice from "./views/pages/PrintInvoice.vue";
+import Checkout from "./views/pages/Checkout.vue"
 import * as muType from "./store/mutation-type";
 import axios from "./axios";
 import { mapMutations } from "vuex";
@@ -213,6 +214,7 @@ export default {
     ItemBoard,
     UserProfile,
     PrintInvoice,
+    Checkout
   },
   data: () => ({
     isLogined: true,

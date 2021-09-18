@@ -44,14 +44,9 @@ class OrderItemInDB(OrderItemInDBBase):
 
 # Shared properties
 class OrderBase(BaseModel):
-    customer_id: Optional[int] = None
     code: Optional[int]
     user_id: Optional[int]
-    subtotal: Optional[int]
     total: Optional[int]
-    discount: Optional[int]
-    paid: Optional[int]
-    change: Optional[int]
     order_items: Optional[List[OrderItemBase]] # fix the pkey error
 
 

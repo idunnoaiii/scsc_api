@@ -6,6 +6,15 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+class UserLogin(BaseModel):
+    id: int
+    full_name: str
+    username: str
+    balance: int
+
+    class Config:
+        orm_mode = True
+
 
 class TokenData(BaseModel):
     username: Optional[str] = None
