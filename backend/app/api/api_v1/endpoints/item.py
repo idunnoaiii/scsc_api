@@ -166,7 +166,7 @@ async def fetch_items(
     try:
         start = time.time()
         if class_ids is None or class_ids == []:
-            return None
+            return []
 
         class_id_count = {i:class_ids.count(i) for i in class_ids}
 

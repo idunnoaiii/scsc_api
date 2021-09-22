@@ -4,6 +4,7 @@ import numpy as np
 import logging
 import time
 import glob
+import datetime
 
 # logging.basicConfig(level=logging.DEBUG)
 # logger = logging.getLogger(__name__)
@@ -33,7 +34,6 @@ model.setInputParams(size=(416, 416), scale=1/255, swapRB=True)
 
 def yolov5(image):
     try:
-
         # img = base64.b64decode(base64_img); 
         # npimg = np.fromstring(img, dtype=np.uint8); 
         # image = cv2.imdecode(npimg, 1)
@@ -41,7 +41,7 @@ def yolov5(image):
         # width = image.shape[1]
         # height = image.shape[0]
 
-
+        microsecond = datetime.datetime.now()
         start_time = time.time()
         classes, scores, boxes = model.detect(image, CONFIDENCE_THRESHOLD, NMS_THRESHOLD)
         end_time = time.time()
@@ -50,19 +50,24 @@ def yolov5(image):
         ret_classes = []
 
         for (classid, score, box) in zip(classes, scores, boxes):
-            ret_classes.append(int(classid[0]+1))
+            if int(classid[0]) != 15:
+                ret_classes.append(int(classid[0]+1))
             (x, y) = (box[0], box[1])
             (w, h) = (box[2], box[3])
-            color = COLORS[int(classid) % len(COLORS)]
+            # color = COLORS[int(classid) % len(COLORS)]
             label = "%s" % (class_names[classid[0]])
-            cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            cv2.putText(image, label, (box[0]+4, box[1] + 14), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+            if int(classid[0]) != 15:
+                color = (255, 0, 0)
+            else:
+                color = (0, 255, 0)
+            cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
+            cv2.putText(image, label, (box[0]+4, box[1] + 14), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
         fps_label = "FPS: %.2f" % (1 / (end_time - start_time))
         print(fps_label)
-        cv2.putText(image, "", (0, 25),
-            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+        # cv2.putText(image, "", (0, 25),
+        #     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
-        return image, ret_classes
+        return image, ret_classes if microsecond.microsecond >= 750000 else None
 
     except Exception as e:
         # logger.exception(e)

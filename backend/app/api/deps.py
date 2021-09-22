@@ -93,8 +93,8 @@ def redis_connect() -> redis.client.Redis:
         ping = client.ping()
         if ping is True:
             return client
-    except redis.AuthenticationError:
-        print("AuthenticationError")
+    except Exception as e:
+        print(e)
 
 
 

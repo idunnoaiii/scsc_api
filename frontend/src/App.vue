@@ -155,7 +155,7 @@
     <v-main>
       <!-- Provides the application the proper gutter -->
       <!-- If using vue-router -->
-      <v-container fluid fill-height>
+      <v-container fluid fill-height class="pa-0">
         <!-- <keep-alive> -->
         <router-view> </router-view>
         <!-- </keep-alive> -->

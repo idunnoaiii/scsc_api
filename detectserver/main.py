@@ -44,17 +44,20 @@ class VideoTransformTrack(MediaStreamTrack):
 
     kind = "video"
 
-    def __init__(self, track, channel):
+    def __init__(self, track, channel, status):
         super().__init__()
         self.track = track
         self.channel = channel
+        self.status = status
 
     async def recv(self):
         frame = await self.track.recv()
         img = frame.to_ndarray(format="bgr24")
         # img = cv2.cvtColor(cv2.Canny(img, 100, 200), cv2.COLOR_GRAY2BGR)
-        img, classes = yolov5(img)
-
+        classes = None
+        if self.status[0] == True:
+            img, classes = yolov5(img)
+        
         # rebuild a VideoFrame, preserving timing information
         if self.channel is not None and self.channel != [] and classes is not None:
             self.channel[0].send(json.dumps({"classes": classes}))
@@ -64,19 +67,20 @@ class VideoTransformTrack(MediaStreamTrack):
         return new_frame
     
 
-
 @app.post("/offer_cv")
 async def offer(params: Offer):
 
     offer = RTCSessionDescription(sdp=params.sdp, type=params.type)
 
     pc = RTCPeerConnection()
+    
     print(pc)
     pcs.add(pc)
 
     relay = MediaRelay()
 
     ch = []
+    status = [False]
     
 
     @pc.on('datachannel')
@@ -86,7 +90,8 @@ async def offer(params: Offer):
         
         @channel.on('message')
         def on_message(message):
-            channel.send('pong')
+            status[0] = True if message == "True" else False
+            # channel.send('pong')
 
     
     @pc.on("connectionstatechange")
@@ -101,7 +106,7 @@ async def offer(params: Offer):
     def on_track(track):
         if track.kind == "video":
             pc.addTrack(
-                VideoTransformTrack(relay.subscribe(track), channel=ch)
+                VideoTransformTrack(relay.subscribe(track), channel=ch, status=status)
             )
         
         @track.on("ended")
@@ -132,6 +137,7 @@ async def on_start():
         with open('yolo/classes.txt', 'w') as file:
             for item in items:
                 file.writelines(f"{item['name']}: {item['price']}\n")
+            file.writelines("Strange object")
 
 
 
