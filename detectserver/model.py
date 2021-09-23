@@ -56,12 +56,14 @@ def yolov5(image):
             (w, h) = (box[2], box[3])
             # color = COLORS[int(classid) % len(COLORS)]
             label = "%s" % (class_names[classid[0]])
+            label = label.split(": ")
             if int(classid[0]) != 15:
                 color = (255, 0, 0)
             else:
                 color = (0, 255, 0)
             cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
-            cv2.putText(image, label, (box[0]+4, box[1] + 14), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            cv2.putText(image, label[0], (box[0]+4, box[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+            cv2.putText(image, label[1], (box[0]+4, box[1] + 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
         fps_label = "FPS: %.2f" % (1 / (end_time - start_time))
         print(fps_label)
         # cv2.putText(image, "", (0, 25),

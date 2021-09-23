@@ -33,9 +33,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.mount("/static", StaticFiles(directory="static"), name="static")
-# templates = Jinja2Templates(directory="templates")
-
 
 class VideoTransformTrack(MediaStreamTrack):
     """
@@ -53,11 +50,10 @@ class VideoTransformTrack(MediaStreamTrack):
     async def recv(self):
         frame = await self.track.recv()
         img = frame.to_ndarray(format="bgr24")
-        # img = cv2.cvtColor(cv2.Canny(img, 100, 200), cv2.COLOR_GRAY2BGR)
         classes = None
         if self.status[0] == True:
             img, classes = yolov5(img)
-        
+
         # rebuild a VideoFrame, preserving timing information
         if self.channel is not None and self.channel != [] and classes is not None:
             self.channel[0].send(json.dumps({"classes": classes}))
@@ -82,7 +78,6 @@ async def offer(params: Offer):
     ch = []
     status = [False]
     
-
     @pc.on('datachannel')
     def on_datachannel(channel):
 
@@ -137,7 +132,7 @@ async def on_start():
         with open('yolo/classes.txt', 'w') as file:
             for item in items:
                 file.writelines(f"{item['name']}: {item['price']}\n")
-            file.writelines("Strange object")
+            file.writelines("Strange object: NaN")
 
 
 
