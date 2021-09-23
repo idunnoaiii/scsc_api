@@ -1,6 +1,7 @@
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, List
 
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 
 from app.core.security import get_password_hash, verify_password
 from app.repositories.base import RepoBase
@@ -10,6 +11,9 @@ from app.schemas.user import UserCreate, UserUpdate
 
 
 class UserRepo(RepoBase[User, UserCreate, UserUpdate]):
+
+    def get_multi(self, db: Session, *, skip: int = 0, limit: int = 100) -> List[User]:
+        return db.query(User).filter(and_(User.role_id == 2, User.is_active == True)).all()
     
     def get_by_username(self, db: Session, *, username: str) -> Optional[User]:
         return db.query(User).filter(User.username == username).first()

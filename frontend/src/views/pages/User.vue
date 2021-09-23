@@ -1,7 +1,7 @@
 <template>
   <v-layout>
     <v-row justify="center">
-      <v-col cols="10">
+      <v-col cols="10" class="mt-12">
         <v-data-table
           :headers="headers"
           :items="users"
@@ -10,12 +10,15 @@
           width="90%"
           :search="search"
         >
-          <template v-slot:[`item.role_value`]="{ item }">
+          <!-- <template v-slot:[`item.role_value`]="{ item }">
             <span>{{ getRoleName(item.role_id) }}</span>
+          </template> -->
+          <template v-slot:[`item.balance`]="{ item }">
+            <span>{{ item.balance.toLocaleString() }}</span>
           </template>
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title class="text-h4"> Users </v-toolbar-title>
+              <v-toolbar-title class="text-h4"> Customers </v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-text-field
                 v-model="search"
@@ -68,10 +71,21 @@
                             ></v-text-field>
                           </v-col>
                           <v-col cols="12" md="12">
+                            <v-text-field
+                              v-model="editedItem.balance"
+                              label="Balance"
+                              type="number"
+                              min="0"
+                              step="1000"
+                              :rules="[greaterThan(1000)]"
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="12" md="12">
                             <v-select
                               :items="roles"
                               v-model="editedItem.role_id"
                               label="Role*"
+                              disabled
                               :rules="[
                                 (v) =>
                                   (v != null && v != undefined && v != 0) ||
@@ -79,13 +93,6 @@
                               ]"
                             ></v-select>
                           </v-col>
-
-                          <!-- <v-col cols="12" sm="6" md="12">
-                          <v-text-field
-                            v-model="editedItem.role"
-                            label="Role"
-                          ></v-text-field>
-                        </v-col> -->
                         </v-row>
                       </v-container>
                     </v-form>
@@ -116,7 +123,7 @@
               <v-dialog v-model="dialogDelete" max-width="500px">
                 <v-card>
                   <v-card-title class="text-h5"> Warning! </v-card-title>
-                  <v-card-text>You want to delete this user?</v-card-text>
+                  <v-card-text>You want to delete this customer?</v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="primary darken-1" text @click="closeDelete">
@@ -164,7 +171,7 @@ export default {
         value: "full_name",
       },
       { text: "Username", value: "username" },
-      { text: "Role", value: "role_value", sortable: false },
+      { text: "Balance", value: "balance", sortable: false },
       { text: "Action", value: "actions", sortable: false },
     ],
     users: [],
@@ -172,12 +179,14 @@ export default {
     editedItem: {
       full_name: "",
       username: "",
-      role_id: 0,
+      role_id: 2,
+      balance: 0,
     },
     defaultItem: {
       full_name: "",
       username: "",
-      role_id: 0,
+      role_id: 2,
+      balance: 0,
     },
     roles: [
       {
@@ -196,11 +205,14 @@ export default {
     noSpace() {
       return (v) => (v || "").indexOf(" ") < 0 || "No spaces are allowed";
     },
+    greaterThan(value) {
+      return (v) => (v && Number(v) >= value) || `Must greater than ${value}!`;
+    },
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "New User" : "Edit User";
+      return this.editedIndex === -1 ? "New Customer" : "Edit Customer";
     },
   },
 
@@ -252,11 +264,11 @@ export default {
 
     getRoleName(id) {
       let v = this.roles?.reduce((acc, cur) => {
-          if(cur.value == id){
-            acc = cur.text;
-          }
-          return acc;
-        }, "");
+        if (cur.value == id) {
+          acc = cur.text;
+        }
+        return acc;
+      }, "");
       return v;
     },
 
@@ -280,7 +292,7 @@ export default {
         .then((response) => {
           if (response.status == 200) {
             this.$store.commit("SET_TOAST", {
-              toastMsg: "User deleted!",
+              toastMsg: "Customer deleted!",
               toastColor: "green",
             });
             this.load();
@@ -318,6 +330,7 @@ export default {
       const userObj = {
         full_name: this.editedItem.full_name,
         role_id: this.editedItem.role_id,
+        balance: this.editedItem.balance,
       };
 
       if (this.editedIndex > -1) {
@@ -328,7 +341,7 @@ export default {
           .then(() => {
             this.load();
             this.$store.commit("SET_TOAST", {
-              toastMsg: "Item updated!",
+              toastMsg: "Customer updated!",
               toastColor: "green",
             });
           })
@@ -341,13 +354,14 @@ export default {
         userObj.password = this.password;
         userObj.username = this.editedItem.username;
         userObj.role_id = this.editedItem.role_id;
+        userObj.balance = this.editedItem.balance;
 
         axios
           .post("/api/v1/users/", userObj)
           .then(() => {
             this.load();
             this.$store.commit("SET_TOAST", {
-              toastMsg: "User added!",
+              toastMsg: "Customer added!",
               toastColor: "green",
             });
           })
@@ -366,6 +380,11 @@ export default {
         typeof value === "string" &&
         value.toString().indexOf(search) !== -1
       );
+    },
+  },
+  filters: {
+    currency(value) {
+      return value.toLocaleString();
     },
   },
 };

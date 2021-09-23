@@ -31,6 +31,7 @@ class UserBase(BaseModel):
     address: Optional[str] = None
     contact: Optional[str] = None
     gender: Optional[bool] = False
+    balance: Optional[int] = 0
 
 
 class UserCreate(UserBase):
