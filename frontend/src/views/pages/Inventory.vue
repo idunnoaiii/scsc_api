@@ -1,7 +1,7 @@
 <template>
   <v-layout>
     <v-row justify="center">
-      <v-col cols="10">
+      <v-col cols="10" class="mt-12">
         <v-data-table
           :headers="headers"
           :items="items"

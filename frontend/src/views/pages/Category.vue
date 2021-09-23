@@ -1,6 +1,6 @@
 <template>
   <v-layout>
-    <v-row justify="center">
+    <v-row justify="center" class="mt-12">
       <v-col cols="10">
         <v-data-table
           :headers="headers"

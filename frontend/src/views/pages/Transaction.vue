@@ -16,7 +16,7 @@
         </v-container>
 
         <v-container fluid width="100%" class="mt-5">
-          <v-row>
+          <v-row class="justify-center">
             <v-col cols="12" sm="3">
               <v-hover v-slot="{ hover }" open-delay="200">
                 <v-card color="cyan darken-1" :elevation="hover ? 16 : 2">
@@ -152,7 +152,7 @@
               <v-row>
                 <v-col cols="6">
                   <v-text-field
-                    label="Cashier"
+                    label="Customer"
                     readonly
                     dense
                     hide-details
@@ -199,30 +199,8 @@
                     dense
                     hide-details
                     color="green"
-                    :value="total | currency"
+                    :value="subtotal | currency"
                     background-color="green lighten-5"
-                  >
-                  </v-text-field>
-                </v-col>
-                <v-col cols="4">
-                  <v-text-field
-                    label="Paid"
-                    readonly
-                    outlined
-                    dense
-                    hide-details
-                    :value="paid | currency"
-                  >
-                  </v-text-field>
-                </v-col>
-                <v-col cols="4">
-                  <v-text-field
-                    label="Change"
-                    readonly
-                    outlined
-                    dense
-                    hide-details
-                    :value="change | currency"
                   >
                   </v-text-field>
                 </v-col>
@@ -276,9 +254,9 @@ export default {
           value: "code",
         },
         { text: "Date", value: "created_date" },
-        { text: "Total", value: "subtotal" },
+        { text: "Total", value: "total" },
         { text: "Discount", value: "discount" },
-        { text: "Cashier", value: "user.username" },
+        { text: "Customer", value: "user.username" },
       ],
       orderItemHeaders: [
         { text: "Name", value: "item_name" },
@@ -341,7 +319,7 @@ export default {
 
   computed: {
     revenue() {
-      return this.orders.reduce((acc, item) => acc + item.subtotal, 0);
+      return this.orders.reduce((acc, item) => acc + item.total, 0);
     },
     totalItemSold() {
       return this.orders.reduce(

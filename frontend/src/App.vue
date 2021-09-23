@@ -70,13 +70,13 @@
                   >Category</v-list-item-title
                 >
               </v-list-item>
-              <v-list-item link to="/discount">
+              <!-- <v-list-item link to="/discount">
                 <v-list-item-title class="white--text"
                   >Discount</v-list-item-title
                 >
-              </v-list-item>
-              <v-list-item link to="/users">
-                <v-list-item-title class="white--text">User</v-list-item-title>
+              </v-list-item> -->
+              <v-list-item link to="/customers">
+                <v-list-item-title class="white--text">Customer</v-list-item-title>
               </v-list-item>
               <!-- <v-list-item link to="/customer">
                 <v-list-item-title class="white--text"

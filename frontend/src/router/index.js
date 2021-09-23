@@ -6,7 +6,7 @@ import User from '../views/pages/User'
 import Inventory from '../views/pages/Inventory'
 import Transaction from '../views/pages/Transaction'
 import Category from '../views/pages/Category'
-import Discount from '../views/pages/Discount'
+// import Discount from '../views/pages/Discount'
 import Testlayout from '../views/pages/Testlayout'
 import PrintInvoice from '../views/pages/PrintInvoice'
 import Customer from '../views/pages/Customer'
@@ -35,7 +35,7 @@ const routes = [
   //   }
   // },
   {
-    path: '/users',
+    path: '/customers',
     name: 'User',
     component: User,
     meta: {
@@ -66,14 +66,14 @@ const routes = [
       requireLogin: true
     }
   },
-  {
-    path: '/discount',
-    name: 'Discount',
-    component: Discount,
-    meta: {
-      requireLogin: true
-    }
-  },
+  // {
+  //   path: '/discount',
+  //   name: 'Discount',
+  //   component: Discount,
+  //   meta: {
+  //     requireLogin: true
+  //   }
+  // },
   {
     path: '/customer',
     name: 'Customer',
