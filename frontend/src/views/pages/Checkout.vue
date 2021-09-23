@@ -6,12 +6,10 @@
         class="d-flex flex-column justify-md-space-between"
         height="100%"
       >
-        <v-card color="primary" flat tile>
+        <v-card color="primary">
           <v-toolbar dark color="primary">
             <v-toolbar-title class="text-h4">SCSC</v-toolbar-title>
-
             <v-spacer></v-spacer>
-
             <span class="text-h6">{{ user.full_name }}</span>
             <v-btn icon>
               <v-icon>mdi-account </v-icon>
@@ -28,25 +26,39 @@
           ></video>
           <canvas class="feed d-none" id="canvas"></canvas>
         </v-card>
-        <!-- <h1>{{ classes }}</h1> -->
-        <div class="d-flex justify-lg-space-around pa-6">
+        <div
+          class="d-flex justify-lg-space-around pa-6"
+          style="background: #1976d2"
+        >
           <v-btn x-large dark id="toggle" color="orange" @click="exit">
             <v-icon dark class="mx-0" color="white"> mdi-cancel </v-icon>
             EXIT
           </v-btn>
-          <v-btn x-large dark color="green" id="start" @click="checkout">
+          <!-- <v-btn x-large dark id="toggle" color="orange" @click="stop">
+            <v-icon dark class="mx-0" color="white"> mdi-cancel </v-icon>
+            STOP
+          </v-btn> -->
+          <v-btn
+            x-large
+            dark
+            color="green"
+            id="start"
+            @click="checkout"
+            :loading="debounceBtnCheckout"
+            :disabled="!canCheckout"
+          >
             <v-icon dark class="mx-0" color="white"> mdi-cash </v-icon>
             CHECKOUT
-          </v-btn>
-          <v-btn x-large dark color="green" @click="login_chuoi">
-            <v-icon dark class="mx-0" color="white"> mdi-cash </v-icon>
-            LOGIN
           </v-btn>
         </div>
       </v-card>
     </v-col>
     <v-col lg="4">
-      <v-card outline height="100%" tile class="d-flex flex-column">
+      <v-card
+        outline
+        height="100%"
+        class="d-flex flex-column justify-lg-space-between"
+      >
         <v-card-title
           style="background-color: #1976d2"
           class="white--text"
@@ -78,35 +90,34 @@
             </template>
           </v-simple-table>
         </v-card-text>
-        <v-card-actions class="d-flex-row">
-          <div class="text-h5 d-inline-flex px-5">Total Price:</div>
-          <div class="text-h5 d-inline-flex px-5">{{ totalPrice }}</div>
-        </v-card-actions>
-        <v-card-actions class="d-flex-row">
-          <div class="text-h5 d-inline-flex px-5">Balance:</div>
-          <div class="text-h5 d-inline-flex px-5">{{ user.balance }}</div>
-        </v-card-actions>
+
+        <v-card class="py-8" color="primary">
+          <v-card-actions class="d-flex-row">
+            <div class="text-h5 d-inline-flex px-5 white--text">
+              Total Price:
+            </div>
+            <div class="text-h5 d-inline-flex px-5 white--text" white--text>
+              {{ totalPrice | currency }}
+            </div>
+          </v-card-actions>
+          <v-card-actions class="d-flex-row">
+            <div class="text-h5 d-inline-flex px-5 white--text">Balance:</div>
+            <div class="text-h5 d-inline-flex px-5 white--text">
+              {{ user.balance | currency }}
+            </div>
+          </v-card-actions>
+        </v-card>
       </v-card>
     </v-col>
-    <v-dialog
-      v-model="scanScreen"
-      fullscreen
-      hide-overlay
-      transition="dialog-bottom-transition"
-      persistent
-    >
-      <v-card>
+    <v-dialog v-model="scanScreen" fullscreen hide-overlay persistent>
+      <v-card color="primary">
         <v-container id="login" fluid>
           <v-row align="center" justify="center">
             <v-col cols="12" md="10">
-              <v-card
-                class="elevation-12 rounded-xl"
-                style="background-color: rgb(25 118 210 / 81%)"
-              >
+              <div class="rounded-xl">
                 <v-card-title class="justify-center">
                   <div class="text-center my-10">
-                    <div class="text-h3 white--text">SCSC Welcome</div>
-                    <!-- <div class="text-h6">Scan QRCode to Login</div> -->
+                    <div class="text-h2 white--text">SCSC Welcome</div>
                   </div>
                 </v-card-title>
                 <v-card-text>
@@ -116,7 +127,7 @@
                         <v-img src="@/assets/svg/undraw_Hamburger.svg"></v-img>
                       </v-col>
                       <v-col cols="5">
-                        <div id="qr_code" tile>
+                        <div id="qr_code" class="d-flex" tile>
                           <QrcodeStream
                             v-show="!loadingQR"
                             @decode="onDecode"
@@ -131,25 +142,16 @@
                             v-if="loadingQR"
                             :size="70"
                             :width="7"
-                            color="primary"
+                            color="white"
                             indeterminate
+                            style="margin: auto"
                           ></v-progress-circular>
-                          <v-btn
-                            x-large
-                            dark
-                            color="green"
-                            @click="login_chuoi"
-                          >
-                            <v-icon dark class="mx-0" color="white">
-                              mdi-cash </v-icon
-                            >LOGIN
-                          </v-btn>
                         </div>
                       </v-col>
                     </v-row>
                   </v-container>
                 </v-card-text>
-              </v-card>
+              </div>
             </v-col>
           </v-row>
         </v-container>
@@ -173,34 +175,17 @@ export default {
 
   data: function () {
     return {
+      debounceBtnCheckout: true,
+      canCheckout: false,
       toggle: false,
       postCheckout: true,
       classes: [],
-      scanScreen: false,
+      scanScreen: true,
       camera: "off",
       loadingQR: true,
-      orderItems: [
-        {
-          id: 1,
-          name: "Bánh chuối tròn",
-          price: 20000,
-          quantity: 2,
-        },
-        {
-          id: 2,
-          name: "Bông lan trứng muối",
-          price: 24000,
-          quantity: 1,
-        },
-        {
-          id: 3,
-          name: "Bánh Thỏi vàng",
-          price: 14000,
-          quantity: 1,
-        },
-      ],
+      orderItems: [],
       orderItemsConfirm: [],
-      totalPrice: 20000,
+      totalPrice: 0,
       user: {
         id: 0,
         full_name: "",
@@ -219,8 +204,22 @@ export default {
       // if (document.getElementById("use-stun").checked) {
       //   config.iceServers = [{ urls: ["stun:stun.l.google.com:19302"] }];
       // }
+      var config = {
+        sdpSemantics: "unified-plan",
+      };
 
-      pc = new RTCPeerConnection();
+      config.iceServers = [
+        {
+          urls: "stun:vc.example.com:3478",
+        },
+        {
+          urls: "turn:vc.example.com:3478",
+          username: "coturnUser",
+          credential: "coturnUserPassword",
+        },
+      ];
+
+      pc = new RTCPeerConnection(config);
 
       // register some listeners to help debugging
       // pc.addEventListener(
@@ -311,7 +310,7 @@ export default {
           return pc.setRemoteDescription(answer);
         })
         .catch(function (e) {
-          alert(e);
+          console.log(e);
         });
     },
 
@@ -331,28 +330,19 @@ export default {
       dc.onmessage = function (evt) {
         const data = JSON.parse(evt.data)["classes"].sort();
         if (self.classes.length != data.length) {
-          console.log(1);
           self.classes = data;
         }
         if (self.classes.some((val, index) => val !== data[index])) {
-          console.log(2);
           self.classes = data;
         }
       };
 
-      // pc.ondatachannel = function (evt) {
-      //   console.log("ondatachannel -> ", evt.data);
-      //   evt.channel.onmessage = function (evt) {
-      //     console.log("onmessage -> ", evt.data);
-      //   }
-      // }
-
       navigator.mediaDevices
         .getUserMedia({
           video: {
-            width: { min: 1280, idea: 1920 },
-            height: { min: 720, idea: 1080 },
-            frameRate: 5,
+            width: { min: 1280, idea: 1280 },
+            height: { min: 720, idea: 720 },
+            frameRate: 4,
           },
         })
         .then(
@@ -422,16 +412,23 @@ export default {
     },
 
     onDecode(decodeString) {
-      window.location.href = decodeString;
-      this.scanScreen = false;
-    },
-
-    login_chuoi() {
-      return axios
-        .post("/api/v1/users/qr_login", "user1")
+      this.camera = "off";
+      setTimeout(function () {
+        this.camera = "auto";
+      }, 1000);
+      axios
+        .post("/api/v1/users/qr_login", decodeString)
         .then((response) => {
-          this.user = response.data;
-          this.scanScreen = false;
+          if (response.data) {
+            this.user = response.data;
+            this.scanScreen = false;
+            dc.send("True");
+          } else {
+            this.$store.commit("SET_TOAST", {
+              toastMsg: "Can not regconize user code!",
+              toastColor: "red",
+            });
+          }
         })
         .catch((e) => {
           console.log(e);
@@ -455,6 +452,8 @@ export default {
     },
 
     fetchItems(ids) {
+      const self = this;
+
       axios
         .post("/api/v1/items/fetch/", ids)
         .then((response) => {
@@ -464,10 +463,24 @@ export default {
               (acc, item) => acc + item.price * item.quantity,
               0
             );
+            this.canCheckout =
+              this.user.balance >= this.totalPrice && this.items != [];
+            if (this.user.balance < this.totalPrice) {
+              this.$swal.fire({
+                title: "Balance not enough to checkout!",
+                icon: "warning",
+                showConfirmButton: false,
+              });
+            }
           }
         })
         .catch((e) => {
           console.log(e);
+        })
+        .finally(() => {
+          setTimeout(() => {
+            self.debounceBtnCheckout = false;
+          }, 2000);
         });
     },
 
@@ -505,19 +518,20 @@ export default {
         })
         .catch((err) => {
           console.log(err);
-        })
-        .finally(() => {});
+        });
     },
 
     exit() {
       this.scanScreen = true;
       this.orderItems = [];
+      this.classes = [];
       this.user = {
         id: 0,
         full_name: "",
         username: "",
         balance: "",
       };
+      dc.send("False");
     },
 
     cleanCheckout() {
@@ -525,23 +539,15 @@ export default {
         .fire({
           title: "Checkout successed!",
           icon: "success",
-          timer: 1500,
+          showConfirmButton: false,
+          timer: 1000,
         })
         .then((result) => {
           if (result.dismiss === this.$swal.DismissReason.timer) {
-            this.scanScreen = true;
-            this.orderItems = [];
-            this.user = {
-              id: 0,
-              full_name: "",
-              username: "",
-              balance: "",
-            };
+            this.exit();
           }
         });
     },
-
-  
   },
 
   created() {
@@ -550,14 +556,19 @@ export default {
 
   watch: {
     classes: _.debounce(function (newValue) {
-      console.log(this.classes, newValue);
       //call api to get list items
+      this.debounceBtnCheckout = true;
       this.fetchItems(newValue);
-    }, 500),
+    }, 1000),
+  },
+
+  filters: {
+    currency(value) {
+      return value.toLocaleString();
+    },
   },
 };
 </script>
-
 
 <style lang="scss" scoped>
 .camera {
@@ -581,12 +592,17 @@ export default {
   height: 300px;
   width: 300px;
   margin: auto;
-  border: 5px solid black;
+  border: 5px solid white;
+  border-radius: 15px;
   padding: 5px;
+}
+.qrcode-stream-wrapper video {
+  border-radius: 15px;
 }
 
 #qr_placeholder img {
   width: 100%;
   padding: 15px;
+  background: rgba(255, 255, 255, 0.137);
 }
 </style>
