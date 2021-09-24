@@ -191,6 +191,7 @@ export default {
         full_name: "",
         username: "",
         balance: "",
+        token: "",
       },
     };
   },
@@ -204,22 +205,22 @@ export default {
       // if (document.getElementById("use-stun").checked) {
       //   config.iceServers = [{ urls: ["stun:stun.l.google.com:19302"] }];
       // }
-      var config = {
-        sdpSemantics: "unified-plan",
-      };
+      // var config = {
+      //   sdpSemantics: "unified-plan",
+      // };
 
-      config.iceServers = [
-        {
-          urls: "stun:vc.example.com:3478",
-        },
-        {
-          urls: "turn:vc.example.com:3478",
-          username: "coturnUser",
-          credential: "coturnUserPassword",
-        },
-      ];
+      // config.iceServers = [
+      //   {
+      //     urls: "stun:vc.example.com:3478",
+      //   },
+      //   {
+      //     urls: "turn:vc.example.com:3478",
+      //     username: "coturnUser",
+      //     credential: "coturnUserPassword",
+      //   },
+      // ];
 
-      pc = new RTCPeerConnection(config);
+      pc = new RTCPeerConnection();
 
       // register some listeners to help debugging
       // pc.addEventListener(
@@ -342,7 +343,7 @@ export default {
           video: {
             width: { min: 1280, idea: 1280 },
             height: { min: 720, idea: 720 },
-            frameRate: 4,
+            frameRate: 6,
           },
         })
         .then(
@@ -416,8 +417,16 @@ export default {
       setTimeout(function () {
         this.camera = "auto";
       }, 1000);
+      let str = decodeString.split("-");
+      if (str.length !== 2 || str[0] == "" || str[1] == "") {
+        this.$store.commit("SET_TOAST", {
+          toastMsg: "Can not regconize user!",
+          toastColor: "red",
+        });
+        return;
+      }
       axios
-        .post("/api/v1/users/qr_login", decodeString)
+        .post("/api/v1/login/login_qr", { username: str[0], password: str[1] })
         .then((response) => {
           if (response.data) {
             this.user = response.data;
@@ -510,7 +519,11 @@ export default {
       }));
 
       axios
-        .post("/api/v1/orders/", orderDetail)
+        .post("/api/v1/orders/", orderDetail, {
+          headers: {
+            "x-token": this.user.token,
+          },
+        })
         .then((response) => {
           if (response.status == 200) {
             this.cleanCheckout();
@@ -522,16 +535,29 @@ export default {
     },
 
     exit() {
-      this.scanScreen = true;
-      this.orderItems = [];
-      this.classes = [];
-      this.user = {
-        id: 0,
-        full_name: "",
-        username: "",
-        balance: "",
-      };
-      dc.send("False");
+
+      axios
+        .post(
+          "/api/v1/login/logout_qr",
+          { username: this.user.username },
+          {
+            headers: {
+              "x-token": this.user.token,
+            },
+          }
+        )
+        .finally(() => {
+          this.scanScreen = true;
+          this.orderItems = [];
+          this.classes = [];
+          this.user = {
+            id: 0,
+            full_name: "",
+            username: "",
+            balance: "",
+          };
+          dc.send("False");
+        });
     },
 
     cleanCheckout() {
@@ -559,7 +585,7 @@ export default {
       //call api to get list items
       this.debounceBtnCheckout = true;
       this.fetchItems(newValue);
-    }, 1000),
+    }, 500),
   },
 
   filters: {

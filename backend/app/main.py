@@ -34,10 +34,10 @@ def root():
 
 
 @app.on_event("startup")
-@repeat_every(seconds=60, wait_first=True)  # 1 hour
+@repeat_every(seconds=3600, wait_first=True)  # 1 hour
 def build_redis_cache() -> None:
     now = datetime.datetime.now()
-    if now.hour == 0 and now.minute == 0:
+    if now.hour == 0:
         redis = deps.redis_connect()
         if redis.ping() == False:
             return

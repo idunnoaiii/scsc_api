@@ -18,7 +18,7 @@ COLORS = [(0, 255, 0), (0, 0, 255), (255, 0, 0),
           (255, 255, 0), (255, 0, 255), (0, 255, 255)]
 
 weights = glob.glob("yolo/*.weights")[0]
-labels = glob.glob("yolo/*.txt")[0]
+# labels = glob.glob("yolo/*.txt")[0]
 cfg = glob.glob("yolo/*.cfg")[0]
 
 class_names = []
@@ -44,7 +44,6 @@ def yolov5(image):
         microsecond = datetime.datetime.now()
         start_time = time.time()
         classes, scores, boxes = model.detect(image, CONFIDENCE_THRESHOLD, NMS_THRESHOLD)
-        end_time = time.time()
         # print("DETECT TIME", end_time-start_time)
 
         ret_classes = []
@@ -64,6 +63,7 @@ def yolov5(image):
             cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
             cv2.putText(image, label[0], (box[0]+4, box[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
             cv2.putText(image, label[1], (box[0]+4, box[1] + 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+        end_time = time.time()
         fps_label = "FPS: %.2f" % (1 / (end_time - start_time))
         print(fps_label)
         # cv2.putText(image, "", (0, 25),

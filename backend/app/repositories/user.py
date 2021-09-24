@@ -75,6 +75,9 @@ class UserRepo(RepoBase[User, UserCreate, UserUpdate]):
         db_role = db.query(RoleModel).filter(RoleModel.id == user.role_id).first()
         return db_role.name == "admin"
 
+    def is_customer(self, db: Session, user: User) -> bool:
+        db_role = db.query(RoleModel).filter(RoleModel.id == user.role_id).first()
+        return db_role.name == "customer"
 
     def get_roles(self, db: Session):
         return db.query(RoleModel).all()

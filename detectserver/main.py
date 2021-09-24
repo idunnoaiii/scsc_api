@@ -4,6 +4,8 @@ import os
 import json
 from av import VideoFrame
 import redis
+from fastapi_utils.tasks import repeat_every
+from datetime import datetime
 
 #from imageai.Detection import VideoObjectDetection
 
@@ -61,7 +63,14 @@ class VideoTransformTrack(MediaStreamTrack):
         new_frame.pts = frame.pts
         new_frame.time_base = frame.time_base
         return new_frame
-    
+
+
+@app.get("/check")
+async def check():
+    for pc in pcs:
+        print(pc.connectionState)
+    return []
+
 
 @app.post("/offer_cv")
 async def offer(params: Offer):
@@ -69,7 +78,7 @@ async def offer(params: Offer):
     offer = RTCSessionDescription(sdp=params.sdp, type=params.type)
 
     pc = RTCPeerConnection()
-    
+
     print(pc)
     pcs.add(pc)
 
@@ -77,18 +86,17 @@ async def offer(params: Offer):
 
     ch = []
     status = [False]
-    
+
     @pc.on('datachannel')
     def on_datachannel(channel):
 
         ch.append(channel)
-        
+
         @channel.on('message')
         def on_message(message):
             status[0] = True if message == "True" else False
             # channel.send('pong')
 
-    
     @pc.on("connectionstatechange")
     async def on_connectionstatechange():
         print("Connection state is %s" % pc.connectionState)
@@ -96,14 +104,14 @@ async def offer(params: Offer):
             await pc.close()
             pcs.discard(pc)
 
-
     @pc.on("track")
     def on_track(track):
         if track.kind == "video":
             pc.addTrack(
-                VideoTransformTrack(relay.subscribe(track), channel=ch, status=status)
+                VideoTransformTrack(relay.subscribe(
+                    track), channel=ch, status=status)
             )
-        
+
         @track.on("ended")
         async def on_ended():
             pass
@@ -125,15 +133,14 @@ async def on_start():
     # redis_client = redis.Redis(host='redis-10572.c292.ap-southeast-1-1.ec2.cloud.redislabs.com', port=10572, db=0, password='U8TgyN1jfInisvHn1P3d7LEYaKqZM5cg')
     redis_client = redis.Redis(host='localhost', port=6379, db=0)
     if redis_client.ping() == True:
-        keys = [int(k) for k in redis_client.scan_iter()]
+        keys = [int(k) for k in redis_client.scan_iter() if k != b'users']
         keys.sort()
         vals = redis_client.execute_command('JSON.MGET', *keys, '.')
         items = [json.loads(val) for val in vals]
-        with open('yolo/classes.txt', 'w') as file:
+        with open('yolo/classes.txt', 'w+') as file:
             for item in items:
                 file.writelines(f"{item['name']}: {item['price']}\n")
             file.writelines("Strange object: NaN")
-
 
 
 @app.on_event("shutdown")
@@ -142,3 +149,20 @@ async def on_shutdown():
     coros = [pc.close() for pc in pcs]
     await asyncio.gather(*coros)
     pcs.clear()
+
+
+@app.on_event("startup")
+@repeat_every(seconds=3600, wait_first=True)
+async def sync_update_label():
+    now = datetime.now()
+    if now.hour == 0:
+        redis_client = redis.Redis(host='localhost', port=6379, db=0)
+        if redis_client.ping() == True:
+            keys = [int(k) for k in redis_client.scan_iter() if k != b'users']
+            keys.sort()
+            vals = redis_client.execute_command('JSON.MGET', *keys, '.')
+            items = [json.loads(val) for val in vals]
+            with open('yolo/classes.txt', 'w+') as file:
+                for item in items:
+                    file.writelines(f"{item['name']}: {item['price']}\n")
+                file.writelines("Strange object: NaN")
